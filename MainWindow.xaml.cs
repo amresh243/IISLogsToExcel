@@ -114,7 +114,7 @@ namespace IISLogToExcelConverter
         private static void ProcessSheetData(IXLWorksheet worksheet, string file)
         {
             int currentRow = 1;
-            var lines = File.ReadAllLines(file).Where(l => !l.StartsWith("#") || l.StartsWith("#Fields:")).ToList();
+            var lines = File.ReadAllLines(file).Where(l => !l.StartsWith('#') || l.StartsWith("#Fields:")).ToList();
             if (lines.Count == 0) return;
 
             if (lines[0].StartsWith("#Fields:"))
