@@ -7,6 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>app-icon.ico</ApplicationIcon>
+    <Authors>Amresh Kumar</Authors>
   </PropertyGroup>
 
   <ItemGroup>
