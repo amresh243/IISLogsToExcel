@@ -1,4 +1,6 @@
-﻿using ClosedXML.Excel;
+﻿// Author: Amresh Kumar
+
+using ClosedXML.Excel;
 using Microsoft.Win32;
 using System.IO;
 using System.Windows;
@@ -9,6 +11,7 @@ namespace IISLogToExcelConverter
     public partial class MainWindow : Window
     {
         private bool _isSingleBook = false;
+        private bool _createPivot = false;
         private string _folderName = "";
 
         public MainWindow()
@@ -16,24 +19,15 @@ namespace IISLogToExcelConverter
             InitializeComponent();
         }
 
-        /// <summary>
-        /// Checkbox handler
-        /// </summary>
-        /// <param name="sender">sender object</param>
-        /// <param name="e">event arg</param>
-        private void SingleWorkbook_Click(object sender, RoutedEventArgs e)
-        {
-            if (isSingleWorkBook.IsChecked == true)
-                _isSingleBook = true;
-            else
-                _isSingleBook = false;
-        }
+        /// <summary> Single workbook Checkbox click handler </summary>
+        private void SingleWorkbook_Click(object sender, RoutedEventArgs e) =>
+            _isSingleBook = (isSingleWorkBook.IsChecked == true);
 
-        /// <summary>
-        /// Select folder button handler
-        /// </summary>
-        /// <param name="sender">sender object</param>
-        /// <param name="e">event arg</param>
+        /// <summary> Create pivot Checkbox click handler </summary>
+        private void PivotTable_Click(object sender, RoutedEventArgs e) =>
+            _createPivot = (createPivotTable.IsChecked == true);
+
+        /// <summary> Select folder button click handler </summary>
         private void SelectFolderButton_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new OpenFolderDialog();
@@ -44,11 +38,15 @@ namespace IISLogToExcelConverter
             }
         }
 
-        /// <summary>
-        /// Process log button handler
-        /// </summary>
-        /// <param name="sender">sender object</param>
-        /// <param name="e">event arg</param>
+        private void ChangeControlState(bool isEnabled)
+        {
+            selectFolderButton.IsEnabled = isEnabled;
+            processButton.IsEnabled = isEnabled;
+            isSingleWorkBook.IsEnabled = isEnabled;
+            createPivotTable.IsEnabled = isEnabled;
+        }
+
+        /// <summary> Process log button handler </summary>
         private async void ProcessButton_Click(object sender, RoutedEventArgs e)
         {
             string folderPath = folderPathTextBox.Text;
@@ -58,9 +56,7 @@ namespace IISLogToExcelConverter
                 return;
             }
 
-            selectFolderButton.IsEnabled = false;
-            processButton.IsEnabled = false;
-            isSingleWorkBook.IsEnabled = false;
+            ChangeControlState(false);
             statusText.Text = "Processing...";
 
             try
@@ -75,18 +71,14 @@ namespace IISLogToExcelConverter
                 Dispatcher.Invoke(() =>
                 {
                     statusText.Text = "Error! Something went wrong.";
-                    selectFolderButton.IsEnabled = true;
-                    processButton.IsEnabled = true;
-                    isSingleWorkBook.IsEnabled = true;
+                    ChangeControlState(true);
                 });
             }
 
             Dispatcher.Invoke(() =>
                 {
                     statusText.Text = "Processing complete.";
-                    selectFolderButton.IsEnabled = true;
-                    processButton.IsEnabled = true;
-                    isSingleWorkBook.IsEnabled = true;
+                    ChangeControlState(true);
                 });
         }
 
@@ -100,10 +92,14 @@ namespace IISLogToExcelConverter
             if (workbook == null)
                 return;
 
-            if (File.Exists(xlsFile))
-                File.Delete(xlsFile);
+            try
+            {
+                if (File.Exists(xlsFile))
+                    File.Delete(xlsFile);
 
-            workbook.SaveAs(xlsFile);
+                workbook.SaveAs(xlsFile);
+            }
+            catch { /* We don't want anything if delete and save fails. */ }
         }
 
         /// <summary>
@@ -111,10 +107,10 @@ namespace IISLogToExcelConverter
         /// </summary>
         /// <param name="worksheet">Worksheet object, excel sheet object</param>
         /// <param name="file">Source log file</param>
-        private static void ProcessSheetData(IXLWorksheet worksheet, string file)
+        private static void SetupLogData(IXLWorksheet worksheet, string file)
         {
             int currentRow = 1;
-            var lines = File.ReadAllLines(file).Where(l => !l.StartsWith("#") || l.StartsWith("#Fields:")).ToList();
+            var lines = File.ReadAllLines(file).Where(l => !l.StartsWith('#') || l.StartsWith("#Fields:")).ToList();
             if (lines.Count == 0) return;
 
             if (lines[0].StartsWith("#Fields:"))
@@ -150,14 +146,38 @@ namespace IISLogToExcelConverter
                 
                 for (int i = 3; i < valuesLength; i++)
                     worksheet.Cell(currentRow, i + 1).Value = values[i - 1];
-                
-                worksheet.Cell(currentRow, headers.Count).Value = values[valuesLength - 1];
+
+                int.TryParse(values[valuesLength - 1], out int timeTaken);
+                worksheet.Cell(currentRow, headers.Count).Value = timeTaken;
                 currentRow++;
             }
 
             // Unfortunately excel has static row count of 1048576
             worksheet.Rows(currentRow, 1048576).Hide();
             worksheet.SetAutoFilter();
+        }
+
+        /// <summary>
+        /// Logic to process pivot sheet. Setups pivot with hour as filter, time as row label, 
+        /// cs-uri-stem as value with count and time-taken as value with average.
+        /// </summary>
+        /// <param name="workbook">Workbook object, excel workbook object</param>
+        /// <param name="worksheet">Worksheet object, excel sheet object</param>
+        /// <param name="sheetName">sheet against which pivot to be created</param>
+        private static void SetupPivotData(XLWorkbook workbook, IXLWorksheet worksheet, string sheetName)
+        {
+            var dataRange = worksheet.RangeUsed();
+            var pivotSheet = workbook.Worksheets.Add($"Pivot_{sheetName}");
+            var pt = pivotSheet.PivotTables.Add("PivotTable", pivotSheet.Cell(1, 1), dataRange);
+            pt.RowLabels.Add("time");
+            pt.ReportFilters.Add("hour");
+            pt.Values.Add("cs-uri-stem", "cs-uri-stem[count]").SetSummaryFormula(XLPivotSummary.Count);
+            pt.Values.Add("time-taken", "time-taken[avg]").SetSummaryFormula(XLPivotSummary.Average);
+            pt.Values.Last().NumberFormat.Format = "0";
+            pivotSheet.Cell(3, 1).SetValue("time");
+            pivotSheet.Column(2).Width = 16;
+            pivotSheet.Column(3).Width = 13;
+            pivotSheet.SheetView.Freeze(3, 0);
         }
 
         /// <summary>
@@ -174,7 +194,11 @@ namespace IISLogToExcelConverter
                 var sheetName = (!_isSingleBook) ? "IIS Logs" : file;
                 var worksheet = workbook.Worksheets.Add(sheetName);
 
-                ProcessSheetData(worksheet, file);
+                SetupLogData(worksheet, file);
+
+                if (_createPivot)
+                    SetupPivotData(workbook, worksheet, sheetName);
+
                 SaveExcelFile(workbook, Path.Combine(folderPath, $"{file}.xlsx"));
             }
         }
@@ -216,7 +240,10 @@ namespace IISLogToExcelConverter
                 
                 var worksheet = workbook.Worksheets.Add(sheetName);
 
-                ProcessSheetData(worksheet, file);
+                SetupLogData(worksheet, file);
+
+                if (_createPivot)
+                    SetupPivotData(workbook, worksheet, sheetName);
             }
 
             SaveExcelFile(workbook, Path.Combine(folderPath, $"{_folderName}.xlsx"));

@@ -4,26 +4,26 @@
  Title="IIS Log to Excel Converter" Height="182" Width="500" ResizeMode="NoResize">
 
     <DockPanel>
-
         <StatusBar DockPanel.Dock="Bottom" Name="statusBar">
-
             <TextBlock Name="statusText" Text="Ready" />
-
         </StatusBar>
 
         <StackPanel Margin="10">
-
             <Button Name="selectFolderButton" Content="Select Folder" Click="SelectFolderButton_Click" Width="120" Margin="0,0,0,10"/>
-
             <TextBox Name="folderPathTextBox" IsReadOnly="True" Margin="0,0,0,10"/>
-
             <Button Name="processButton" Content="Process Logs" Click="ProcessButton_Click" Width="120"/>
-
             <Rectangle Height="10" Fill="Transparent" />
-            
-            <CheckBox x:Name="isSingleWorkBook" Content="Create a single workbook" IsChecked="False" Click="SingleWorkbook_Click" />
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <CheckBox x:Name="isSingleWorkBook" Content="Create a Single Workbook" IsChecked="False" Click="SingleWorkbook_Click" />
+                <CheckBox x:Name="createPivotTable" Content="Create Pivot Table for each Sheet" IsChecked="False" Click="PivotTable_Click" 
+                          HorizontalAlignment="Right" />
+            </Grid>
 
         </StackPanel>
-
     </DockPanel>
 </Window>
