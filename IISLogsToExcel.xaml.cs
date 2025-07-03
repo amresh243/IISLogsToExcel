@@ -2,21 +2,85 @@
 
 using ClosedXML.Excel;
 using Microsoft.Win32;
+using System.Data;
 using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 
 namespace IISLogToExcelConverter
 {
-    public partial class MainWindow : Window
+    public partial class IISLogExporter : Window
     {
         private bool _isSingleBook = false;
         private bool _createPivot = false;
-        private string _folderName = "";
+        private string _folderName = string.Empty;
 
-        public MainWindow()
+        public IISLogExporter()
         {
             InitializeComponent();
+        }
+
+        #region Control State Modifiers
+        /// <summary> Changes the state of controls based on the isEnabled parameter. </summary>
+        /// <param name="isEnabled"> true=enalbe/false=disable </param>
+        private void ChangeControlState(bool isEnabled)
+        {
+            selectFolderButton.IsEnabled = isEnabled;
+            processButton.IsEnabled = isEnabled;
+            isSingleWorkBook.IsEnabled = isEnabled;
+            createPivotTable.IsEnabled = isEnabled;
+        }
+
+        /// <summary> Updates status bar with the given message. </summary>
+        /// <param name="message"> Message to be displayed </param>
+        private void UpdateStatus(string message)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                statusText.Text = message;
+            });
+        }
+
+        #endregion Control State Modifiers
+
+
+        #region Event Handlers
+
+        /// <summary> DragOver event handler, only allows folder to be dropped. </summary>
+        private void FolderPath_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var paths = (string[])e.Data.GetData(DataFormats.FileDrop);
+                // Only allow if the first item is a directory
+                if (paths.Length > 0 && Directory.Exists(paths[0]) && GetLogFiles(paths[0]).Any())
+                    e.Effects = DragDropEffects.Copy;
+                else
+                    e.Effects = DragDropEffects.None;
+            }
+            else
+                e.Effects = DragDropEffects.None;
+
+            e.Handled = true;
+        }
+
+        /// <summary>
+        /// Drop event handler, sets the folder path with the dropped folder path.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FolderPath_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var paths = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (paths.Length > 0 && Directory.Exists(paths[0]))
+                {
+                    string folderPath = paths[0];
+                    folderPathTextBox.Text = folderPath;
+                    _folderName = _folderName = folderPath.Split('\\', StringSplitOptions.None).Last();
+                }
+            }
         }
 
         /// <summary> Single workbook Checkbox click handler </summary>
@@ -38,21 +102,13 @@ namespace IISLogToExcelConverter
             }
         }
 
-        private void ChangeControlState(bool isEnabled)
-        {
-            selectFolderButton.IsEnabled = isEnabled;
-            processButton.IsEnabled = isEnabled;
-            isSingleWorkBook.IsEnabled = isEnabled;
-            createPivotTable.IsEnabled = isEnabled;
-        }
-
         /// <summary> Process log button handler </summary>
         private async void ProcessButton_Click(object sender, RoutedEventArgs e)
         {
             string folderPath = folderPathTextBox.Text;
             if (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath))
             {
-                MessageBox.Show("Please select a valid folder.");
+                MessageBox.Show(this, "Please select a valid folder.", "Invalid Input");
                 return;
             }
 
@@ -66,13 +122,9 @@ namespace IISLogToExcelConverter
                 else
                     await Task.Run(() => CreateSingleFile(folderPath));
             }
-            catch
+            catch (Exception ex)
             {
-                Dispatcher.Invoke(() =>
-                {
-                    statusText.Text = "Error! Something went wrong.";
-                    ChangeControlState(true);
-                });
+                MessageBox.Show(this, $"Error occurred! Message: {ex.Message}", "Application Error");
             }
 
             Dispatcher.Invoke(() =>
@@ -82,12 +134,17 @@ namespace IISLogToExcelConverter
                 });
         }
 
+        #endregion Event Handlers
+
+
+        #region Utility Methods
+
         /// <summary>
         /// Saves workbook object into excel file
         /// </summary>
         /// <param name="workbook">Workbook object, excel file object</param>
         /// <param name="xlsFile">Excel file name to be saved</param>
-        private static void SaveExcelFile(XLWorkbook workbook, string xlsFile)
+        private void SaveExcelFile(XLWorkbook workbook, string xlsFile)
         {
             if (workbook == null)
                 return;
@@ -99,8 +156,44 @@ namespace IISLogToExcelConverter
 
                 workbook.SaveAs(xlsFile);
             }
-            catch { /* We don't want anything if delete and save fails. */ }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, $"Error occurred! Message: {ex.Message}", "Application Error");
+            }
         }
+
+        /// <summary> Returns all log files under the given folder path. </summary>
+        /// <param name="folderPath">Log folder path.</param>
+        /// <returns>Array of list file paths.</returns>
+        private static string[] GetLogFiles(string folderPath)
+        {
+            if (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath))
+                return Array.Empty<string>();
+
+            return Directory.GetFiles(folderPath, "*.log", SearchOption.AllDirectories);
+        }
+
+        /// <summary>
+        /// Returns sheet name from file name
+        /// </summary>
+        /// <param name="file">file with path</param>
+        /// <returns>sheet name</returns>
+        private static string GetSheetName(string file)
+        {
+            var sheetName = file.Split('\\').LastOrDefault()?
+                                .Split('-').LastOrDefault()?
+                                .Split('.').FirstOrDefault();
+
+            if (string.IsNullOrEmpty(sheetName))
+                return file;
+
+            return sheetName;
+        }
+
+        #endregion Utility Methods
+
+
+        #region Excel Data Processing Methods
 
         /// <summary>
         /// Logic to process excel sheet
@@ -114,7 +207,7 @@ namespace IISLogToExcelConverter
             if (lines.Count == 0) return;
 
             if (lines[0].StartsWith("#Fields:"))
-                lines[0] = lines[0].Replace("#Fields:", "").Trim();
+                lines[0] = lines[0].Replace("#Fields:", string.Empty).Trim();
 
             var headers = lines[0].Split(' ').ToList();
             if (!headers.Contains("date") || !headers.Contains("time")) return;
@@ -123,13 +216,11 @@ namespace IISLogToExcelConverter
             if (currentRow == 1)
             {
                 headers.Insert(2, "hour");
-
                 for (int i = 0; i < headers.Count; i++)
                     worksheet.Cell(currentRow, i + 1).Value = headers[i];
 
                 worksheet.SheetView.Freeze(currentRow, 0);
-                var headerRow = worksheet.Row(currentRow);
-                headerRow.Style.Font.Bold = true;
+                worksheet.Row(currentRow).Style.Font.Bold = true;
                 currentRow++;
             }
 
@@ -138,17 +229,20 @@ namespace IISLogToExcelConverter
             {
                 var values = line.Split(' ');
                 int valuesLength = values.Length;
-                
+
                 worksheet.Cell(currentRow, 1).Value = values[0];
                 worksheet.Cell(currentRow, 2).Value = values[1];
-                
                 worksheet.Cell(currentRow, 3).FormulaA1 = $"=TEXT(B{currentRow}, \"hh:mm\")";
-                
-                for (int i = 3; i < valuesLength; i++)
-                    worksheet.Cell(currentRow, i + 1).Value = values[i - 1];
 
-                int.TryParse(values[valuesLength - 1], out int timeTaken);
-                worksheet.Cell(currentRow, headers.Count).Value = timeTaken;
+                var specialIndices = new HashSet<int> { 7, 12, 13, 14, 15 };
+                for (int i = 3; i <= valuesLength; i++)
+                {
+                    var cell = worksheet.Cell(currentRow, i + 1);
+                    var value = values[i - 1];
+
+                    cell.Value = specialIndices.Contains(i) ? int.Parse(value) : value;
+                }
+
                 currentRow++;
             }
 
@@ -180,44 +274,36 @@ namespace IISLogToExcelConverter
             pivotSheet.SheetView.Freeze(3, 0);
         }
 
+        #endregion Excel Data Processing Methods
+
+
+        #region Thread Methods
+
         /// <summary>
         /// Creates seperate excel file for each file under folder
         /// </summary>
         /// <param name="folderPath">Root folder path</param>
         private void CreateSeperateFiles(string folderPath)
         {
-            var logFiles = Directory.GetFiles(folderPath, "*.log", SearchOption.AllDirectories);
+            var logFiles = GetLogFiles(folderPath);
 
             foreach (var file in logFiles)
             {
+                UpdateStatus($"Processing data for file {file.Split('\\').LastOrDefault() ?? string.Empty}...");
                 var workbook = new XLWorkbook();
                 var sheetName = (!_isSingleBook) ? "IIS Logs" : file;
                 var worksheet = workbook.Worksheets.Add(sheetName);
 
+                // Creating log sheet
                 SetupLogData(worksheet, file);
 
+                // Creating pivot sheet, if option enabled
                 if (_createPivot)
                     SetupPivotData(workbook, worksheet, sheetName);
 
+                // Saving excel file
                 SaveExcelFile(workbook, Path.Combine(folderPath, $"{file}.xlsx"));
             }
-        }
-
-        /// <summary>
-        /// Returns sheet name from file name
-        /// </summary>
-        /// <param name="file">file with path</param>
-        /// <returns>sheet name</returns>
-        private static string GetSheetName(string file)
-        {
-            var sheetName = file.Split('\\').LastOrDefault()?
-                                .Split('-').LastOrDefault()?
-                                .Split('.').FirstOrDefault();
-
-            if(string.IsNullOrEmpty(sheetName))
-                return file;
-
-            return sheetName;
         }
 
         /// <summary>
@@ -227,17 +313,18 @@ namespace IISLogToExcelConverter
         private void CreateSingleFile(string folderPath)
         {
             var sheetCount = 0;
-            var logFiles = Directory.GetFiles(folderPath, "*.log", SearchOption.AllDirectories);
+            var logFiles = GetLogFiles(folderPath);
             var workbook = new XLWorkbook();
 
             foreach (var file in logFiles)
             {
+                UpdateStatus($"Processing data for file {file.Split('\\').LastOrDefault() ?? string.Empty}...");
                 sheetCount++;
                 var sheetName = GetSheetName(file);
                 var sheetNames = workbook.Worksheets.Select(ws => ws.Name).ToList();
                 if (sheetNames.Contains(sheetName))
                     sheetName += $"-{sheetCount}";
-                
+
                 var worksheet = workbook.Worksheets.Add(sheetName);
 
                 SetupLogData(worksheet, file);
@@ -248,5 +335,7 @@ namespace IISLogToExcelConverter
 
             SaveExcelFile(workbook, Path.Combine(folderPath, $"{_folderName}.xlsx"));
         }
+
+        #endregion Thread Methods
     }
 }
