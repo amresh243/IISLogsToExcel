@@ -4,7 +4,6 @@ using ClosedXML.Excel;
 using Microsoft.Win32;
 using System.Data;
 using System.IO;
-using System.Text;
 using System.Windows;
 using System.Windows.Threading;
 
