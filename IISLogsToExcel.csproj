@@ -8,6 +8,7 @@
     <UseWPF>true</UseWPF>
     <ApplicationIcon>app-icon.ico</ApplicationIcon>
     <Authors>Amresh Kumar</Authors>
+    <SignAssembly>True</SignAssembly>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,5 +18,13 @@
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="&quot;C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool.exe&quot; sign /a /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 &quot;$(ProjectDir)bin\$(ConfigurationName)\net8.0-windows\IISLogsToExcel.exe&quot;" />
+  </Target>
 
 </Project>
