@@ -29,7 +29,6 @@
                 <CheckBox x:Name="createPivotTable" Content="Create Pivot Table for each Sheet" IsChecked="False" Click="PivotTable_Click" 
                           HorizontalAlignment="Right" ToolTip="Check to create RPS pivot table with hour in filter."/>
             </Grid>
-
         </StackPanel>
     </DockPanel>
 </Window>
