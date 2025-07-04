@@ -11,6 +11,7 @@ namespace IISLogToExcelConverter
 {
     public partial class IISLogExporter : Window
     {
+        private const int MaxSheetRows = 1048576;
         private bool _isSingleBook = false;
         private bool _createPivot = false;
         private string _folderName = string.Empty;
@@ -248,11 +249,13 @@ namespace IISLogToExcelConverter
             var headers = lines[0].Split(' ').Select(x => RemoveInvalidXmlChars(x).ToLowerInvariant()).ToList();
             if (!headers.Contains("date") || !headers.Contains("time")) return;
 
+            var columnCount = headers.Count;
+
             // Setup headers and first row
             if (currentRow == 1)
             {
                 headers.Insert(2, "hour");
-                for (int i = 0; i < headers.Count; i++)
+                for (int i = 0; i < columnCount; i++)
                     worksheet.Cell(currentRow, i + 1).Value = headers[i];
 
                 worksheet.SheetView.Freeze(currentRow, 0);
@@ -285,7 +288,7 @@ namespace IISLogToExcelConverter
             }
 
             // Unfortunately excel has static row count of 1048576
-            worksheet.Rows(currentRow, 1048576).Hide();
+            worksheet.Rows(currentRow, MaxSheetRows).Hide();
             worksheet.SetAutoFilter();
         }
 
