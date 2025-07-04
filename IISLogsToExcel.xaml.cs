@@ -22,6 +22,7 @@ namespace IISLogToExcelConverter
         }
 
         #region Control State Modifiers
+
         /// <summary> Changes the state of controls based on the isEnabled parameter. </summary>
         /// <param name="isEnabled"> true=enalbe/false=disable </param>
         private void ChangeControlState(bool isEnabled)
@@ -54,10 +55,9 @@ namespace IISLogToExcelConverter
             {
                 var paths = (string[])e.Data.GetData(DataFormats.FileDrop);
                 // Only allow if the first item is a directory
-                if (paths.Length > 0 && Directory.Exists(paths[0]) && GetLogFiles(paths[0]).Length != 0)
-                    e.Effects = DragDropEffects.Copy;
-                else
-                    e.Effects = DragDropEffects.None;
+                e.Effects = (paths.Length > 0 && Directory.Exists(paths[0]) && GetLogFiles(paths[0]).Length != 0)
+                    ? DragDropEffects.Copy
+                    : DragDropEffects.None;
             }
             else
                 e.Effects = DragDropEffects.None;
@@ -129,10 +129,10 @@ namespace IISLogToExcelConverter
             }
 
             Dispatcher.Invoke(() =>
-                {
-                    statusText.Text = "Processing complete.";
-                    ChangeControlState(true);
-                });
+            {
+                statusText.Text = "Processing complete.";
+                ChangeControlState(true);
+            });
         }
 
         #endregion Event Handlers
@@ -216,7 +216,8 @@ namespace IISLogToExcelConverter
         /// <returns>Cleaned text</returns>
         public static string RemoveInvalidXmlChars(string text)
         {
-            if (string.IsNullOrEmpty(text)) return text;
+            if (string.IsNullOrEmpty(text))
+                return text;
 
             return new string([.. text.Where(ch =>
                 (ch == 0x9 || ch == 0xA || ch == 0xD ||
@@ -241,13 +242,15 @@ namespace IISLogToExcelConverter
         {
             int currentRow = 1;
             var lines = File.ReadAllLines(file).Where(l => !l.StartsWith('#') || l.StartsWith("#Fields:")).ToList();
-            if (lines.Count == 0) return;
+            if (lines.Count == 0)
+                return;
 
             if (lines[0].StartsWith("#Fields:"))
                 lines[0] = lines[0].Replace("#Fields:", string.Empty).Trim();
 
             var headers = lines[0].Split(' ').Select(x => RemoveInvalidXmlChars(x).ToLowerInvariant()).ToList();
-            if (!headers.Contains("date") || !headers.Contains("time")) return;
+            if (!headers.Contains("date") || !headers.Contains("time"))
+                return;
 
             var columnCount = headers.Count;
 
@@ -327,7 +330,6 @@ namespace IISLogToExcelConverter
         private void CreateSeperateFiles(string folderPath)
         {
             var logFiles = GetLogFiles(folderPath);
-
             foreach (var file in logFiles)
             {
                 UpdateStatus($"Processing data for file {file.Split('\\').LastOrDefault() ?? string.Empty}...");
