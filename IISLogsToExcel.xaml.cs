@@ -1,9 +1,11 @@
 ﻿// Author: Amresh Kumar
 
 using ClosedXML.Excel;
+using IISLogsToExcel;
 using Microsoft.Win32;
 using System.Data;
 using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -227,6 +229,13 @@ namespace IISLogToExcelConverter
                 )]);
         }
 
+        private static void UpdatePreviousCells(IXLWorksheet worksheet, int currentRow, int columnIndex, string value)
+        {
+            var wronglyUpdatedCell = worksheet.Cell(currentRow, columnIndex - 1);
+            var prevCell = worksheet.Cell(currentRow, columnIndex);
+            wronglyUpdatedCell.Value = $"{wronglyUpdatedCell.Value} {prevCell.Value}";
+            prevCell.Value = value;
+        }
 
         #endregion Utility Methods
 
@@ -241,7 +250,7 @@ namespace IISLogToExcelConverter
         private static void SetupLogData(IXLWorksheet worksheet, string file)
         {
             int currentRow = 1;
-            var lines = File.ReadAllLines(file).Where(l => !l.StartsWith('#') || l.StartsWith("#Fields:")).ToList();
+            var lines = File.ReadAllLines(file, Encoding.UTF8).Where(l => !l.StartsWith('#') || l.StartsWith("#Fields:")).ToList();
             if (lines.Count == 0)
                 return;
 
@@ -265,24 +274,33 @@ namespace IISLogToExcelConverter
             }
 
             var specialIndices = GetNumberColumnIndexes(headers);
-            bool hasSpcialIndices = specialIndices.Count != 0;
 
             // Process each line of the log file and fill the worksheet
             foreach (var line in lines.Skip(1))
             {
                 var values = line.Split(' ').Select(x => RemoveInvalidXmlChars(x)).ToArray();
-                int valuesLength = values.Length;
 
                 worksheet.Cell(currentRow, 1).Value = values[0];
                 worksheet.Cell(currentRow, 2).Value = values[1];
                 worksheet.Cell(currentRow, 3).FormulaA1 = $"=TEXT(B{currentRow}, \"hh:mm\")";
 
-                for (int i = 3; i <= valuesLength; i++)
+                for (int i = 3; i <= values.Length; i++)
                 {
                     var cell = worksheet.Cell(currentRow, i + 1);
                     var value = values[i - 1];
+                    var isNumericCell = specialIndices.Contains(i);
 
-                    cell.Value = hasSpcialIndices && specialIndices.Contains(i) ? int.Parse(value) : value;
+                    // In rare cases spacially with special chars in urls, url contains space.
+                    // This will cause incorrect update of later cells, so we need to handle it.
+                    if (isNumericCell && !value.IsNumeric())
+                    {
+                        UpdatePreviousCells(worksheet, currentRow, i, value);
+                        values = values.Where(x => x != value).ToArray();
+                        i--;
+                        continue;
+                    }
+
+                    cell.Value = isNumericCell ? value.GetValidNumber() : value;
                 }
 
                 currentRow++;
