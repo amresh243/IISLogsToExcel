@@ -252,13 +252,11 @@ namespace IISLogToExcelConverter
             if (!headers.Contains("date") || !headers.Contains("time"))
                 return;
 
-            var columnCount = headers.Count;
-
             // Setup headers and first row
             if (currentRow == 1)
             {
                 headers.Insert(2, "hour");
-                for (int i = 0; i < columnCount; i++)
+                for (int i = 0; i < headers.Count; i++)
                     worksheet.Cell(currentRow, i + 1).Value = headers[i];
 
                 worksheet.SheetView.Freeze(currentRow, 0);
