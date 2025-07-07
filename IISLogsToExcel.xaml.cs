@@ -1,9 +1,11 @@
 ﻿// Author: Amresh Kumar
 
 using ClosedXML.Excel;
+using IISLogsToExcel;
 using Microsoft.Win32;
 using System.Data;
 using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -11,6 +13,7 @@ namespace IISLogToExcelConverter
 {
     public partial class IISLogExporter : Window
     {
+        private const int MaxSheetRows = 1048576;
         private bool _isSingleBook = false;
         private bool _createPivot = false;
         private string _folderName = string.Empty;
@@ -21,6 +24,7 @@ namespace IISLogToExcelConverter
         }
 
         #region Control State Modifiers
+
         /// <summary> Changes the state of controls based on the isEnabled parameter. </summary>
         /// <param name="isEnabled"> true=enalbe/false=disable </param>
         private void ChangeControlState(bool isEnabled)
@@ -53,10 +57,9 @@ namespace IISLogToExcelConverter
             {
                 var paths = (string[])e.Data.GetData(DataFormats.FileDrop);
                 // Only allow if the first item is a directory
-                if (paths.Length > 0 && Directory.Exists(paths[0]) && GetLogFiles(paths[0]).Any())
-                    e.Effects = DragDropEffects.Copy;
-                else
-                    e.Effects = DragDropEffects.None;
+                e.Effects = (paths.Length > 0 && Directory.Exists(paths[0]) && GetLogFiles(paths[0]).Length != 0)
+                    ? DragDropEffects.Copy
+                    : DragDropEffects.None;
             }
             else
                 e.Effects = DragDropEffects.None;
@@ -128,10 +131,10 @@ namespace IISLogToExcelConverter
             }
 
             Dispatcher.Invoke(() =>
-                {
-                    statusText.Text = "Processing complete.";
-                    ChangeControlState(true);
-                });
+            {
+                statusText.Text = "Processing complete.";
+                ChangeControlState(true);
+            });
         }
 
         #endregion Event Handlers
@@ -155,10 +158,14 @@ namespace IISLogToExcelConverter
                     File.Delete(xlsFile);
 
                 workbook.SaveAs(xlsFile);
+                workbook.Dispose();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, $"Error occurred! Message: {ex.Message}", "Application Error");
+                Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show(this, $"Error occurred! Message: {ex.Message}", "Application Error");
+                });
             }
         }
 
@@ -168,7 +175,7 @@ namespace IISLogToExcelConverter
         private static string[] GetLogFiles(string folderPath)
         {
             if (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath))
-                return Array.Empty<string>();
+                return [];
 
             return Directory.GetFiles(folderPath, "*.log", SearchOption.AllDirectories);
         }
@@ -190,6 +197,46 @@ namespace IISLogToExcelConverter
             return sheetName;
         }
 
+        /// <summary> Returns a set of indexes for columns that contain numeric values. </summary>
+        /// <param name="headers">list of headers</param>
+        /// <returns>index list</returns>
+        private static HashSet<int> GetNumberColumnIndexes(List<string> headers)
+        {
+            try
+            {
+                string[] numberColumnHeader = { "s-port", "sc-status", "sc-substatus", "sc-win32-status", "sc-bytes", "cs-bytes", "time-taken" };
+                return [.. numberColumnHeader.Select(header => Array.IndexOf([.. headers], header))];
+            }
+            catch
+            {
+                return [];
+            }
+        }
+
+        /// <summary> Removes invalid XML characters from the given text. </summary>
+        /// <param name="text">Input text</param>
+        /// <returns>Cleaned text</returns>
+        public static string RemoveInvalidXmlChars(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return text;
+
+            return new string([.. text.Where(ch =>
+                (ch == 0x9 || ch == 0xA || ch == 0xD ||
+                (ch >= 0x20 && ch <= 0xD7FF) ||
+                (ch >= 0xE000 && ch <= 0xFFFD) ||
+                (ch >= 0x10000 && ch <= 0x10FFFF))
+                )]);
+        }
+
+        private static void UpdatePreviousCells(IXLWorksheet worksheet, int currentRow, int columnIndex, string value)
+        {
+            var wronglyUpdatedCell = worksheet.Cell(currentRow, columnIndex - 1);
+            var prevCell = worksheet.Cell(currentRow, columnIndex);
+            wronglyUpdatedCell.Value = $"{wronglyUpdatedCell.Value} {prevCell.Value}";
+            prevCell.Value = value;
+        }
+
         #endregion Utility Methods
 
 
@@ -203,14 +250,16 @@ namespace IISLogToExcelConverter
         private static void SetupLogData(IXLWorksheet worksheet, string file)
         {
             int currentRow = 1;
-            var lines = File.ReadAllLines(file).Where(l => !l.StartsWith('#') || l.StartsWith("#Fields:")).ToList();
-            if (lines.Count == 0) return;
+            var lines = File.ReadAllLines(file, Encoding.UTF8).Where(l => !l.StartsWith('#') || l.StartsWith("#Fields:")).ToList();
+            if (lines.Count == 0)
+                return;
 
             if (lines[0].StartsWith("#Fields:"))
                 lines[0] = lines[0].Replace("#Fields:", string.Empty).Trim();
 
-            var headers = lines[0].Split(' ').ToList();
-            if (!headers.Contains("date") || !headers.Contains("time")) return;
+            var headers = lines[0].Split(' ').Select(x => RemoveInvalidXmlChars(x).ToLowerInvariant()).ToList();
+            if (!headers.Contains("date") || !headers.Contains("time"))
+                return;
 
             // Setup headers and first row
             if (currentRow == 1)
@@ -224,30 +273,41 @@ namespace IISLogToExcelConverter
                 currentRow++;
             }
 
+            var specialIndices = GetNumberColumnIndexes(headers);
+
             // Process each line of the log file and fill the worksheet
             foreach (var line in lines.Skip(1))
             {
-                var values = line.Split(' ');
-                int valuesLength = values.Length;
+                var values = line.Split(' ').Select(x => RemoveInvalidXmlChars(x)).ToArray();
 
                 worksheet.Cell(currentRow, 1).Value = values[0];
                 worksheet.Cell(currentRow, 2).Value = values[1];
                 worksheet.Cell(currentRow, 3).FormulaA1 = $"=TEXT(B{currentRow}, \"hh:mm\")";
 
-                var specialIndices = new HashSet<int> { 7, 12, 13, 14, 15 };
-                for (int i = 3; i <= valuesLength; i++)
+                for (int i = 3; i <= values.Length; i++)
                 {
                     var cell = worksheet.Cell(currentRow, i + 1);
                     var value = values[i - 1];
+                    var isNumericCell = specialIndices.Contains(i);
 
-                    cell.Value = specialIndices.Contains(i) ? int.Parse(value) : value;
+                    // In rare cases spacially with special chars in urls, url contains space.
+                    // This will cause incorrect update of later cells, so we need to handle it.
+                    if (isNumericCell && !value.IsNumeric())
+                    {
+                        UpdatePreviousCells(worksheet, currentRow, i, value);
+                        values = values.Where(x => x != value).ToArray();
+                        i--;
+                        continue;
+                    }
+
+                    cell.Value = isNumericCell ? value.GetValidNumber() : value;
                 }
 
                 currentRow++;
             }
 
             // Unfortunately excel has static row count of 1048576
-            worksheet.Rows(currentRow, 1048576).Hide();
+            worksheet.Rows(currentRow, MaxSheetRows).Hide();
             worksheet.SetAutoFilter();
         }
 
@@ -286,7 +346,6 @@ namespace IISLogToExcelConverter
         private void CreateSeperateFiles(string folderPath)
         {
             var logFiles = GetLogFiles(folderPath);
-
             foreach (var file in logFiles)
             {
                 UpdateStatus($"Processing data for file {file.Split('\\').LastOrDefault() ?? string.Empty}...");
