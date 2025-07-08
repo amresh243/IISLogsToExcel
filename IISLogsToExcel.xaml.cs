@@ -315,8 +315,8 @@ namespace IISLogToExcelConverter
             catch
             {
                 MessageBox.Show($"An error occurred at line {currentRow} while processing log file {file}." +
-                    $"\n\nExported IIS log sheet and respective pivot sheet may have corrupt data.", 
-                    "Log Export Error!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    $"\n\nExported IIS log sheet and respective pivot sheet may have incomplete and corrupt data.", 
+                    "Log Export Error!", MessageBoxButton.OK, MessageBoxImage.Warning);
                 worksheet.Rows(currentRow, MaxSheetRows).Hide();
                 worksheet.SetAutoFilter();
             }
