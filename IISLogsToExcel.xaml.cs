@@ -250,65 +250,76 @@ namespace IISLogToExcelConverter
         private static void SetupLogData(IXLWorksheet worksheet, string file)
         {
             int currentRow = 1;
-            var lines = File.ReadAllLines(file, Encoding.UTF8).Where(l => !l.StartsWith('#') || l.StartsWith("#Fields:")).ToList();
-            if (lines.Count == 0)
-                return;
-
-            if (lines[0].StartsWith("#Fields:"))
-                lines[0] = lines[0].Replace("#Fields:", string.Empty).Trim();
-
-            var headers = lines[0].Split(' ').Select(x => RemoveInvalidXmlChars(x).ToLowerInvariant()).ToList();
-            if (!headers.Contains("date") || !headers.Contains("time"))
-                return;
-
-            // Setup headers and first row
-            if (currentRow == 1)
+            try
             {
-                headers.Insert(2, "hour");
-                for (int i = 0; i < headers.Count; i++)
-                    worksheet.Cell(currentRow, i + 1).Value = headers[i];
+                var lines = File.ReadAllLines(file, Encoding.UTF8).Where(l => !l.StartsWith('#') || l.StartsWith("#Fields:")).ToList();
+                if (lines.Count == 0)
+                    return;
 
-                worksheet.SheetView.Freeze(currentRow, 0);
-                worksheet.Row(currentRow).Style.Font.Bold = true;
-                currentRow++;
-            }
+                if (lines[0].StartsWith("#Fields:"))
+                    lines[0] = lines[0].Replace("#Fields:", string.Empty).Trim();
 
-            var specialIndices = GetNumberColumnIndexes(headers);
+                var headers = lines[0].Split(' ').Select(x => RemoveInvalidXmlChars(x).ToLowerInvariant()).ToList();
+                if (!headers.Contains("date") || !headers.Contains("time"))
+                    return;
 
-            // Process each line of the log file and fill the worksheet
-            foreach (var line in lines.Skip(1))
-            {
-                var values = line.Split(' ').Select(x => RemoveInvalidXmlChars(x)).ToArray();
-
-                worksheet.Cell(currentRow, 1).Value = values[0];
-                worksheet.Cell(currentRow, 2).Value = values[1];
-                worksheet.Cell(currentRow, 3).FormulaA1 = $"=TEXT(B{currentRow}, \"hh:mm\")";
-
-                for (int i = 3; i <= values.Length; i++)
+                // Setup headers and first row
+                if (currentRow == 1)
                 {
-                    var cell = worksheet.Cell(currentRow, i + 1);
-                    var value = values[i - 1];
-                    var isNumericCell = specialIndices.Contains(i);
+                    headers.Insert(2, "hour");
+                    for (int i = 0; i < headers.Count; i++)
+                        worksheet.Cell(currentRow, i + 1).Value = headers[i];
 
-                    // In rare cases spacially with special chars in urls, url contains space.
-                    // This will cause incorrect update of later cells, so we need to handle it.
-                    if (isNumericCell && !value.IsNumeric())
-                    {
-                        UpdatePreviousCells(worksheet, currentRow, i, value);
-                        values = values.Where(x => x != value).ToArray();
-                        i--;
-                        continue;
-                    }
-
-                    cell.Value = isNumericCell ? value.GetValidNumber() : value;
+                    worksheet.SheetView.Freeze(currentRow, 0);
+                    worksheet.Row(currentRow).Style.Font.Bold = true;
+                    currentRow++;
                 }
 
-                currentRow++;
-            }
+                var specialIndices = GetNumberColumnIndexes(headers);
 
-            // Unfortunately excel has static row count of 1048576
-            worksheet.Rows(currentRow, MaxSheetRows).Hide();
-            worksheet.SetAutoFilter();
+                // Process each line of the log file and fill the worksheet
+                foreach (var line in lines.Skip(1))
+                {
+                    var values = line.Split(' ').Select(x => RemoveInvalidXmlChars(x)).ToArray();
+
+                    worksheet.Cell(currentRow, 1).Value = values[0];
+                    worksheet.Cell(currentRow, 2).Value = values[1];
+                    worksheet.Cell(currentRow, 3).FormulaA1 = $"=TEXT(B{currentRow}, \"hh:mm\")";
+
+                    for (int i = 3; i <= values.Length; i++)
+                    {
+                        var cell = worksheet.Cell(currentRow, i + 1);
+                        var value = values[i - 1];
+                        var isNumericCell = specialIndices.Contains(i);
+
+                        // In rare cases spacially with special chars in urls, url contains space.
+                        // This will cause incorrect update of later cells, so we need to handle it.
+                        if (isNumericCell && !value.IsNumeric())
+                        {
+                            UpdatePreviousCells(worksheet, currentRow, i, value);
+                            values = values.Where(x => x != value).ToArray();
+                            i--;
+                            continue;
+                        }
+
+                        cell.Value = isNumericCell ? value.GetValidNumber() : value;
+                    }
+
+                    currentRow++;
+                }
+
+                // Unfortunately excel has static row count of 1048576
+                worksheet.Rows(currentRow, MaxSheetRows).Hide();
+                worksheet.SetAutoFilter();
+            }
+            catch
+            {
+                MessageBox.Show($"An error occurred at line {currentRow} while processing log file {file}." +
+                    $"\n\nExported IIS log sheet and respective pivot sheet may have corrupt data.", 
+                    "Log Export Error!", MessageBoxButton.OK, MessageBoxImage.Error);
+                worksheet.Rows(currentRow, MaxSheetRows).Hide();
+                worksheet.SetAutoFilter();
+            }
         }
 
         /// <summary>
