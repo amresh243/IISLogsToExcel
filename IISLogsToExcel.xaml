@@ -21,13 +21,23 @@
 
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <CheckBox x:Name="isSingleWorkBook" Content="Create a Single Workbook" IsChecked="False" Click="SingleWorkbook_Click" 
-                          ToolTip="Check to create single workbook with sheet against each log file conent."/>
-                <CheckBox x:Name="createPivotTable" Content="Create Pivot Table for each Sheet" IsChecked="False" Click="PivotTable_Click" 
-                          HorizontalAlignment="Right" ToolTip="Check to create RPS pivot table with hour in filter."/>
+
+                <StackPanel Grid.Column="0">
+                    <CheckBox x:Name="isSingleWorkBook" Content="Create Single Workbook" IsChecked="False" Click="SingleWorkbook_Click" 
+                              ToolTip="Check to create single workbook with sheet against each log file conent." />
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <CheckBox x:Name="deleteSourceFiles" Content="Delete Source Logs" IsChecked="False" Click="DeleteSources_Click" 
+                              ToolTip="Check to delete source logs after processing." HorizontalAlignment="Right" />
+                </StackPanel>
+                <StackPanel Grid.Column="3">
+                    <CheckBox x:Name="createPivotTable" Content="Create Pivot Table" IsChecked="False" Click="PivotTable_Click" 
+                              ToolTip="Check to create RPS pivot table with hour in filter." HorizontalAlignment="Right" />
+                </StackPanel>
             </Grid>
         </StackPanel>
     </DockPanel>
