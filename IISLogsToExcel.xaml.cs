@@ -19,6 +19,8 @@ namespace IISLogToExcelConverter
         private bool _deleteSources = false;
         private string _folderName = string.Empty;
         private string _folderPath = string.Empty;
+        private long _totalSize = 0;
+        private long _processedSize = 0;
 
         public IISLogExporter(string folderPath = "")
         {
@@ -30,15 +32,18 @@ namespace IISLogToExcelConverter
 
         #region Control State Modifiers
 
-        /// <summary> Changes the state of controls based on the isEnabled parameter. </summary>
-        /// <param name="isEnabled"> true=enalbe/false=disable </param>
-        private void ChangeControlState(bool isEnabled)
+        /// <summary> Changes the state of controls based on the enable parameter. </summary>
+        /// <param name="enable"> true=enalbe/false=disable </param>
+        private void ChangeControlState(bool enable)
         {
-            selectFolderButton.IsEnabled = isEnabled;
-            processButton.IsEnabled = isEnabled;
-            isSingleWorkBook.IsEnabled = isEnabled;
-            createPivotTable.IsEnabled = isEnabled;
-            deleteSourceFiles.IsEnabled = isEnabled;
+            selectFolderButton.IsEnabled = enable;
+            processButton.IsEnabled = enable;
+            isSingleWorkBook.IsEnabled = enable;
+            createPivotTable.IsEnabled = enable;
+            deleteSourceFiles.IsEnabled = enable;
+
+            if(enable)
+                _totalSize = _processedSize = 0;
         }
 
         /// <summary> Updates status bar with the given message. </summary>
@@ -48,6 +53,17 @@ namespace IISLogToExcelConverter
             Dispatcher.Invoke(() =>
             {
                 statusText.Text = message;
+            });
+        }
+
+        /// <summary> Updates progress status on the progress bar. </summary>
+        private void UpdateProgress()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                var progressValue = (_processedSize * 100) / _totalSize;
+                progressBar.Value = progressValue;
+                progressText.Text = $"{progressValue}%";
             });
         }
 
@@ -153,6 +169,9 @@ namespace IISLogToExcelConverter
         /// <param name="folderPath">Source folder location.</param>
         private void InitVariables(string folderPath)
         {
+            progressBar.Maximum = 100;
+            progressBar.Value = 0;
+            _totalSize = _processedSize = 0;
             _folderPath = folderPath;
             folderPathTextBox.Text = _folderPath;
             _folderName = _folderPath.Split('\\', StringSplitOptions.None).Last();
@@ -228,17 +247,24 @@ namespace IISLogToExcelConverter
         /// <summary> Returns sheet name from file name. </summary>
         /// <param name="file">file with path</param>
         /// <returns>sheet name</returns>
-        private static string GetSheetName(string file)
+        private static string GetSheetName(string file, bool isFile = false)
         {
-            var sheetName = file.Split('\\').LastOrDefault()?
-                                .Split('-').LastOrDefault()?
-                                .Split('.').FirstOrDefault();
+            if (string.IsNullOrEmpty(file))
+                return file;
 
+            if(isFile)
+            {
+                var fileName = file.Split('\\').LastOrDefault()?.Split('-').LastOrDefault() ?? "";
+                var fileNameLength = fileName.Length;
+
+                return (fileNameLength > 10) ? fileName[(fileNameLength - 10)..] : fileName;
+            }
+
+            var sheetName = file.Split('\\').LastOrDefault()?.Split('-').LastOrDefault()?.Split('.').FirstOrDefault();
             if (string.IsNullOrEmpty(sheetName))
                 return file;
 
             var sheetNameLength = sheetName.Length;
-
             return (sheetNameLength > 6) ? sheetName[(sheetNameLength - 6)..] : sheetName;
         }
 
@@ -290,7 +316,7 @@ namespace IISLogToExcelConverter
         /// <summary> Logic to process excel sheet. </summary>
         /// <param name="worksheet">Worksheet object, excel sheet object</param>
         /// <param name="file">Source log file</param>
-        private static void SetupLogData(IXLWorksheet worksheet, string file)
+        private void SetupLogData(IXLWorksheet worksheet, string file)
         {
             int currentRow = 1;
             try
@@ -309,12 +335,14 @@ namespace IISLogToExcelConverter
                 // Setup headers and first row
                 if (currentRow == 1)
                 {
+                    _processedSize += Encoding.UTF8.GetByteCount(lines[0]);
                     headers.Insert(2, "hour");
                     for (int i = 0; i < headers.Count; i++)
                         worksheet.Cell(currentRow, i + 1).Value = headers[i];
 
                     worksheet.SheetView.Freeze(currentRow, 0);
                     worksheet.Row(currentRow).Style.Font.Bold = true;
+                    UpdateProgress();
                     currentRow++;
                 }
 
@@ -348,10 +376,13 @@ namespace IISLogToExcelConverter
                         cell.Value = isNumericCell ? value.GetValidNumber() : value;
                     }
 
+                    _processedSize += Encoding.UTF8.GetByteCount(line);
+                    UpdateProgress();
                     currentRow++;
                 }
 
                 // Unfortunately excel has static row count of 1048576
+                UpdateStatus($"Creating IIS log sheet - {worksheet.Name}...");
                 worksheet.Rows(currentRow, MaxSheetRows).Hide();
                 worksheet.SetAutoFilter();
             }
@@ -372,8 +403,9 @@ namespace IISLogToExcelConverter
         /// <param name="workbook">Workbook object, excel workbook object</param>
         /// <param name="worksheet">Worksheet object, excel sheet object</param>
         /// <param name="sheetName">sheet against which pivot to be created</param>
-        private static void SetupPivotData(XLWorkbook workbook, IXLWorksheet worksheet, string sheetName)
+        private void SetupPivotData(XLWorkbook workbook, IXLWorksheet worksheet, string sheetName)
         {
+            UpdateStatus($"Creating pivot table for sheet - {sheetName}...");
             var dataRange = worksheet.RangeUsed();
             var pivotSheet = workbook.Worksheets.Add($"Pivot_{sheetName}");
             var pt = pivotSheet.PivotTables.Add("PivotTable", pivotSheet.Cell(1, 1), dataRange);
@@ -397,11 +429,15 @@ namespace IISLogToExcelConverter
         private void CreateSeperateFiles()
         {
             var logFiles = GetLogFiles(_folderPath);
+
+            _totalSize = logFiles.Sum(file => new FileInfo(file).Length);
+            _processedSize = 0;
+
             foreach (var file in logFiles)
             {
-                UpdateStatus($"Processing data for file {file.Split('\\').LastOrDefault() ?? string.Empty}...");
+                UpdateStatus($"Processing data for file ??{GetSheetName(file, true)}...");
                 var workbook = new XLWorkbook();
-                var sheetName = (!_isSingleBook) ? "IIS Logs" : file;
+                var sheetName = (!_isSingleBook) ? "IIS_Logs" : file;
                 var worksheet = workbook.Worksheets.Add(sheetName);
 
                 // Creating log sheet
@@ -411,25 +447,34 @@ namespace IISLogToExcelConverter
                 if (_createPivot)
                     SetupPivotData(workbook, worksheet, sheetName);
 
-                // Saving excel file
-                bool isSuccess = SaveExcelFile(workbook, Path.Combine(_folderPath, $"{GetSheetName(file)}.xlsx"));
+                // Saving the workbook seperate excel files
+                var excelFile = $"{GetSheetName(file)}.xlsx";
+                UpdateStatus($"Exporting data to excel file - {excelFile}...");
+                bool isSuccess = SaveExcelFile(workbook, Path.Combine(_folderPath, excelFile));
 
                 // Deleting source file, if option enabled and save was successful
                 if (_deleteSources && isSuccess)
                     DeleteLogFiles(file);
             }
+
+            _processedSize = _totalSize;
+            UpdateProgress();
         }
 
         /// <summary> Creates single excel file with sheets as multiple files under folder. </summary>
         private void CreateSingleFile()
         {
             var sheetCount = 0;
-            var logFiles = GetLogFiles(_folderPath);
             var workbook = new XLWorkbook();
+            var logFiles = GetLogFiles(_folderPath);
+
+            _totalSize = logFiles.Sum(file => new FileInfo(file).Length);
+            _processedSize = 0;
 
             foreach (var file in logFiles)
             {
-                UpdateStatus($"Processing data for file {file.Split('\\').LastOrDefault() ?? string.Empty}...");
+                UpdateStatus($"Processing data for file ??{GetSheetName(file, true)}...");
+
                 sheetCount++;
                 var sheetName = GetSheetName(file);
                 var sheetNames = workbook.Worksheets.Select(ws => ws.Name).ToList();
@@ -438,17 +483,25 @@ namespace IISLogToExcelConverter
 
                 var worksheet = workbook.Worksheets.Add(sheetName);
 
+                // Creating log sheet
                 SetupLogData(worksheet, file);
 
+                // Creating pivot sheet, if option enabled
                 if (_createPivot)
                     SetupPivotData(workbook, worksheet, sheetName);
             }
 
-            bool isSucess = SaveExcelFile(workbook, Path.Combine(_folderPath, $"{_folderName}.xlsx"));
+            // Saving the workbook to a single excel file
+            var excelFile = $"{_folderName}.xlsx";
+            UpdateStatus($"Exporting data to excel file - {excelFile}...");
+            bool isSucess = SaveExcelFile(workbook, Path.Combine(_folderPath, excelFile));
 
             // Deleting all source files, if option enabled and save was successful
             if (_deleteSources && isSucess)
                 DeleteLogFiles(string.Empty, true);
+
+            _processedSize = _totalSize;
+            UpdateProgress();
         }
 
         #endregion Thread Methods
