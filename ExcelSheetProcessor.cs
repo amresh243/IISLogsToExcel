@@ -1,20 +1,17 @@
-﻿using ClosedXML.Excel;
-using IISLogToExcelConverter;
+﻿// Author: Amresh Kumar (July 2025)
+
+using ClosedXML.Excel;
 using System.IO;
 using System.Text;
 using System.Windows;
 
-namespace IISLogsToExcel
+namespace IISLogToExcel
 {
-    public class ExcelSheetProcessor
+    internal class ExcelSheetProcessor(IISLogExporter handler)
     {
         private const int MaxSheetRows = 1048576;
-        private readonly IISLogExporter _handler;
+        private readonly IISLogExporter _handler = handler;
 
-        public ExcelSheetProcessor(IISLogExporter handler)
-        { 
-            _handler = handler;
-        }
 
         #region Utility Methods
 

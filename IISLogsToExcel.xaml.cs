@@ -1,7 +1,6 @@
-﻿// Author: Amresh Kumar
+﻿// Author: Amresh Kumar (July 2025)
 
 using ClosedXML.Excel;
-using IISLogsToExcel;
 using Microsoft.Win32;
 using System.Data;
 using System.Diagnostics;
@@ -9,7 +8,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 
-namespace IISLogToExcelConverter
+namespace IISLogToExcel
 {
     public partial class IISLogExporter : Window
     {
@@ -32,6 +31,7 @@ namespace IISLogToExcelConverter
                 InitVariables(folderPath);
         }
 
+
         #region Control State Modifiers
 
         /// <summary> Changes the state of controls based on the enable parameter. </summary>
@@ -44,7 +44,7 @@ namespace IISLogToExcelConverter
             createPivotTable.IsEnabled = enable;
             deleteSourceFiles.IsEnabled = enable;
 
-            if(enable)
+            if (enable)
                 _totalSize = _processedSize = 0;
         }
 
@@ -61,9 +61,9 @@ namespace IISLogToExcelConverter
         /// <summary> Updates progress status on the progress bar. </summary>
         public void UpdateProgress(long progressedSize, bool addProgress = true)
         {
-            if(addProgress)
+            if (addProgress)
                 _processedSize += progressedSize;
-            
+
             Dispatcher.Invoke(() =>
             {
                 var progressValue = (_processedSize * 100) / _totalSize;
@@ -146,7 +146,7 @@ namespace IISLogToExcelConverter
                 return;
             }
 
-            if(!GetLogFiles(_folderPath).Any())
+            if (!GetLogFiles(_folderPath).Any())
             {
                 MessageBox.Show(this, "No log files found in the selected folder.", "No Logs Found!");
                 return;
@@ -226,7 +226,7 @@ namespace IISLogToExcelConverter
         {
             try
             {
-                if(allFiles)
+                if (allFiles)
                 {
                     var files = GetLogFiles(_folderPath);
                     foreach (var logFile in files)
@@ -266,7 +266,7 @@ namespace IISLogToExcelConverter
             if (string.IsNullOrEmpty(file))
                 return file;
 
-            if(isFile)
+            if (isFile)
             {
                 var fileName = file.Split('\\').LastOrDefault()?.Split('-').LastOrDefault() ?? "";
                 var fileNameLength = fileName.Length;

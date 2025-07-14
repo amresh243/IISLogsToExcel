@@ -1,4 +1,6 @@
-﻿namespace IISLogsToExcel
+﻿// Author: Amresh Kumar (July 2025)
+
+namespace IISLogToExcel
 {
     public static class Extensons
     {
