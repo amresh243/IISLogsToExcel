@@ -33,7 +33,8 @@
                 <Button Name="selectFolderButton" Content="Select Folder" Click="SelectFolderButton_Click" Width="120" Margin="0,0,0,10"
                     ToolTip="Click to select log folder." Style="{DynamicResource RoundedButton}" Background="{StaticResource ControlEnabled}"
                     Height="22" FontSize="13"/>
-                <TextBox Name="folderPathTextBox" IsReadOnly="True" Margin="0,0,0,10" ToolTip="Selected log folder location."/>
+                <TextBox Name="folderPathTextBox" IsReadOnly="True" Margin="0,0,0,10" MouseDoubleClick="FolderPathTextBox_DblClick"
+                         ToolTip="Selected log folder location, double click to select/open location."/>
                 <Button Name="processButton" Content="Process Logs" Click="ProcessButton_Click" Width="120" ToolTip="Click to process logs."
                         Height="22" Style="{DynamicResource RoundedButton}" Background="LimeGreen" FontWeight="Bold" 
                         FontSize="13"/>

@@ -4,6 +4,7 @@ using ClosedXML.Excel;
 using IISLogsToExcel;
 using Microsoft.Win32;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Windows;
@@ -113,6 +114,15 @@ namespace IISLogToExcelConverter
         /// <summary> Delete source files Checkbox click handler </summary>
         private void DeleteSources_Click(object sender, RoutedEventArgs e) =>
             _deleteSources = (deleteSourceFiles.IsChecked == true);
+
+        /// <summary> Opens folder selector dialog if no selection else opens selected folder in explorer. </summary>
+        private void FolderPathTextBox_DblClick(object sender, RoutedEventArgs e)
+        {
+            if (!Directory.Exists(_folderPath))
+                SelectFolderButton_Click(sender, e);
+            else
+                Process.Start("explorer.exe", _folderPath);
+        }
 
         /// <summary> Select folder button click handler </summary>
         private void SelectFolderButton_Click(object sender, RoutedEventArgs e)
