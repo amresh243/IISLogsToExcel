@@ -4,6 +4,7 @@ using ClosedXML.Excel;
 using System.IO;
 using System.Text;
 using System.Windows;
+using System.Windows.Media;
 
 namespace IISLogsToExcel
 {
@@ -47,6 +48,30 @@ namespace IISLogsToExcel
             }
         }
 
+        /// <summary> Returns sheet name from file name. </summary>
+        /// <param name="file">file with path</param>
+        /// <returns>sheet name</returns>
+        public static string GetSheetName(string file, bool isFile = false)
+        {
+            if (string.IsNullOrEmpty(file))
+                return file;
+
+            if (isFile)
+            {
+                var fileName = file.Split('\\').LastOrDefault()?.Split('-').LastOrDefault() ?? "";
+                var fileNameLength = fileName.Length;
+
+                return (fileNameLength > 10) ? fileName[(fileNameLength - 10)..] : fileName;
+            }
+
+            var sheetName = file.Split('\\').LastOrDefault()?.Split('-').LastOrDefault()?.Split('.').FirstOrDefault();
+            if (string.IsNullOrEmpty(sheetName))
+                return file;
+
+            var sheetNameLength = sheetName.Length;
+            return (sheetNameLength > 6) ? sheetName[(sheetNameLength - 6)..] : sheetName;
+        }
+
         /// <summary> Updates previous cells in the row when a cell is wrongly updated. </summary>
         /// <param name="worksheet">Current worksheet</param>
         /// <param name="currentRow">Current row</param>
@@ -75,14 +100,20 @@ namespace IISLogsToExcel
             {
                 var lines = File.ReadAllLines(file, Encoding.UTF8).Where(l => !l.StartsWith('#') || l.StartsWith("#Fields:")).ToList();
                 if (lines.Count == 0)
+                {
+                    _handler.UpdateList(file, Brushes.Tomato);
                     return;
+                }
 
                 if (lines[0].StartsWith("#Fields:"))
                     lines[0] = lines[0].Replace("#Fields:", string.Empty).Trim();
 
                 var headers = lines[0].Split(' ').Select(x => RemoveInvalidXmlChars(x).ToLowerInvariant()).ToList();
                 if (!headers.Contains("date") || !headers.Contains("time"))
+                {
+                    _handler.UpdateList(file, Brushes.Tomato);
                     return;
+                }
 
                 // Setup headers and first row
                 if (currentRow == 1)
@@ -143,6 +174,7 @@ namespace IISLogsToExcel
                     "Log Export Error!", MessageBoxButton.OK, MessageBoxImage.Warning);
                 worksheet.Rows(currentRow, MaxSheetRows).Hide();
                 worksheet.SetAutoFilter();
+                _handler.UpdateList(file, Brushes.Tomato);
             }
         }
 
@@ -153,21 +185,30 @@ namespace IISLogsToExcel
         /// <param name="workbook">Workbook object, excel workbook object</param>
         /// <param name="worksheet">Worksheet object, excel sheet object</param>
         /// <param name="sheetName">sheet against which pivot to be created</param>
-        public void SetupPivotData(XLWorkbook workbook, IXLWorksheet worksheet, string sheetName)
+        public void SetupPivotData(XLWorkbook workbook, IXLWorksheet worksheet, string sheetName, string file)
         {
-            _handler.UpdateStatus($"Creating pivot table for sheet - {sheetName}...");
-            var dataRange = worksheet.RangeUsed();
-            var pivotSheet = workbook.Worksheets.Add($"Pivot_{sheetName}");
-            var pt = pivotSheet.PivotTables.Add("PivotTable", pivotSheet.Cell(1, 1), dataRange);
-            pt.RowLabels.Add("time");
-            pt.ReportFilters.Add("hour");
-            pt.Values.Add("cs-uri-stem", "cs-uri-stem[count]").SetSummaryFormula(XLPivotSummary.Count);
-            pt.Values.Add("time-taken", "time-taken[avg]").SetSummaryFormula(XLPivotSummary.Average);
-            pt.Values.Last().NumberFormat.Format = "0";
-            pivotSheet.Cell(3, 1).SetValue("time");
-            pivotSheet.Column(2).Width = 16;
-            pivotSheet.Column(3).Width = 13;
-            pivotSheet.SheetView.Freeze(3, 0);
+            try
+            {
+                _handler.UpdateStatus($"Creating pivot table for sheet - {sheetName}...");
+                var dataRange = worksheet.RangeUsed();
+                var pivotSheet = workbook.Worksheets.Add($"Pivot_{sheetName}");
+                var pt = pivotSheet.PivotTables.Add("PivotTable", pivotSheet.Cell(1, 1), dataRange);
+                pt.RowLabels.Add("time");
+                pt.ReportFilters.Add("hour");
+                pt.Values.Add("cs-uri-stem", "cs-uri-stem[count]").SetSummaryFormula(XLPivotSummary.Count);
+                pt.Values.Add("time-taken", "time-taken[avg]").SetSummaryFormula(XLPivotSummary.Average);
+                pt.Values.Last().NumberFormat.Format = "0";
+                pivotSheet.Cell(3, 1).SetValue("time");
+                pivotSheet.Column(2).Width = 16;
+                pivotSheet.Column(3).Width = 13;
+                pivotSheet.SheetView.Freeze(3, 0);
+            }
+            catch
+            {
+                MessageBox.Show($"An error occurred while processing pivot data for sheet {sheetName}.",
+                    "Pivot Error!", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _handler.UpdateList(file, Brushes.Tomato);
+            }
         }
 
         #endregion Excel Data Processing Methods

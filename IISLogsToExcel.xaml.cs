@@ -6,6 +6,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace IISLogsToExcel
@@ -21,6 +22,7 @@ namespace IISLogsToExcel
         private string _folderPath = string.Empty;
         private long _totalSize = 0;
         private long _processedSize = 0;
+        private List<LogFiles> _logFiles = [];
 
         public IISLogExporter(string folderPath = "")
         {
@@ -28,7 +30,7 @@ namespace IISLogsToExcel
 
             _processor = new ExcelSheetProcessor(this);
             if (!string.IsNullOrEmpty(folderPath))
-                InitVariables(folderPath);
+                InitializeVariables(folderPath);
         }
 
 
@@ -103,7 +105,7 @@ namespace IISLogsToExcel
             {
                 var paths = (string[])e.Data.GetData(DataFormats.FileDrop);
                 if (paths.Length > 0 && Directory.Exists(paths[0]))
-                    InitVariables(paths[0]);
+                    InitializeVariables(paths[0]);
             }
         }
 
@@ -133,28 +135,29 @@ namespace IISLogsToExcel
         {
             var dialog = new OpenFolderDialog();
             if (dialog.ShowDialog() == true)
-                InitVariables(dialog.FolderName);
+                InitializeVariables(dialog.FolderName);
         }
 
         /// <summary> Process log button handler </summary>
         private async void ProcessButton_Click(object sender, RoutedEventArgs e)
         {
-            _folderPath = folderPathTextBox.Text;
             if (string.IsNullOrWhiteSpace(_folderPath) || !Directory.Exists(_folderPath))
             {
                 MessageBox.Show(this, "Please select a valid folder.", "Invalid Input!");
                 return;
             }
 
-            if (!GetLogFiles(_folderPath).Any())
+            var logFiles = GetLogFiles(_folderPath);
+            if (logFiles.Length == 0)
             {
                 MessageBox.Show(this, "No log file found in the selected folder.", "No Log Found!");
                 return;
             }
 
             ChangeControlState(false);
+            InitializeList(logFiles);
             statusText.Text = "Processing...";
-
+            
             try
             {
                 if (!_isSingleBook)
@@ -181,7 +184,7 @@ namespace IISLogsToExcel
 
         /// <summary> Initializes variables with the given folder path. </summary>
         /// <param name="folderPath">Source folder location.</param>
-        private void InitVariables(string folderPath)
+        private void InitializeVariables(string folderPath)
         {
             progressBar.Maximum = 100;
             progressBar.Value = 0;
@@ -189,8 +192,42 @@ namespace IISLogsToExcel
             _folderPath = folderPath;
             folderPathTextBox.Text = _folderPath;
             _folderName = _folderPath.Split('\\', StringSplitOptions.None).Last();
-            var logFileCount = GetLogFiles(_folderPath).Length;
+            var logFiles = GetLogFiles(_folderPath);
+            var logFileCount = logFiles.Length;
+            InitializeList(logFiles);
             UpdateStatus($"Found {logFileCount} log file{(logFileCount > 1 ? "s" : string.Empty)} in the folder '{_folderName}'.");
+        }
+
+        /// <summary> Initiates list with log files found in the selected folder. </summary>
+        /// <param name="logFiles">list of log files</param>
+        private void InitializeList(string[] logFiles)
+        {
+            _logFiles.Clear();
+            lbLogFiles.Items.Clear();
+            int id = 1;
+            foreach (var file in logFiles)
+            {
+                var fileName = ExcelSheetProcessor.GetSheetName(file, true);
+                var listItem = new LogFiles { Name = file, ID = id++.ToString(), Color = Brushes.Black };
+                _logFiles.Add(listItem);
+                lbLogFiles.Items.Add(listItem);
+            }
+        }
+
+        /// <summary> Updates the list item color for the given file. </summary>
+        /// <param name="file">file name, to find list item</param>
+        /// <param name="color">forecolor to be set</param>
+        public void UpdateList(string file, Brush color)
+        {
+            var item = _logFiles.FirstOrDefault(x => x.Name == file);
+            if (item != null)
+            {
+                item.Color = color;
+                Dispatcher.Invoke(() =>
+                {
+                    lbLogFiles.Items.Refresh();
+                });
+            }
         }
 
         /// <summary> Saves workbook object into excel file. </summary>
@@ -232,13 +269,17 @@ namespace IISLogsToExcel
                 {
                     var files = GetLogFiles(_folderPath);
                     foreach (var logFile in files)
-                    {
                         if (File.Exists(logFile))
+                        {
                             File.Delete(logFile);
-                    }
+                            UpdateList(logFile, Brushes.LightGray);
+                        }
                 }
                 else if (File.Exists(file))
+                {
                     File.Delete(file);
+                    UpdateList(file, Brushes.LightGray);
+                }
             }
             catch (Exception ex)
             {
@@ -260,30 +301,6 @@ namespace IISLogsToExcel
             return Directory.GetFiles(folderPath, "*.log", SearchOption.AllDirectories);
         }
 
-        /// <summary> Returns sheet name from file name. </summary>
-        /// <param name="file">file with path</param>
-        /// <returns>sheet name</returns>
-        private static string GetSheetName(string file, bool isFile = false)
-        {
-            if (string.IsNullOrEmpty(file))
-                return file;
-
-            if (isFile)
-            {
-                var fileName = file.Split('\\').LastOrDefault()?.Split('-').LastOrDefault() ?? "";
-                var fileNameLength = fileName.Length;
-
-                return (fileNameLength > 10) ? fileName[(fileNameLength - 10)..] : fileName;
-            }
-
-            var sheetName = file.Split('\\').LastOrDefault()?.Split('-').LastOrDefault()?.Split('.').FirstOrDefault();
-            if (string.IsNullOrEmpty(sheetName))
-                return file;
-
-            var sheetNameLength = sheetName.Length;
-            return (sheetNameLength > 6) ? sheetName[(sheetNameLength - 6)..] : sheetName;
-        }
-
         #endregion Utility Methods
 
 
@@ -299,7 +316,9 @@ namespace IISLogsToExcel
 
             foreach (var file in logFiles)
             {
-                UpdateStatus($"Processing data for file ??{GetSheetName(file, true)}...");
+                UpdateStatus($"Processing data for file ??{ExcelSheetProcessor.GetSheetName(file, true)}...");
+                UpdateList(file, Brushes.LimeGreen);
+                
                 var workbook = new XLWorkbook();
                 var sheetName = (!_isSingleBook) ? "IIS_Logs" : file;
                 var worksheet = workbook.Worksheets.Add(sheetName);
@@ -309,10 +328,10 @@ namespace IISLogsToExcel
 
                 // Creating pivot sheet, if option enabled
                 if (_createPivot)
-                    _processor.SetupPivotData(workbook, worksheet, sheetName);
+                    _processor.SetupPivotData(workbook, worksheet, sheetName, file);
 
                 // Saving the workbook seperate excel files
-                var excelFile = $"{GetSheetName(file)}.xlsx";
+                var excelFile = $"{ExcelSheetProcessor.GetSheetName(file)}.xlsx";
                 UpdateStatus($"Exporting data to excel file - {excelFile}...");
                 bool isSuccess = SaveExcelFile(workbook, Path.Combine(_folderPath, excelFile));
 
@@ -337,10 +356,11 @@ namespace IISLogsToExcel
 
             foreach (var file in logFiles)
             {
-                UpdateStatus($"Processing data for file ??{GetSheetName(file, true)}...");
+                UpdateStatus($"Processing data for file ??{ExcelSheetProcessor.GetSheetName(file, true)}...");
+                UpdateList(file, Brushes.LimeGreen);
 
                 sheetCount++;
-                var sheetName = GetSheetName(file);
+                var sheetName = ExcelSheetProcessor.GetSheetName(file);
                 var sheetNames = workbook.Worksheets.Select(ws => ws.Name).ToList();
                 if (sheetNames.Contains(sheetName))
                     sheetName += $"-{sheetCount}";
@@ -352,7 +372,7 @@ namespace IISLogsToExcel
 
                 // Creating pivot sheet, if option enabled
                 if (_createPivot)
-                    _processor.SetupPivotData(workbook, worksheet, sheetName);
+                    _processor.SetupPivotData(workbook, worksheet, sheetName, file);
             }
 
             // Saving the workbook to a single excel file
