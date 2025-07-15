@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿// Author: Amresh Kumar (July 2025)
+
+using System.IO;
 using System.Windows;
 
 #pragma warning disable CS8618
 
-namespace IISLogToExcelConverter
+namespace IISLogsToExcel
 {
     public partial class App : Application
     {
@@ -18,7 +20,7 @@ namespace IISLogToExcelConverter
             if (!isNewInstance)
             {
                 // Another instance is already running
-                MessageBox.Show("One instance of application IISLogsToExcel.exe is already running.", "IIS Logs to Excel Converter", 
+                MessageBox.Show("One instance of application IISLogsToExcel.exe is already running.", "IIS Logs to Excel Converter",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 Shutdown();
                 return;

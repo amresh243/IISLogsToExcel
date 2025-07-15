@@ -1,7 +1,7 @@
-﻿<Window x:Class="IISLogToExcelConverter.IISLogExporter"
+﻿<Window x:Class="IISLogsToExcel.IISLogExporter"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
- Title="IIS Log to Excel Converter" Height="215" Width="540" ResizeMode="NoResize"
+ Title="IIS Log to Excel Converter" Height="218" Width="540" ResizeMode="NoResize"
  AllowDrop="True"
  DragOver="FolderPath_DragOver"
  Drop="FolderPath_Drop"
@@ -25,6 +25,7 @@
                              Style="{StaticResource ProgressBarStyle}" ToolTip="Progress meter."/>
                 <TextBlock Name="progressText" Text="0%" TextAlignment="Center" FontWeight="Bold"/>
             </Grid>
+            
             <StatusBar DockPanel.Dock="Bottom" Name="statusBar" Background="{StaticResource ControlEnabled}">
                 <TextBlock Name="statusText" Text="Ready" ToolTip="Displays progress messages." />
             </StatusBar>
@@ -46,7 +47,6 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-
                     <StackPanel Grid.Column="0">
                         <CheckBox x:Name="isSingleWorkBook" Content="Create Single Workbook" IsChecked="False" Click="SingleWorkbook_Click" 
                                   ToolTip="Check to create single workbook with sheet against each log file conent." 
