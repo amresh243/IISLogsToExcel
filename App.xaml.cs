@@ -5,7 +5,7 @@ using System.Windows;
 
 #pragma warning disable CS8618
 
-namespace IISLogToExcel
+namespace IISLogsToExcel
 {
     public partial class App : Application
     {

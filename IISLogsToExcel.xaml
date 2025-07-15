@@ -1,4 +1,4 @@
-﻿<Window x:Class="IISLogToExcel.IISLogExporter"
+﻿<Window x:Class="IISLogsToExcel.IISLogExporter"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
  Title="IIS Log to Excel Converter" Height="218" Width="540" ResizeMode="NoResize"

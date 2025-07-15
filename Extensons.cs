@@ -1,6 +1,6 @@
 ﻿// Author: Amresh Kumar (July 2025)
 
-namespace IISLogToExcel
+namespace IISLogsToExcel
 {
     public static class Extensons
     {

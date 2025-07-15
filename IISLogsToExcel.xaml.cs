@@ -8,7 +8,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 
-namespace IISLogToExcel
+namespace IISLogsToExcel
 {
     public partial class IISLogExporter : Window
     {
@@ -148,7 +148,7 @@ namespace IISLogToExcel
 
             if (!GetLogFiles(_folderPath).Any())
             {
-                MessageBox.Show(this, "No log files found in the selected folder.", "No Logs Found!");
+                MessageBox.Show(this, "No log file found in the selected folder.", "No Log Found!");
                 return;
             }
 
@@ -164,7 +164,7 @@ namespace IISLogToExcel
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, $"Error occurred! Message: {ex.Message}", "Application Error");
+                MessageBox.Show(this, $"Error occurred! Message: {ex.Message}", "Application Error!");
             }
 
             Dispatcher.Invoke(() =>
@@ -189,6 +189,8 @@ namespace IISLogToExcel
             _folderPath = folderPath;
             folderPathTextBox.Text = _folderPath;
             _folderName = _folderPath.Split('\\', StringSplitOptions.None).Last();
+            var logFileCount = GetLogFiles(_folderPath).Length;
+            UpdateStatus($"Found {logFileCount} log file{(logFileCount > 1 ? "s" : string.Empty)} in the folder '{_folderName}'.");
         }
 
         /// <summary> Saves workbook object into excel file. </summary>
@@ -213,7 +215,7 @@ namespace IISLogToExcel
             {
                 Dispatcher.Invoke(() =>
                 {
-                    MessageBox.Show(this, $"Error occurred! Message: {ex.Message}", "Application Error");
+                    MessageBox.Show(this, $"Error occurred! Message: {ex.Message}", "Application Error!");
                 });
 
                 return false;
@@ -242,7 +244,7 @@ namespace IISLogToExcel
             {
                 Dispatcher.Invoke(() =>
                 {
-                    MessageBox.Show(this, $"Error occurred! Message: {ex.Message}", "Application Error");
+                    MessageBox.Show(this, $"Error occurred! Message: {ex.Message}", "Application Error!");
                 });
             }
         }
