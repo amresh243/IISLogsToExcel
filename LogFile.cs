@@ -5,7 +5,7 @@ using System.Windows.Media;
 
 namespace IISLogsToExcel
 {
-    public class LogFiles : INotifyPropertyChanged
+    public class LogFile : INotifyPropertyChanged
     {
         /// <summary> Property to access ID </summary>
         public string ID

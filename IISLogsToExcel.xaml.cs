@@ -2,6 +2,7 @@
 
 using ClosedXML.Excel;
 using Microsoft.Win32;
+using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
@@ -11,9 +12,12 @@ using System.Windows.Threading;
 
 namespace IISLogsToExcel
 {
+    
+
     public partial class IISLogExporter : Window
     {
         private readonly ExcelSheetProcessor _processor;
+        private readonly IniFile _iniFile = new(Constants.IniFile);
 
         private bool _isSingleBook = false;
         private bool _createPivot = false;
@@ -22,19 +26,77 @@ namespace IISLogsToExcel
         private string _folderPath = string.Empty;
         private long _totalSize = 0;
         private long _processedSize = 0;
-        private List<LogFiles> _logFiles = [];
+        private bool _isDarkMode = false;
+        private List<LogFile> _logFiles = [];
 
         public IISLogExporter(string folderPath = "")
         {
             InitializeComponent();
 
+            LoadSettings(folderPath);
+
             _processor = new ExcelSheetProcessor(this);
+
             if (!string.IsNullOrEmpty(folderPath))
                 InitializeVariables(folderPath);
+
+            this.Closing += Window_Closing;
         }
+
+        /// <summary> Loads settings from the INI file and initializes controls. </summary>
+        /// <param name="folderPath">folder path to handle, if received from command line.</param>
+        private void LoadSettings(string folderPath)
+        {
+            _isSingleBook = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.SingleWorkbook) ?? "false");
+            _createPivot = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.CreatePivot) ?? "false");
+            _deleteSources = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.DeleteSources) ?? "false");
+            _isDarkMode = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.DarkMode) ?? "false");
+            _folderPath = _iniFile.GetValue(Constants.SettingsSection, Constants.FolderPath) ?? string.Empty;
+
+            isSingleWorkBook.IsChecked = _isSingleBook;
+            createPivotTable.IsChecked = _createPivot;
+            deleteSourceFiles.IsChecked = _deleteSources;
+            systemTheme.IsChecked = _isDarkMode;
+
+            InitializeTheme(_isDarkMode);
+
+            if (!string.IsNullOrEmpty(folderPath))
+                InitializeVariables(folderPath);
+            else if (!string.IsNullOrEmpty(_folderPath))
+                InitializeVariables(_folderPath);
+            else
+                _folderPath = string.Empty;
+        }
+
+        public List<LogFile> LogFiles => _logFiles;
 
 
         #region Control State Modifiers
+
+        /// <summary> Changes controls background and foreground based on system theme. </summary>
+        private void InitializeTheme(bool isDarkMode)
+        {
+            var foreColor = (isDarkMode) ? Brushes.White : Brushes.Black;
+            var backColor = (isDarkMode) ? Brushes.Black : Brushes.White;
+
+            this.Background = backColor;
+            lbLogFiles.Background = backColor;
+            progressBar.Background = backColor;
+            folderPathTextBox.Background = backColor;
+            progressText.Foreground = foreColor;
+            folderPathTextBox.Foreground = foreColor;
+            lbLogFiles.Foreground = foreColor;
+            folderPathTextBox.Foreground = foreColor;
+            isSingleWorkBook.Foreground = foreColor;
+            deleteSourceFiles.Foreground = foreColor;
+            createPivotTable.Foreground = foreColor;
+            systemTheme.Foreground = foreColor;
+
+            foreach (var item in _logFiles)
+                item.Color = foreColor;
+
+            lbLogFiles.Items.Refresh();
+        }
 
         /// <summary> Changes the state of controls based on the enable parameter. </summary>
         /// <param name="enable"> true=enalbe/false=disable </param>
@@ -74,10 +136,16 @@ namespace IISLogsToExcel
             });
         }
 
-        #endregion Control State Modifiers
-
-
-        #region Event Handlers
+        // Change the Window_Closing method signature to accept nullable sender
+        private void Window_Closing(object? sender, CancelEventArgs e)
+        {
+            _iniFile.SetValue(Constants.SettingsSection, Constants.SingleWorkbook, _isSingleBook.ToString());
+            _iniFile.SetValue(Constants.SettingsSection, Constants.CreatePivot, _createPivot.ToString());
+            _iniFile.SetValue(Constants.SettingsSection, Constants.DeleteSources, _deleteSources.ToString());
+            _iniFile.SetValue(Constants.SettingsSection, Constants.DarkMode, systemTheme.IsChecked?.ToString() ?? "false");
+            _iniFile.SetValue(Constants.SettingsSection, Constants.FolderPath, _folderPath);
+            _iniFile.Save();
+        }
 
         /// <summary> DragOver event handler, only allows folder to be dropped. </summary>
         private void FolderPath_DragOver(object sender, DragEventArgs e)
@@ -121,6 +189,13 @@ namespace IISLogsToExcel
         private void DeleteSources_Click(object sender, RoutedEventArgs e) =>
             _deleteSources = (deleteSourceFiles.IsChecked == true);
 
+        /// <summary> Applies system theme if the checkbox is checked, otherwise applies light theme. </summary>
+        private void SystemTheme_Click(object sender, RoutedEventArgs e)
+        {
+            _isDarkMode = (systemTheme.IsChecked == true);
+            InitializeTheme(_isDarkMode);
+        }
+
         /// <summary> Opens folder selector dialog if no selection else opens selected folder in explorer. </summary>
         private void FolderPathTextBox_DblClick(object sender, RoutedEventArgs e)
         {
@@ -147,7 +222,7 @@ namespace IISLogsToExcel
                 return;
             }
 
-            var logFiles = GetLogFiles(_folderPath);
+            var logFiles = Utility.GetLogFiles(_folderPath);
             if (logFiles.Length == 0)
             {
                 MessageBox.Show(this, "No log file found in the selected folder.", "No Log Found!");
@@ -189,26 +264,31 @@ namespace IISLogsToExcel
             progressBar.Maximum = 100;
             progressBar.Value = 0;
             _totalSize = _processedSize = 0;
-            _folderPath = folderPath;
-            folderPathTextBox.Text = _folderPath;
-            _folderName = _folderPath.Split('\\', StringSplitOptions.None).Last();
-            var logFiles = GetLogFiles(_folderPath);
-            var logFileCount = logFiles.Length;
-            InitializeList(logFiles);
-            UpdateStatus($"Found {logFileCount} log file{(logFileCount > 1 ? "s" : string.Empty)} in the folder '{_folderName}'.");
+
+            if (Directory.Exists(folderPath))
+            {
+                _folderPath = folderPath;
+                folderPathTextBox.Text = _folderPath;
+                _folderName = _folderPath.Split('\\', StringSplitOptions.None).Last();
+                var logFiles = Utility.GetLogFiles(_folderPath);
+                var logFileCount = logFiles.Length;
+                InitializeList(logFiles);
+                UpdateStatus($"Found {logFileCount} log file{(logFileCount > 1 ? "s" : string.Empty)} in the folder '{_folderName}'.");
+            }
         }
 
         /// <summary> Initiates list with log files found in the selected folder. </summary>
         /// <param name="logFiles">list of log files</param>
         private void InitializeList(string[] logFiles)
         {
+            var foreColor = _isDarkMode ? Brushes.White : Brushes.Black;
             _logFiles.Clear();
             lbLogFiles.Items.Clear();
             int id = 1;
             foreach (var file in logFiles)
             {
                 var fileName = ExcelSheetProcessor.GetSheetName(file, true);
-                var listItem = new LogFiles { Name = file, ID = id++.ToString(), Color = Brushes.Black };
+                var listItem = new LogFile { Name = file, ID = id++.ToString(), Color = foreColor };
                 _logFiles.Add(listItem);
                 lbLogFiles.Items.Add(listItem);
             }
@@ -267,7 +347,7 @@ namespace IISLogsToExcel
             {
                 if (allFiles)
                 {
-                    var files = GetLogFiles(_folderPath);
+                    var files = Utility.GetLogFiles(_folderPath);
                     foreach (var logFile in files)
                         if (File.Exists(logFile))
                         {
@@ -290,16 +370,7 @@ namespace IISLogsToExcel
             }
         }
 
-        /// <summary> Returns all log files under the given folder path. </summary>
-        /// <param name="folderPath">Log folder path.</param>
-        /// <returns>Array of list file paths.</returns>
-        private static string[] GetLogFiles(string folderPath)
-        {
-            if (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath))
-                return [];
-
-            return Directory.GetFiles(folderPath, "*.log", SearchOption.AllDirectories);
-        }
+       
 
         #endregion Utility Methods
 
@@ -309,7 +380,7 @@ namespace IISLogsToExcel
         /// <summary> Creates seperate excel file for each file under folder. </summary>
         private void CreateSeperateFiles()
         {
-            var logFiles = GetLogFiles(_folderPath);
+            var logFiles = Utility.GetLogFiles(_folderPath);
 
             _totalSize = logFiles.Sum(file => new FileInfo(file).Length);
             _processedSize = 0;
@@ -349,7 +420,7 @@ namespace IISLogsToExcel
         {
             var sheetCount = 0;
             var workbook = new XLWorkbook();
-            var logFiles = GetLogFiles(_folderPath);
+            var logFiles = Utility.GetLogFiles(_folderPath);
 
             _totalSize = logFiles.Sum(file => new FileInfo(file).Length);
             _processedSize = 0;
