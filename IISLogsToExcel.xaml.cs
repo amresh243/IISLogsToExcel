@@ -12,8 +12,6 @@ using System.Windows.Threading;
 
 namespace IISLogsToExcel
 {
-    
-
     public partial class IISLogExporter : Window
     {
         private readonly ExcelSheetProcessor _processor;
@@ -433,8 +431,9 @@ namespace IISLogsToExcel
                 sheetCount++;
                 var sheetName = ExcelSheetProcessor.GetSheetName(file);
                 var sheetNames = workbook.Worksheets.Select(ws => ws.Name).ToList();
-                if (sheetNames.Contains(sheetName))
-                    sheetName += $"-{sheetCount}";
+                var existingCount = sheetNames.Count(name => name == sheetName);
+                if (existingCount > 0)
+                    sheetName += $"-{existingCount + 1}";
 
                 var worksheet = workbook.Worksheets.Add(sheetName);
 
