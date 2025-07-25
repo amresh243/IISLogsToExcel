@@ -39,8 +39,6 @@ namespace IISLogsToExcel
 
             if (!string.IsNullOrEmpty(folderPath))
                 InitializeVariables(folderPath);
-
-            this.Closing += Window_Closing;
         }
 
 
