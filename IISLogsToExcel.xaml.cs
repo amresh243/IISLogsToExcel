@@ -16,6 +16,7 @@ namespace IISLogsToExcel
     {
         private readonly ExcelSheetProcessor _processor;
         private readonly IniFile _iniFile = new(Constants.IniFile);
+        private readonly List<LogFile> _logFiles = [];
 
         private bool _isSingleBook = false;
         private bool _createPivot = false;
@@ -25,14 +26,12 @@ namespace IISLogsToExcel
         private long _totalSize = 0;
         private long _processedSize = 0;
         private bool _isDarkMode = false;
-        private readonly List<LogFile> _logFiles = [];
 
         public List<LogFile> LogFiles => _logFiles;
 
         public IISLogExporter(string folderPath = "")
         {
             InitializeComponent();
-
             LoadSettings(folderPath);
 
             _processor = new ExcelSheetProcessor(this);
@@ -150,9 +149,7 @@ namespace IISLogsToExcel
             {
                 var paths = (string[])e.Data.GetData(DataFormats.FileDrop);
                 // Only allow if the first item is a directory
-                e.Effects = (paths.Length > 0 && Directory.Exists(paths[0]))
-                    ? DragDropEffects.Copy
-                    : DragDropEffects.None;
+                e.Effects = (paths.Length > 0 && Directory.Exists(paths[0])) ? DragDropEffects.Copy : DragDropEffects.None;
             }
             else
                 e.Effects = DragDropEffects.None;
@@ -281,6 +278,7 @@ namespace IISLogsToExcel
             _logFiles.Clear();
             lbLogFiles.Items.Clear();
             int id = 1;
+
             foreach (var file in logFiles)
             {
                 var fileName = ExcelSheetProcessor.GetSheetName(file, true);
@@ -335,6 +333,17 @@ namespace IISLogsToExcel
             }
         }
 
+        /// <summary> Deletes the specified file if it exists and updates the list item color to indicate deletion. </summary>
+        /// <param name="file">file to be deleted.</param>
+        private void DeleteFile(string file)
+        {
+            if (File.Exists(file))
+            {
+                File.Delete(file);
+                UpdateList(file, Brushes.LightGray);
+            }
+        }
+
         /// <summary> Deletes  log file/s under the source folder path. </summary>
         /// <param name="file">Source file path.</param>
         private void DeleteLogFiles(string file, bool allFiles = false)
@@ -345,17 +354,12 @@ namespace IISLogsToExcel
                 {
                     var files = Utility.GetLogFiles(_folderPath);
                     foreach (var logFile in files)
-                        if (File.Exists(logFile))
-                        {
-                            File.Delete(logFile);
-                            UpdateList(logFile, Brushes.LightGray);
-                        }
+                        DeleteFile(logFile);
+
+                    return;
                 }
-                else if (File.Exists(file))
-                {
-                    File.Delete(file);
-                    UpdateList(file, Brushes.LightGray);
-                }
+
+                DeleteFile(file);
             }
             catch (Exception ex)
             {
