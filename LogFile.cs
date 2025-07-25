@@ -10,7 +10,7 @@ namespace IISLogsToExcel
         /// <summary> Property to access ID </summary>
         public string ID
         {
-            get { return $"{_ID}. "; }
+            get => $"{_ID}. ";
             set
             {
                 if (_ID != value)
@@ -21,13 +21,10 @@ namespace IISLogsToExcel
             }
         }
 
-        /// <summary> Property to access length of pattern </summary>
-        public int Length => _Name.Length;
-
         /// <summary> Property to access existing pattern </summary>
         public string Name
         {
-            get { return _Name; }
+            get => _Name;
             set
             {
                 if (_Name != value)
@@ -41,7 +38,7 @@ namespace IISLogsToExcel
         /// <summary> Returns indigo color if pattern is not standard </summary>
         public Brush Color
         {
-            get { return _Color; }
+            get => _Color;
             set
             {
                 if (_Color != value)
@@ -53,9 +50,10 @@ namespace IISLogsToExcel
         }
 
         protected void RaisePropertyChanged(string propertyName) =>
-          PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
         private string _ID = string.Empty;
         private string _Name = string.Empty;
         private Brush _Color = Brushes.Black;

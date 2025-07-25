@@ -8,7 +8,9 @@ namespace IISLogsToExcel
     public partial class App : Application
     {
         private static Mutex? _mutex;
+        private IISLogExporter? _mainWindow;
 
+        /// Command line support, allows for single instance application only
         protected override void OnStartup(StartupEventArgs e)
         {
             bool isNewInstance = false;
@@ -24,19 +26,11 @@ namespace IISLogsToExcel
 
             base.OnStartup(e);
 
-            if (e.Args.Length > 0)
-            {
-                string folderPath = e.Args[0];
-                if (Directory.Exists(e.Args[0]))
-                {
-                    var cmdWindow = new IISLogExporter(folderPath);
-                    cmdWindow.Show();
-                    return;
-                }
-            }
+            _mainWindow = (e.Args.Length > 0 && Directory.Exists(e.Args[0]))
+                ? new IISLogExporter(e.Args[0])
+                : new IISLogExporter();
 
-            var mainWindow = new IISLogExporter();
-            mainWindow.Show();
+            _mainWindow.Show();
         }
     }
 }

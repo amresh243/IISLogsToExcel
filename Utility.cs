@@ -7,6 +7,7 @@ namespace IISLogsToExcel
 {
     public static class Utility
     {
+        /// <summary> Returns a valid number from the given string. </summary>
         public static int GetValidNumber(this string text)
         {
             if (int.TryParse(text, out int number))
@@ -15,6 +16,7 @@ namespace IISLogsToExcel
             return 0;
         }
 
+        /// <summary> Checks if the given string is numeric. </summary>
         public static bool IsNumeric(this string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -38,6 +40,7 @@ namespace IISLogsToExcel
             return Directory.GetFiles(folderPath, extension, SearchOption.AllDirectories);
         }
 
+        /// <summary> Checks if the system is in dark mode. </summary>
         public static bool IsSystemInDarkMode()
         {
             using RegistryKey? key = Registry.CurrentUser.OpenSubKey(Constants.ThemeKey);
