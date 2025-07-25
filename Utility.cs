@@ -40,13 +40,10 @@ namespace IISLogsToExcel
 
         public static bool IsSystemInDarkMode()
         {
-            const string registryKey = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
-            const string valueName = "AppsUseLightTheme";
-
-            using RegistryKey? key = Registry.CurrentUser.OpenSubKey(registryKey);
+            using RegistryKey? key = Registry.CurrentUser.OpenSubKey(Constants.ThemeKey);
             if (key != null)
             {
-                object? registryValueObject = key.GetValue(valueName);
+                object? registryValueObject = key.GetValue(Constants.ThemeValue);
                 if (registryValueObject != null)
                 {
                     int registryValue = (int)registryValueObject;

@@ -39,8 +39,7 @@ namespace IISLogsToExcel
         {
             try
             {
-                string[] numberColumnHeader = { "s-port", "sc-status", "sc-substatus", "sc-win32-status", "sc-bytes", "cs-bytes", "time-taken" };
-                return [.. numberColumnHeader.Select(header => Array.IndexOf([.. headers], header))];
+                return [.. Constants.NumberColumns.Select(header => Array.IndexOf([.. headers], header))];
             }
             catch
             {
@@ -58,13 +57,15 @@ namespace IISLogsToExcel
 
             if (isFile)
             {
-                var fileName = file.Split('\\').LastOrDefault()?.Split('-').LastOrDefault() ?? "";
+                var fileName = file.Split(LogTokens.PathSplitMarker).LastOrDefault()?.Split(LogTokens.FileSplitMarker).LastOrDefault() ?? "";
                 var fileNameLength = fileName.Length;
 
                 return (fileNameLength > 10) ? fileName[(fileNameLength - 10)..] : fileName;
             }
 
-            var sheetName = file.Split('\\').LastOrDefault()?.Split('-').LastOrDefault()?.Split('.').FirstOrDefault();
+            var sheetName = file.Split(LogTokens.PathSplitMarker).LastOrDefault()?
+                .Split(LogTokens.FileSplitMarker).LastOrDefault()?
+                .Split(LogTokens.ExtensionSplitMarker).FirstOrDefault();
             if (string.IsNullOrEmpty(sheetName))
                 return file;
 
@@ -98,18 +99,19 @@ namespace IISLogsToExcel
             int currentRow = 1;
             try
             {
-                var lines = File.ReadAllLines(file, Encoding.UTF8).Where(l => !l.StartsWith('#') || l.StartsWith("#Fields:")).ToList();
+                var lines = File.ReadAllLines(file, Encoding.UTF8)
+                    .Where(l => !l.StartsWith(LogTokens.CommentMarker) || l.StartsWith(LogTokens.LogMarker)).ToList();
                 if (lines.Count == 0)
                 {
                     _handler.UpdateList(file, Brushes.Tomato);
                     return;
                 }
 
-                if (lines[0].StartsWith("#Fields:"))
-                    lines[0] = lines[0].Replace("#Fields:", string.Empty).Trim();
+                if (lines[0].StartsWith(LogTokens.LogMarker))
+                    lines[0] = lines[0].Replace(LogTokens.LogMarker, string.Empty).Trim();
 
-                var headers = lines[0].Split(' ').Select(x => RemoveInvalidXmlChars(x).ToLowerInvariant()).ToList();
-                if (!headers.Contains("date") || !headers.Contains("time"))
+                var headers = lines[0].Split(LogTokens.LineSplitMarker).Select(x => RemoveInvalidXmlChars(x).ToLowerInvariant()).ToList();
+                if (!headers.Contains(Headers.Date) || !headers.Contains(Headers.Time))
                 {
                     _handler.UpdateList(file, Brushes.Tomato);
                     return;
@@ -118,7 +120,7 @@ namespace IISLogsToExcel
                 // Setup headers and first row
                 if (currentRow == 1)
                 {
-                    headers.Insert(2, "hour");
+                    headers.Insert(2, Headers.Hour);
                     for (int i = 0; i < headers.Count; i++)
                         worksheet.Cell(currentRow, i + 1).Value = headers[i];
 
@@ -137,7 +139,7 @@ namespace IISLogsToExcel
 
                     worksheet.Cell(currentRow, 1).Value = values[0];
                     worksheet.Cell(currentRow, 2).Value = values[1];
-                    worksheet.Cell(currentRow, 3).FormulaA1 = $"=TEXT(B{currentRow}, \"hh:mm\")";
+                    worksheet.Cell(currentRow, 3).FormulaA1 = string.Format(LogTokens.HourFormulae, currentRow);
 
                     for (int i = 3; i <= values.Length; i++)
                     {
@@ -163,15 +165,14 @@ namespace IISLogsToExcel
                 }
 
                 // Unfortunately excel has static row count of 1048576
-                _handler.UpdateStatus($"Creating IIS log sheet - {worksheet.Name}...");
+                _handler.UpdateStatus(string.Format(Messages.CreateSheet, worksheet.Name));
                 worksheet.Rows(currentRow, MaxSheetRows).Hide();
                 worksheet.SetAutoFilter();
             }
             catch
             {
-                MessageBox.Show($"An error occurred at line {currentRow} while processing log file {file}." +
-                    $"\n\nExported IIS log sheet and respective pivot sheet may have incomplete and corrupt data.",
-                    "Log Export Error!", MessageBoxButton.OK, MessageBoxImage.Warning);
+                var message = string.Format(Messages.LogError, currentRow, file);
+                MessageBox.Show(message, Captions.LogError, MessageBoxButton.OK, MessageBoxImage.Warning);
                 worksheet.Rows(currentRow, MaxSheetRows).Hide();
                 worksheet.SetAutoFilter();
                 _handler.UpdateList(file, Brushes.Tomato);
@@ -189,24 +190,24 @@ namespace IISLogsToExcel
         {
             try
             {
-                _handler.UpdateStatus($"Creating pivot table for sheet - {sheetName}...");
+                _handler.UpdateStatus(string.Format(Messages.CreatePivot, worksheet.Name));
                 var dataRange = worksheet.RangeUsed();
-                var pivotSheet = workbook.Worksheets.Add($"Pivot_{sheetName}");
-                var pt = pivotSheet.PivotTables.Add("PivotTable", pivotSheet.Cell(1, 1), dataRange);
-                pt.RowLabels.Add("time");
-                pt.ReportFilters.Add("hour");
-                pt.Values.Add("cs-uri-stem", "cs-uri-stem[count]").SetSummaryFormula(XLPivotSummary.Count);
-                pt.Values.Add("time-taken", "time-taken[avg]").SetSummaryFormula(XLPivotSummary.Average);
+                var pivotSheet = workbook.Worksheets.Add($"{LogTokens.PivotMarker}{sheetName}");
+                var pt = pivotSheet.PivotTables.Add(LogTokens.PivotTable, pivotSheet.Cell(1, 1), dataRange);
+                pt.RowLabels.Add(Headers.Time);
+                pt.ReportFilters.Add(Headers.Hour);
+                pt.Values.Add(Headers.UriStem, Headers.UriStemCount).SetSummaryFormula(XLPivotSummary.Count);
+                pt.Values.Add(Headers.TimeTaken, Headers.TimeTakenAvg).SetSummaryFormula(XLPivotSummary.Average);
                 pt.Values.Last().NumberFormat.Format = "0";
-                pivotSheet.Cell(3, 1).SetValue("time");
+                pivotSheet.Cell(3, 1).SetValue(Headers.Time);
                 pivotSheet.Column(2).Width = 16;
                 pivotSheet.Column(3).Width = 13;
                 pivotSheet.SheetView.Freeze(3, 0);
             }
             catch
             {
-                MessageBox.Show($"An error occurred while processing pivot data for sheet {sheetName}.",
-                    "Pivot Error!", MessageBoxButton.OK, MessageBoxImage.Warning);
+                var message = string.Format(Messages.PivotError, sheetName);
+                MessageBox.Show(message, Captions.PivotError, MessageBoxButton.OK, MessageBoxImage.Warning);
                 _handler.UpdateList(file, Brushes.Tomato);
             }
         }
