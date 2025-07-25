@@ -54,6 +54,5 @@ namespace IISLogsToExcel
             // Default to light mode if Key not found
             return false;
         }
-
     }
 }
