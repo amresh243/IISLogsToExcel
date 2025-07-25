@@ -18,14 +18,16 @@ namespace IISLogsToExcel
         private readonly IniFile _iniFile = new(Constants.IniFile);
         private readonly List<LogFile> _logFiles = [];
 
+        private string _folderName = string.Empty;
+        private string _folderPath = string.Empty;
+
         private bool _isSingleBook = false;
         private bool _createPivot = false;
         private bool _deleteSources = false;
-        private string _folderName = string.Empty;
-        private string _folderPath = string.Empty;
+        private bool _isDarkMode = false;
+
         private long _totalSize = 0;
         private long _processedSize = 0;
-        private bool _isDarkMode = false;
 
         public List<LogFile> LogFiles => _logFiles;
 
