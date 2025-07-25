@@ -25,7 +25,9 @@ namespace IISLogsToExcel
         private long _totalSize = 0;
         private long _processedSize = 0;
         private bool _isDarkMode = false;
-        private List<LogFile> _logFiles = [];
+        private readonly List<LogFile> _logFiles = [];
+
+        public List<LogFile> LogFiles => _logFiles;
 
         public IISLogExporter(string folderPath = "")
         {
@@ -41,14 +43,17 @@ namespace IISLogsToExcel
             this.Closing += Window_Closing;
         }
 
+
+        #region Control State Modifiers
+
         /// <summary> Loads settings from the INI file and initializes controls. </summary>
         /// <param name="folderPath">folder path to handle, if received from command line.</param>
         private void LoadSettings(string folderPath)
         {
-            _isSingleBook = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.SingleWorkbook) ?? "false");
-            _createPivot = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.CreatePivot) ?? "false");
-            _deleteSources = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.DeleteSources) ?? "false");
-            _isDarkMode = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.DarkMode) ?? "false");
+            _isSingleBook = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.SingleWorkbook) ?? Constants.False);
+            _createPivot = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.CreatePivot) ?? Constants.False);
+            _deleteSources = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.DeleteSources) ?? Constants.False);
+            _isDarkMode = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.DarkMode) ?? Constants.False);
             _folderPath = _iniFile.GetValue(Constants.SettingsSection, Constants.FolderPath) ?? string.Empty;
 
             isSingleWorkBook.IsChecked = _isSingleBook;
@@ -65,11 +70,6 @@ namespace IISLogsToExcel
             else
                 _folderPath = string.Empty;
         }
-
-        public List<LogFile> LogFiles => _logFiles;
-
-
-        #region Control State Modifiers
 
         /// <summary> Changes controls background and foreground based on system theme. </summary>
         private void InitializeTheme(bool isDarkMode)
@@ -140,7 +140,7 @@ namespace IISLogsToExcel
             _iniFile.SetValue(Constants.SettingsSection, Constants.SingleWorkbook, _isSingleBook.ToString());
             _iniFile.SetValue(Constants.SettingsSection, Constants.CreatePivot, _createPivot.ToString());
             _iniFile.SetValue(Constants.SettingsSection, Constants.DeleteSources, _deleteSources.ToString());
-            _iniFile.SetValue(Constants.SettingsSection, Constants.DarkMode, systemTheme.IsChecked?.ToString() ?? "false");
+            _iniFile.SetValue(Constants.SettingsSection, Constants.DarkMode, systemTheme.IsChecked?.ToString() ?? Constants.False);
             _iniFile.SetValue(Constants.SettingsSection, Constants.FolderPath, _folderPath);
             _iniFile.Save();
         }
@@ -200,7 +200,7 @@ namespace IISLogsToExcel
             if (!Directory.Exists(_folderPath))
                 SelectFolderButton_Click(sender, e);
             else
-                Process.Start("explorer.exe", _folderPath);
+                Process.Start(Constants.ExplorerApp, _folderPath);
         }
 
         /// <summary> Select folder button click handler </summary>
@@ -216,20 +216,20 @@ namespace IISLogsToExcel
         {
             if (string.IsNullOrWhiteSpace(_folderPath) || !Directory.Exists(_folderPath))
             {
-                MessageBox.Show(this, "Please select a valid folder.", "Invalid Input!");
+                MessageBox.Show(this, Messages.InvalidInput, Captions.InvalidInput);
                 return;
             }
 
             var logFiles = Utility.GetLogFiles(_folderPath);
             if (logFiles.Length == 0)
             {
-                MessageBox.Show(this, "No log file found in the selected folder.", "No Log Found!");
+                MessageBox.Show(this, Messages.NoLogs, Captions.NoLogs);
                 return;
             }
 
             ChangeControlState(false);
             InitializeList(logFiles);
-            statusText.Text = "Processing...";
+            statusText.Text = Messages.ProcessingStarted;
             
             try
             {
@@ -240,12 +240,12 @@ namespace IISLogsToExcel
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, $"Error occurred! Message: {ex.Message}", "Application Error!");
+                MessageBox.Show(this, string.Format(Messages.AppError, ex.Message), Captions.AppError);
             }
 
             Dispatcher.Invoke(() =>
             {
-                statusText.Text = "Processing complete.";
+                statusText.Text = Messages.ProcessingCompleted;
                 ChangeControlState(true);
             });
         }
@@ -267,11 +267,11 @@ namespace IISLogsToExcel
             {
                 _folderPath = folderPath;
                 folderPathTextBox.Text = _folderPath;
-                _folderName = _folderPath.Split('\\', StringSplitOptions.None).Last();
+                _folderName = _folderPath.Split(LogTokens.PathSplitMarker, StringSplitOptions.None).Last();
                 var logFiles = Utility.GetLogFiles(_folderPath);
                 var logFileCount = logFiles.Length;
                 InitializeList(logFiles);
-                UpdateStatus($"Found {logFileCount} log file{(logFileCount > 1 ? "s" : string.Empty)} in the folder '{_folderName}'.");
+                UpdateStatus(Messages.GetLogDetails(logFileCount, _folderName));
             }
         }
 
@@ -330,7 +330,7 @@ namespace IISLogsToExcel
             {
                 Dispatcher.Invoke(() =>
                 {
-                    MessageBox.Show(this, $"Error occurred! Message: {ex.Message}", "Application Error!");
+                    MessageBox.Show(this, string.Format(Messages.AppError, ex.Message), Captions.AppError);
                 });
 
                 return false;
@@ -363,12 +363,10 @@ namespace IISLogsToExcel
             {
                 Dispatcher.Invoke(() =>
                 {
-                    MessageBox.Show(this, $"Error occurred! Message: {ex.Message}", "Application Error!");
+                    MessageBox.Show(this, string.Format(Messages.AppError, ex.Message), Captions.AppError);
                 });
             }
         }
-
-       
 
         #endregion Utility Methods
 
@@ -385,11 +383,11 @@ namespace IISLogsToExcel
 
             foreach (var file in logFiles)
             {
-                UpdateStatus($"Processing data for file ??{ExcelSheetProcessor.GetSheetName(file, true)}...");
+                UpdateStatus(string.Format(Messages.LogFileProcessing, ExcelSheetProcessor.GetSheetName(file, true)));
                 UpdateList(file, Brushes.LimeGreen);
                 
                 var workbook = new XLWorkbook();
-                var sheetName = (!_isSingleBook) ? "IIS_Logs" : file;
+                var sheetName = (!_isSingleBook) ? LogTokens.DefaultLogSheet : file;
                 var worksheet = workbook.Worksheets.Add(sheetName);
 
                 // Creating log sheet
@@ -400,8 +398,8 @@ namespace IISLogsToExcel
                     _processor.SetupPivotData(workbook, worksheet, sheetName, file);
 
                 // Saving the workbook seperate excel files
-                var excelFile = $"{ExcelSheetProcessor.GetSheetName(file)}.xlsx";
-                UpdateStatus($"Exporting data to excel file - {excelFile}...");
+                var excelFile = $"{ExcelSheetProcessor.GetSheetName(file)}{LogTokens.ExcelExtension}";
+                UpdateStatus(string.Format(Messages.LogFileExporting, excelFile));
                 bool isSuccess = SaveExcelFile(workbook, Path.Combine(_folderPath, excelFile));
 
                 // Deleting source file, if option enabled and save was successful
@@ -425,7 +423,7 @@ namespace IISLogsToExcel
 
             foreach (var file in logFiles)
             {
-                UpdateStatus($"Processing data for file ??{ExcelSheetProcessor.GetSheetName(file, true)}...");
+                UpdateStatus(string.Format(Messages.LogFileProcessing, ExcelSheetProcessor.GetSheetName(file, true)));
                 UpdateList(file, Brushes.LimeGreen);
 
                 sheetCount++;
@@ -433,7 +431,7 @@ namespace IISLogsToExcel
                 var sheetNames = workbook.Worksheets.Select(ws => ws.Name).ToList();
                 var existingCount = sheetNames.Count(name => name == sheetName);
                 if (existingCount > 0)
-                    sheetName += $"-{existingCount + 1}";
+                    sheetName += $"{LogTokens.FileSplitMarker}{existingCount + 1}";
 
                 var worksheet = workbook.Worksheets.Add(sheetName);
 
@@ -446,8 +444,8 @@ namespace IISLogsToExcel
             }
 
             // Saving the workbook to a single excel file
-            var excelFile = $"{_folderName}.xlsx";
-            UpdateStatus($"Exporting data to excel file - {excelFile}...");
+            var excelFile = $"{_folderName}{LogTokens.ExcelExtension}";
+            UpdateStatus(string.Format(Messages.LogFileExporting, excelFile));
             bool isSucess = SaveExcelFile(workbook, Path.Combine(_folderPath, excelFile));
 
             // Deleting all source files, if option enabled and save was successful

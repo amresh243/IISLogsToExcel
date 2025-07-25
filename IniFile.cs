@@ -6,7 +6,7 @@ namespace IISLogsToExcel
 {
     public class IniFile
     {
-        private readonly Dictionary<string, Dictionary<string, string>> _data = new();
+        private readonly Dictionary<string, Dictionary<string, string>> _data = [];
         private readonly string _filePath;
 
         public IniFile(string filePath)
@@ -33,7 +33,7 @@ namespace IISLogsToExcel
                     {
                         currentSection = trimmed[1..^1].Trim();
                         if (!_data.ContainsKey(currentSection))
-                            _data[currentSection] = new Dictionary<string, string>();
+                            _data[currentSection] = [];
                     }
                     else if (trimmed.Contains('=') && currentSection != null)
                     {
@@ -60,7 +60,7 @@ namespace IISLogsToExcel
         public void SetValue(string section, string key, string value)
         {
             if (!_data.ContainsKey(section))
-                _data[section] = new Dictionary<string, string>();
+                _data[section] = [];
 
             _data[section][key] = value;
         }
@@ -74,9 +74,8 @@ namespace IISLogsToExcel
                 {
                     writer.WriteLine($"[{section.Key}]");
                     foreach (var kvp in section.Value)
-                    {
                         writer.WriteLine($"{kvp.Key}={kvp.Value}");
-                    }
+                    
                     writer.WriteLine();
                 }
 
