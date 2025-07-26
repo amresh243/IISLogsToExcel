@@ -99,11 +99,13 @@ namespace IISLogsToExcel
             int currentRow = 1;
             try
             {
+                Logger.LogInfo($"Creating sheet {worksheet.Name} against file {file}...");
                 var lines = File.ReadAllLines(file, Encoding.UTF8)
                     .Where(l => !l.StartsWith(LogTokens.CommentMarker) || l.StartsWith(LogTokens.LogMarker)).ToList();
                 if (lines.Count == 0)
                 {
                     _handler.UpdateList(file, Brushes.Tomato);
+                    Logger.LogError($"{file} is empty!");
                     return;
                 }
 
@@ -114,6 +116,7 @@ namespace IISLogsToExcel
                 if (!headers.Contains(Headers.Date) || !headers.Contains(Headers.Time))
                 {
                     _handler.UpdateList(file, Brushes.Tomato);
+                    Logger.LogError($"{file} is not a valid IIS log file!");
                     return;
                 }
 
@@ -151,6 +154,7 @@ namespace IISLogsToExcel
                         // This will cause incorrect update of later cells, so we need to handle it.
                         if (isNumericCell && !value.IsNumeric())
                         {
+                            Logger.LogWarning($"Broken or invalid data at line {currentRow} in file {file}, output repair attempted.");
                             UpdatePreviousCells(worksheet, currentRow, i, value);
                             values = values.Where(x => x != value).ToArray();
                             i--;
@@ -164,10 +168,12 @@ namespace IISLogsToExcel
                     currentRow++;
                 }
 
+                Logger.LogInfo($"Processed {currentRow - 1} lines from file {file}.");
                 // Unfortunately excel has static row count of 1048576
                 _handler.UpdateStatus(string.Format(Messages.CreateSheet, worksheet.Name));
                 worksheet.Rows(currentRow, MaxSheetRows).Hide();
                 worksheet.SetAutoFilter();
+                Logger.LogInfo($"Excel sheet {worksheet.Name} created for file {file} with {currentRow - 1} rows.");
             }
             catch
             {
@@ -176,6 +182,7 @@ namespace IISLogsToExcel
                 worksheet.Rows(currentRow, MaxSheetRows).Hide();
                 worksheet.SetAutoFilter();
                 _handler.UpdateList(file, Brushes.Tomato);
+                Logger.LogException(message, new Exception($"Error enountered while processing line {currentRow} in file {file}"));
             }
         }
 
@@ -190,8 +197,16 @@ namespace IISLogsToExcel
         {
             try
             {
-                _handler.UpdateStatus(string.Format(Messages.CreatePivot, worksheet.Name));
+                var msg = string.Format(Messages.CreatePivot, worksheet.Name);
+                _handler.UpdateStatus(msg);
+                Logger.LogInfo(msg);
                 var dataRange = worksheet.RangeUsed();
+                if (dataRange == null)
+                {
+                    _handler.UpdateList(file, Brushes.Tomato);
+                    _handler.UpdateStatus(string.Format(Messages.PivotError, sheetName));
+                    return;
+                }
                 var pivotSheet = workbook.Worksheets.Add($"{LogTokens.PivotMarker}{sheetName}");
                 var pt = pivotSheet.PivotTables.Add(LogTokens.PivotTable, pivotSheet.Cell(1, 1), dataRange);
                 pt.RowLabels.Add(Headers.Time);
@@ -203,12 +218,14 @@ namespace IISLogsToExcel
                 pivotSheet.Column(2).Width = 16;
                 pivotSheet.Column(3).Width = 13;
                 pivotSheet.SheetView.Freeze(3, 0);
+                Logger.LogInfo($"Pivot table {sheetName} created for sheet {worksheet.Name}.");
             }
             catch
             {
                 var message = string.Format(Messages.PivotError, sheetName);
                 MessageBox.Show(message, Captions.PivotError, MessageBoxButton.OK, MessageBoxImage.Warning);
                 _handler.UpdateList(file, Brushes.Tomato);
+                Logger.LogException(message, new Exception($"Error encountered while processing pivot data for sheet {sheetName}"));
             }
         }
 

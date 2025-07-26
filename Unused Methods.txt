@@ -1,0 +1,36 @@
+        /// <summary> Deletes the specified file if it exists and updates the list item color to indicate deletion. </summary>
+        /// <param name="file">file to be deleted.</param>
+        private void DeleteFile(string file)
+        {
+            if (File.Exists(file))
+            {
+                File.Delete(file);
+                UpdateList(file, Brushes.LightGray);
+            }
+        }
+
+        /// <summary> Deletes  log file/s under the source folder path. </summary>
+        /// <param name="file">Source file path.</param>
+        private void DeleteLogFiles(string file, bool allFiles = false)
+        {
+            try
+            {
+                if (allFiles)
+                {
+                    var files = Utility.GetLogFiles(_folderPath);
+                    foreach (var logFile in files)
+                        DeleteFile(logFile);
+
+                    return;
+                }
+
+                DeleteFile(file);
+            }
+            catch (Exception ex)
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show(this, string.Format(Messages.AppError, ex.Message), Captions.AppError);
+                });
+            }
+        }

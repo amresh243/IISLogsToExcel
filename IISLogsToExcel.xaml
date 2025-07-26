@@ -111,11 +111,11 @@
                                   FontWeight="DemiBold"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Grid.Row="0">
-                        <CheckBox x:Name="deleteSourceFiles" 
-                                  Content="Delete Sources" 
-                                  IsChecked="False" 
-                                  Click="DeleteSources_Click" 
-                                  ToolTip="Check to delete source logs after processing." 
+                        <CheckBox x:Name="enableLogging" 
+                                  Content="Enable Logging" 
+                                  IsChecked="True" 
+                                  Click="EnableLogging_Click" 
+                                  ToolTip="Check to enable processing logs." 
                                   HorizontalAlignment="Right" 
                                   Style="{DynamicResource SliderCheckBox}" 
                                   FontWeight="DemiBold"/>

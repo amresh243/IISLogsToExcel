@@ -6,12 +6,14 @@ namespace IISLogsToExcel
     {
         public static string[] NumberColumns = { "s-port", "sc-status", "sc-substatus", "sc-win32-status", "sc-bytes", "cs-bytes", "time-taken" };
 
+        public const string LogHeader = "=============================================================";
         public const string ApplicationName = "IISLogsToExcel";
         public const string IniFile = "IISLogsToExcel.ini";
+        public const string LogFile = "IISLogsToExcel.log";
         public const string SettingsSection = "Settings";
         public const string SingleWorkbook = "SingleWorkbook";
         public const string CreatePivot = "CreatePivot";
-        public const string DeleteSources = "DeleteSources";
+        public const string EnableLogging = "EnableLogging";
         public const string DarkMode = "DarkMode";
         public const string FolderPath = "FolderPath";
         public const string ThemeKey = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
@@ -54,6 +56,7 @@ namespace IISLogsToExcel
         public const string LogFileProcessing = "Processing data for file ??{0}...";
         public const string ProcessingStarted = "Processing...";
         public const string ProcessingCompleted = "Processing complete.";
+        public const string LoggingError = "Failed to initialize logging. Please check file permissions or path.";
     }
 
     internal static class Captions
@@ -64,6 +67,7 @@ namespace IISLogsToExcel
         public const string AppError = "Application Error!";
         public const string LogError = "Log Export Error!";
         public const string PivotError = "Pivot Error!";
+        public const string LoggingError = "Logging Error!";
     }
 
     internal static class Headers
