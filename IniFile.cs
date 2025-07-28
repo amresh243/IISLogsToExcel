@@ -2,89 +2,88 @@
 
 using System.IO;
 
-namespace IISLogsToExcel
+namespace IISLogsToExcel;
+
+public class IniFile
 {
-    public class IniFile
+    private readonly Dictionary<string, Dictionary<string, string>> _data = [];
+    private readonly string _filePath;
+
+    public IniFile(string filePath)
     {
-        private readonly Dictionary<string, Dictionary<string, string>> _data = [];
-        private readonly string _filePath;
+        _filePath = filePath;
+        if (File.Exists(filePath))
+            Load(filePath);
+    }
 
-        public IniFile(string filePath)
+    private void Load(string path)
+    {
+        try
         {
-            _filePath = filePath;
-            if (File.Exists(filePath))
-                Load(filePath);
-        }
+            string? currentSection = null;
 
-        private void Load(string path)
-        {
-            try
+            foreach (var line in File.ReadAllLines(path))
             {
-                string? currentSection = null;
+                var trimmed = line.Trim();
 
-                foreach (var line in File.ReadAllLines(path))
+                if (string.IsNullOrWhiteSpace(trimmed) || trimmed.StartsWith(";"))
+                    continue;
+
+                if (trimmed.StartsWith("[") && trimmed.EndsWith("]"))
                 {
-                    var trimmed = line.Trim();
-
-                    if (string.IsNullOrWhiteSpace(trimmed) || trimmed.StartsWith(";"))
-                        continue;
-
-                    if (trimmed.StartsWith("[") && trimmed.EndsWith("]"))
-                    {
-                        currentSection = trimmed[1..^1].Trim();
-                        if (!_data.ContainsKey(currentSection))
-                            _data[currentSection] = [];
-                    }
-                    else if (trimmed.Contains('=') && currentSection != null)
-                    {
-                        var parts = trimmed.Split('=', 2);
-                        var key = parts[0].Trim();
-                        var value = parts[1].Trim();
-                        _data[currentSection][key] = value;
-                    }
+                    currentSection = trimmed[1..^1].Trim();
+                    if (!_data.ContainsKey(currentSection))
+                        _data[currentSection] = [];
+                }
+                else if (trimmed.Contains('=') && currentSection != null)
+                {
+                    var parts = trimmed.Split('=', 2);
+                    var key = parts[0].Trim();
+                    var value = parts[1].Trim();
+                    _data[currentSection][key] = value;
                 }
             }
-            catch
-            {
-                // nothing to do here
-            }
         }
-
-        public string? GetValue(string section, string key)
+        catch
         {
-            return _data.TryGetValue(section, out var sectionData) && sectionData.TryGetValue(key, out var value)
-                ? value
-                : null;
+            // nothing to do here
         }
+    }
 
-        public void SetValue(string section, string key, string value)
+    public string? GetValue(string section, string key)
+    {
+        return _data.TryGetValue(section, out var sectionData) && sectionData.TryGetValue(key, out var value)
+            ? value
+            : null;
+    }
+
+    public void SetValue(string section, string key, string value)
+    {
+        if (!_data.ContainsKey(section))
+            _data[section] = [];
+
+        _data[section][key] = value;
+    }
+
+    public bool Save()
+    {
+        try
         {
-            if (!_data.ContainsKey(section))
-                _data[section] = [];
+            using var writer = new StreamWriter(_filePath);
+            foreach (var section in _data)
+            {
+                writer.WriteLine($"[{section.Key}]");
+                foreach (var kvp in section.Value)
+                    writer.WriteLine($"{kvp.Key}={kvp.Value}");
+                
+                writer.WriteLine();
+            }
 
-            _data[section][key] = value;
+            return true;
         }
-
-        public bool Save()
+        catch
         {
-            try
-            {
-                using var writer = new StreamWriter(_filePath);
-                foreach (var section in _data)
-                {
-                    writer.WriteLine($"[{section.Key}]");
-                    foreach (var kvp in section.Value)
-                        writer.WriteLine($"{kvp.Key}={kvp.Value}");
-                    
-                    writer.WriteLine();
-                }
-
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            return false;
         }
     }
 }
