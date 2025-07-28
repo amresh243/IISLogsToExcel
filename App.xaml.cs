@@ -3,40 +3,33 @@
 using System.IO;
 using System.Windows;
 
-namespace IISLogsToExcel
+namespace IISLogsToExcel;
+
+public partial class App : Application
 {
-    public partial class App : Application
+    private static Mutex? _mutex;
+    private IISLogExporter? _mainWindow;
+
+    /// Command line support, allows for single instance application only
+    protected override void OnStartup(StartupEventArgs e)
     {
-        private static Mutex? _mutex;
+        bool isNewInstance = false;
 
-        protected override void OnStartup(StartupEventArgs e)
+        _mutex ??= new Mutex(true, Constants.ApplicationName, out isNewInstance);
+        if (!isNewInstance)
         {
-            bool isNewInstance = false;
-
-            _mutex ??= new Mutex(true, Constants.ApplicationName, out isNewInstance);
-            if (!isNewInstance)
-            {
-                // Another instance is already running
-                MessageBox.Show(Messages.InstanceWarning, Captions.InstanceWarning, MessageBoxButton.OK, MessageBoxImage.Warning);
-                Shutdown();
-                return;
-            }
-
-            base.OnStartup(e);
-
-            if (e.Args.Length > 0)
-            {
-                string folderPath = e.Args[0];
-                if (Directory.Exists(e.Args[0]))
-                {
-                    var cmdWindow = new IISLogExporter(folderPath);
-                    cmdWindow.Show();
-                    return;
-                }
-            }
-
-            var mainWindow = new IISLogExporter();
-            mainWindow.Show();
+            // Another instance is already running
+            MessageBox.Show(Messages.InstanceWarning, Captions.InstanceWarning, MessageBoxButton.OK, MessageBoxImage.Warning);
+            Shutdown();
+            return;
         }
+
+        base.OnStartup(e);
+
+        _mainWindow = (e.Args.Length > 0 && Directory.Exists(e.Args[0]))
+            ? new IISLogExporter(e.Args[0])
+            : new IISLogExporter();
+
+        _mainWindow.Show();
     }
 }
