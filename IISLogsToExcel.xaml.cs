@@ -14,6 +14,8 @@ namespace IISLogsToExcel;
 
 public partial class IISLogExporter : Window
 {
+    #region Variables
+
     private readonly ExcelSheetProcessor _processor;
     private readonly IniFile _iniFile = new(Constants.IniFile);
     private readonly List<LogFile> _logFiles = [];
@@ -29,8 +31,14 @@ public partial class IISLogExporter : Window
 
     private long _totalSize = 0;
     private long _processedSize = 0;
+    private long _processingCount = 0;
 
     public List<LogFile> LogFiles => _logFiles;
+
+    #endregion Variables
+
+
+    #region Constructor
 
     public IISLogExporter(string folderPath = "")
     {
@@ -43,6 +51,8 @@ public partial class IISLogExporter : Window
         if (!string.IsNullOrEmpty(folderPath))
             InitializeVariables(folderPath);
     }
+
+    #endregion Constructor
 
 
     #region Control State Modifiers
@@ -166,6 +176,7 @@ public partial class IISLogExporter : Window
         _iniFile.Save();
         Logger.LogInfo("Settings saved successfully.");
         Logger.LogInfo("Application shutting down.");
+        Logger.LogHeader();
     }
 
     /// <summary> DragOver event handler, only allows folder to be dropped. </summary>
@@ -233,13 +244,14 @@ public partial class IISLogExporter : Window
         _enableLogging = (enableLogging.IsChecked == true);
         if (!_enableLogging)
         {
-            Logger.LogWarning("Logging option disabled");
+            Logger.LogWarning("Logging option disabled.");
             Logger.DisableLogging = true;
         }
         else
         {
             Logger.DisableLogging = false;
             Logger.Create(Constants.LogFile);
+            Logger.LogInfo("Logging option enabled.");
         }
     }
 
@@ -315,7 +327,7 @@ public partial class IISLogExporter : Window
         });
 
         Logger.LogInfo("Processing completed successfully.");
-        Logger.LogHeader();
+        Logger.LogMarker(++_processingCount);
     }
 
     #endregion Event Handlers
@@ -395,7 +407,7 @@ public partial class IISLogExporter : Window
         {
             if (File.Exists(xlsFile))
             {
-                Logger.LogInfo($"File {xlsFile} already exists. Deleting it before saving new data.");
+                Logger.LogWarning($"File {xlsFile} already exists. Deleting it before saving new data.");
                 File.Delete(xlsFile);
             }
 
@@ -446,11 +458,11 @@ public partial class IISLogExporter : Window
             var worksheet = workbook.Worksheets.Add(sheetName);
 
             // Creating log sheet
-            _processor.SetupLogData(worksheet, file);
+            _processor.SetupLogSheet(worksheet, file);
 
             // Creating pivot sheet, if option enabled
             if (_createPivot)
-                _processor.SetupPivotData(workbook, worksheet, sheetName, file);
+                _processor.SetupPivotSheet(workbook, worksheet, sheetName, file);
 
             // Saving the workbook seperate excel files
             var excelFile = $"{ExcelSheetProcessor.GetSheetName(file)}{LogTokens.ExcelExtension}";
@@ -496,11 +508,11 @@ public partial class IISLogExporter : Window
             var worksheet = workbook.Worksheets.Add(sheetName);
 
             // Creating log sheet
-            _processor.SetupLogData(worksheet, file);
+            _processor.SetupLogSheet(worksheet, file);
 
             // Creating pivot sheet, if option enabled
             if (_createPivot)
-                _processor.SetupPivotData(workbook, worksheet, sheetName, file);
+                _processor.SetupPivotSheet(workbook, worksheet, sheetName, file);
 
             Logger.LogInfo($"Log file processed successfully: {file}");
         }

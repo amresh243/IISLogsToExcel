@@ -115,7 +115,7 @@
                                   Content="Enable Logging" 
                                   IsChecked="True" 
                                   Click="EnableLogging_Click" 
-                                  ToolTip="Check to enable processing logs." 
+                                  ToolTip="Check to enable processing logs (one log per day)." 
                                   HorizontalAlignment="Right" 
                                   Style="{DynamicResource SliderCheckBox}" 
                                   FontWeight="DemiBold"/>

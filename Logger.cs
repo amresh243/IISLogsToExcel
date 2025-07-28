@@ -27,11 +27,10 @@ public static class Logger
             var extension = logParts.LastOrDefault();
             var firstPart = logFile.Replace(extension ?? "", string.Empty);
 
-            _logFilePath = $"{firstPart}{DateTime.Now:yyyyMMdd.HHmmss}.{extension}";
+            _logFilePath = $"{firstPart}{DateTime.Now:yyyyMMdd}.{extension}";
 
-            if (File.Exists(_logFilePath))
+            if (!File.Exists(_logFilePath))
             {
-                File.Delete(_logFilePath);
                 using (File.Create(_logFilePath)) {}
             }
         }
@@ -48,6 +47,15 @@ public static class Logger
             return;
 
         File.AppendAllText(_logFilePath, Constants.LogHeader + Environment.NewLine);
+    }
+
+    public static void LogMarker(long processingCount)
+    {
+        if (!_loggingEnabled)
+            return;
+
+        var marker = string.Format(Constants.LogMarker, processingCount);
+        File.AppendAllText(_logFilePath, marker + Environment.NewLine);
     }
 
     public static void LogInfo(string message)

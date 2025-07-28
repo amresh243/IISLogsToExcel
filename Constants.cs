@@ -7,6 +7,7 @@ internal static class Constants
     public static string[] NumberColumns = { "s-port", "sc-status", "sc-substatus", "sc-win32-status", "sc-bytes", "cs-bytes", "time-taken" };
 
     public const string LogHeader = "=============================================================";
+    public const string LogMarker = "#########~{0}~#########";
     public const string ApplicationName = "IISLogsToExcel";
     public const string IniFile = "IISLogsToExcel.ini";
     public const string LogFile = "IISLogsToExcel.log";

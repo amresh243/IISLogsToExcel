@@ -94,7 +94,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
     /// <summary> Logic to process excel sheet. </summary>
     /// <param name="worksheet">Worksheet object, excel sheet object</param>
     /// <param name="file">Source log file</param>
-    public void SetupLogData(IXLWorksheet worksheet, string file)
+    public void SetupLogSheet(IXLWorksheet worksheet, string file)
     {
         int currentRow = 1;
         try
@@ -156,7 +156,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
                     {
                         Logger.LogWarning($"Broken or invalid data at line {currentRow} in file {file}, output repair attempted.");
                         UpdatePreviousCells(worksheet, currentRow, i, value);
-                        values = values.Where(x => x != value).ToArray();
+                        values = [.. values.Where(x => x != value)];
                         i--;
                         continue;
                     }
@@ -193,7 +193,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
     /// <param name="workbook">Workbook object, excel workbook object</param>
     /// <param name="worksheet">Worksheet object, excel sheet object</param>
     /// <param name="sheetName">sheet against which pivot to be created</param>
-    public void SetupPivotData(XLWorkbook workbook, IXLWorksheet worksheet, string sheetName, string file)
+    public void SetupPivotSheet(XLWorkbook workbook, IXLWorksheet worksheet, string sheetName, string file)
     {
         try
         {
