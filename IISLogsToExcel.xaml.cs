@@ -287,6 +287,8 @@ public partial class IISLogExporter : Window
     /// <summary> Process log button handler </summary>
     private async void ProcessButton_Click(object sender, RoutedEventArgs e)
     {
+        var stopwatch = Stopwatch.StartNew();
+
         if (string.IsNullOrWhiteSpace(_folderPath) || !Directory.Exists(_folderPath))
         {
             Logger.LogWarning("Invalid folder path selected!");
@@ -326,7 +328,9 @@ public partial class IISLogExporter : Window
             ChangeControlState(true);
         });
 
-        Logger.LogInfo("Processing completed successfully.");
+        stopwatch.Stop();
+
+        Logger.LogInfo($"Processing completed successfully in {stopwatch.Elapsed.TotalSeconds} seconds.");
         Logger.LogMarker(++_processingCount);
     }
 

@@ -8,6 +8,9 @@ namespace IISLogsToExcel;
 
 public static class Utility
 {
+    private const string _xmlPatterns = @"[\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD]";
+    private const string _numberPatterns = @"^\d+$";
+
     /// <summary> Returns a valid number from the given string. </summary>
     public static int GetValidNumber(this string text)
     {
@@ -23,8 +26,49 @@ public static class Utility
         if (string.IsNullOrEmpty(input))
             return false;
 
-        string pattern = @"^\d+$";
-        return Regex.IsMatch(input, pattern);
+        if (input.Any(c => !char.IsDigit(c)))
+            return false;
+
+        return true;
+    }
+
+    /// <summary> Checks if the given string is numeric (slower). </summary>
+    public static bool IsNumeric2(this string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return false;
+        
+        return Regex.IsMatch(input, _numberPatterns);
+    }
+
+    /// <summary> Removes invalid XML characters from the given text. </summary>
+    /// <param name="text">Input text</param>
+    /// <returns>Cleaned text</returns>
+    public static string RemoveInvalidXmlChars(this string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return text;
+
+        return new string([.. text.Where(ch =>
+            (ch == 0x9 || ch == 0xA || ch == 0xD ||
+            (ch >= 0x20 && ch <= 0xD7FF) ||
+            (ch >= 0xE000 && ch <= 0xFFFD) ||
+            (ch >= 0x10000 && ch <= 0x10FFFF))
+            )]);
+    }
+
+    /// <summary> Removes invalid XML characters from the given text (slower) </summary>
+    /// <param name="text">Input text</param>
+    /// <returns>Cleaned text</returns>
+    public static string RemoveInvalidXmlChars2(this string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return text;
+
+        // Use regex to match and rebuild the string
+        MatchCollection matches = Regex.Matches(text, _xmlPatterns);
+        return string.Concat(matches.Cast<Match>().Select(m => m.Value));
+
     }
 
     /// <summary> Returns all log files under the given folder path. </summary>
