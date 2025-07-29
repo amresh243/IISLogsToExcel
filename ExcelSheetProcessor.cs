@@ -3,6 +3,7 @@
 using ClosedXML.Excel;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
 
@@ -13,24 +14,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
     private const int MaxSheetRows = 1048576;
     private readonly IISLogExporter _handler = handler;
 
-
     #region Utility Methods
-
-    /// <summary> Removes invalid XML characters from the given text. </summary>
-    /// <param name="text">Input text</param>
-    /// <returns>Cleaned text</returns>
-    private static string RemoveInvalidXmlChars(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-            return text;
-
-        return new string([.. text.Where(ch =>
-            (ch == 0x9 || ch == 0xA || ch == 0xD ||
-            (ch >= 0x20 && ch <= 0xD7FF) ||
-            (ch >= 0xE000 && ch <= 0xFFFD) ||
-            (ch >= 0x10000 && ch <= 0x10FFFF))
-            )]);
-    }
 
     /// <summary> Returns a set of indexes for columns that contain numeric values. </summary>
     /// <param name="headers">list of headers</param>
@@ -100,6 +84,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
         try
         {
             Logger.LogInfo($"Creating sheet {worksheet.Name} against file {file}...");
+
             var lines = File.ReadAllLines(file, Encoding.UTF8)
                 .Where(l => !l.StartsWith(LogTokens.CommentMarker) || l.StartsWith(LogTokens.LogMarker)).ToList();
             if (lines.Count == 0)
@@ -112,7 +97,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
             if (lines[0].StartsWith(LogTokens.LogMarker))
                 lines[0] = lines[0].Replace(LogTokens.LogMarker, string.Empty).Trim();
 
-            var headers = lines[0].Split(LogTokens.LineSplitMarker).Select(x => RemoveInvalidXmlChars(x).ToLowerInvariant()).ToList();
+            var headers = lines[0].Split(LogTokens.LineSplitMarker).Select(x => x.RemoveInvalidXmlChars().ToLowerInvariant()).ToList();
             if (!headers.Contains(Headers.Date) || !headers.Contains(Headers.Time))
             {
                 _handler.UpdateList(file, Brushes.Tomato);
@@ -138,7 +123,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
             // Process each line of the log file and fill the worksheet
             foreach (var line in lines.Skip(1))
             {
-                var values = line.Split(' ').Select(x => RemoveInvalidXmlChars(x)).ToArray();
+                var values = line.Split(' ').Select(x => x.RemoveInvalidXmlChars()).ToArray();
 
                 worksheet.Cell(currentRow, 1).Value = values[0];
                 worksheet.Cell(currentRow, 2).Value = values[1];
@@ -178,6 +163,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
         catch
         {
             var message = string.Format(Messages.LogError, currentRow, file);
+
             MessageBox.Show(message, Captions.LogError, MessageBoxButton.OK, MessageBoxImage.Warning);
             worksheet.Rows(currentRow, MaxSheetRows).Hide();
             worksheet.SetAutoFilter();
@@ -198,15 +184,18 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
         try
         {
             var msg = string.Format(Messages.CreatePivot, worksheet.Name);
+
             _handler.UpdateStatus(msg);
             Logger.LogInfo(msg);
             var dataRange = worksheet.RangeUsed();
+
             if (dataRange == null)
             {
                 _handler.UpdateList(file, Brushes.Tomato);
                 _handler.UpdateStatus(string.Format(Messages.PivotError, sheetName));
                 return;
             }
+
             var pivotSheet = workbook.Worksheets.Add($"{LogTokens.PivotMarker}{sheetName}");
             var pt = pivotSheet.PivotTables.Add(LogTokens.PivotTable, pivotSheet.Cell(1, 1), dataRange);
             pt.RowLabels.Add(Headers.Time);
@@ -223,6 +212,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
         catch
         {
             var message = string.Format(Messages.PivotError, sheetName);
+
             MessageBox.Show(message, Captions.PivotError, MessageBoxButton.OK, MessageBoxImage.Warning);
             _handler.UpdateList(file, Brushes.Tomato);
             Logger.LogException(message, new Exception($"Error encountered while processing pivot data for sheet {sheetName}"));
