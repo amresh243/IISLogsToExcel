@@ -47,9 +47,6 @@ public partial class IISLogExporter : Window
         _processor = new ExcelSheetProcessor(this);
 
         LoadSettings(folderPath);
-
-        if (!string.IsNullOrEmpty(folderPath))
-            InitializeVariables(folderPath);
     }
 
     #endregion Constructor
@@ -167,6 +164,9 @@ public partial class IISLogExporter : Window
     // Change the Window_Closing method signature to accept nullable sender
     private void Window_Closing(object? sender, CancelEventArgs e)
     {
+        if (_isProcessing)
+            Logger.LogWarning("Application shutdown initiated while processing data.");
+
         Logger.LogInfo("Saving settings before closing the application...");
         _iniFile.SetValue(Constants.SettingsSection, Constants.SingleWorkbook, _isSingleBook.ToString());
         _iniFile.SetValue(Constants.SettingsSection, Constants.CreatePivot, _createPivot.ToString());
@@ -311,10 +311,14 @@ public partial class IISLogExporter : Window
         
         try
         {
+            _isProcessing = true;
+
             if (!_isSingleBook)
                 await Task.Run(() => CreateSeperateFiles());
             else
                 await Task.Run(() => CreateSingleFile());
+
+            _isProcessing = false;
         }
         catch (Exception ex)
         {
@@ -442,7 +446,6 @@ public partial class IISLogExporter : Window
     private void CreateSeperateFiles()
     {
         Logger.LogInfo("Creating separate Excel files for each log file...");
-        _isProcessing = true;
         var logFiles = Utility.GetLogFiles(_folderPath);
         Logger.LogInfo($"Found {logFiles.Length} log files in the folder '{_folderPath}'.");
 
@@ -479,13 +482,11 @@ public partial class IISLogExporter : Window
 
         _processedSize = _totalSize;
         UpdateProgress(_processedSize, false);
-        _isProcessing = false;
     }
 
     /// <summary> Creates single excel file with sheets as multiple files under folder. </summary>
     private void CreateSingleFile()
     {
-        _isProcessing = true;
         var sheetCount = 0;
         var workbook = new XLWorkbook();
         var logFiles = Utility.GetLogFiles(_folderPath);
@@ -503,12 +504,7 @@ public partial class IISLogExporter : Window
             UpdateList(file, Brushes.LimeGreen);
 
             sheetCount++;
-            var sheetName = ExcelSheetProcessor.GetSheetName(file);
-            var sheetNames = workbook.Worksheets.Select(ws => ws.Name).ToList();
-            var existingCount = sheetNames.Count(name => name == sheetName);
-            if (existingCount > 0)
-                sheetName += $"{LogTokens.FileSplitMarker}{existingCount + 1}";
-
+            var sheetName = ExcelSheetProcessor.GetSheetName(file, false, [.. workbook.Worksheets.Select(ws => ws.Name)]);
             var worksheet = workbook.Worksheets.Add(sheetName);
 
             // Creating log sheet
@@ -530,7 +526,6 @@ public partial class IISLogExporter : Window
 
         _processedSize = _totalSize;
         UpdateProgress(_processedSize, false);
-        _isProcessing = false;
     }
 
     #endregion Thread Methods
