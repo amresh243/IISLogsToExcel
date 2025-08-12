@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="IIS Log to Excel Converter" 
-        Height="380" Width="570" 
+        Height="382" Width="570" 
         WindowStyle="ThreeDBorderWindow"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanMinimize"
@@ -26,8 +26,9 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
+                <!-- Progress bar -->
                 <ProgressBar Name="progressBar" 
-                             Height="20" 
+                             Height="22" 
                              Minimum="0" 
                              Maximum="100" 
                              Value="0" 
@@ -51,10 +52,12 @@
                 </ProgressBar>
                 <TextBlock Name="progressText" 
                            Text="0%" 
+                           VerticalAlignment="Center"
                            TextAlignment="Center" 
                            FontWeight="Bold"/>
             </Grid>
 
+            <!-- Status bar -->
             <StatusBar DockPanel.Dock="Bottom" 
                        Name="statusBar" 
                        Background="{StaticResource ControlEnabled}">
@@ -63,8 +66,10 @@
                            ToolTip="Displays progress messages." 
                            FontWeight="DemiBold"/>
             </StatusBar>
-
+            
+            <!-- Controls -->
             <StackPanel Margin="10">
+                <!-- Textbox and select button -->
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -81,8 +86,8 @@
                             Grid.Column="1"
                             HorizontalAlignment="Right"
                             Content="BROWSE" 
+                            Width="65"
                             Click="SelectFolderButton_Click" 
-                            Width="70" 
                             ToolTip="Click to select log folder." 
                             Style="{DynamicResource RoundedButton}" Background="{StaticResource ControlEnabled}"
                             Height="24" 
@@ -90,7 +95,10 @@
                             FontWeight="DemiBold"/>
                 </Grid>
 
-                <GroupBox Header="Options" x:Name="groupOptions" FontWeight="DemiBold">
+                <!-- Options Checkboxes -->
+                <GroupBox Header="OPTIONS" 
+                          x:Name="groupOptions" 
+                          FontWeight="DemiBold">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -103,7 +111,8 @@
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,5,0,0">
                             <CheckBox x:Name="isSingleWorkBook" 
-                                      Content="Create Single Workbook" 
+                                      Content="CREATE SINGLE WORKBOOK" 
+                                      FontSize="11"
                                       IsChecked="False" 
                                       Click="SingleWorkbook_Click" 
                                       ToolTip="Check to create single workbook with sheet against each log file conent." 
@@ -112,19 +121,22 @@
                         </StackPanel>
                             <StackPanel Grid.Column="1" Grid.Row="0" Margin="0,5,0,0">
                                 <CheckBox x:Name="createPivotTable" 
-                                          Content="Create Pivot Tables" 
+                                          Content="CREATE PIVOT TABLES" 
                                           IsChecked="False" 
-                                          Margin="110,0,0,0"
+                                          FontSize="11"
+                                          Margin="105,0,0,0"
                                           Click="PivotTable_Click" 
                                           ToolTip="Check to create RPS pivot table with hour in filter." 
                                           Style="{DynamicResource SliderCheckBox}" 
-                      FontWeight="DemiBold"/>
+                                          FontWeight="DemiBold"/>
                             </StackPanel>
                             <Rectangle Height="5" Fill="Transparent" Grid.Row="1"/>
                             <StackPanel Grid.Column="0" Grid.Row="2">
                             <CheckBox x:Name="enableLogging" 
-                                      Content="Enable Application Logging" 
+                                      Content="ENABLE APPLICATION LOGGING" 
+                                      FontSize="11"
                                       IsChecked="True" 
+                                      Margin="0,0,0,2"
                                       Click="EnableLogging_Click" 
                                       ToolTip="Check to enable processing logs (one log per day)." 
                                       Style="{DynamicResource SliderCheckBox}" 
@@ -132,9 +144,10 @@
                         </StackPanel>
                         <StackPanel Grid.Column="1" Grid.Row="2">
                             <CheckBox x:Name="systemTheme" 
-                                      Content="Enable Dark Mode" 
+                                      Content="ENABLE DARK MODE" 
+                                      FontSize="11"
                                       IsChecked="False" 
-                                      Margin="110,0,0,0"
+                                      Margin="105,0,0,2"
                                       Click="SystemTheme_Click" 
                                       ToolTip="Check to apply dark theme." 
                                       Style="{DynamicResource SliderCheckBox}" 
@@ -143,7 +156,8 @@
                     </Grid>
                 </GroupBox>
                 
-                <StackPanel Margin="0,10,0,0">
+                <!-- List and process button -->
+                <StackPanel Margin="0,8,0,0">
                     <ListBox ItemsSource="{Binding Path=LogFiles, Mode=TwoWay}"
                              Name="lbLogFiles" 
                              IsTabStop="False"
@@ -164,7 +178,7 @@
                     <Button Name="processButton" 
                             Content="PROCESS LOGS OF LISTED FILES" 
                             Click="ProcessButton_Click" 
-                            Width="300" 
+                            Width="210" 
                             HorizontalAlignment="Center"
                             Margin="0,10,0,0"
                             ToolTip="Click to process logs."
