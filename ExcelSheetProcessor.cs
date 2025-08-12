@@ -1,6 +1,7 @@
 ﻿// Author: Amresh Kumar (July 2025)
 
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -34,7 +35,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
     /// <summary> Returns sheet name from file name. </summary>
     /// <param name="file">file with path</param>
     /// <returns>sheet name</returns>
-    public static string GetSheetName(string file, bool isFile = false)
+    public static string GetSheetName(string file, bool isFile = false, string[]? sheets = null)
     {
         if (string.IsNullOrEmpty(file))
             return file;
@@ -54,26 +55,43 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
             return file;
 
         var sheetNameLength = sheetName.Length;
-        return (sheetNameLength > 6) ? sheetName[(sheetNameLength - 6)..] : sheetName;
-    }
+        var sheet = (sheetNameLength > 6) ? sheetName[(sheetNameLength - 6)..] : sheetName;
+        if (sheets != null && sheets.Length > 0)
+        {
+            var existingCount = sheets.Count(name => name == sheet);
+            int sheetCount = existingCount;
+            while (existingCount != 0)
+            {
+                sheet = sheet.Split(LogTokens.FileSplitMarker).FirstOrDefault() + $"{LogTokens.FileSplitMarker}{sheetCount}";
+                existingCount = sheets.Count(name => name == sheet);
+                sheetCount++;
+            }
+        }
 
-    /// <summary> Updates previous cells in the row when a cell is wrongly updated. </summary>
-    /// <param name="worksheet">Current worksheet</param>
-    /// <param name="currentRow">Current row</param>
-    /// <param name="columnIndex">Current column</param>
-    /// <param name="value">Value to be updated</param>
-    private static void UpdatePreviousCells(IXLWorksheet worksheet, int currentRow, int columnIndex, string value)
-    {
-        var wronglyUpdatedCell = worksheet.Cell(currentRow, columnIndex - 1);
-        var prevCell = worksheet.Cell(currentRow, columnIndex);
-        wronglyUpdatedCell.Value = $"{wronglyUpdatedCell.Value} {prevCell.Value}";
-        prevCell.Value = value;
+        return sheet;
     }
 
     #endregion Utility Methods
 
 
     #region Excel Data Processing Methods
+
+    /// <summary> Processes a row of data and adds it to the worksheet. </summary>
+    private void AddRowData(IXLWorksheet worksheet, HashSet<int> specialIndices, string[] values, int currentRow)
+    {
+        worksheet.Cell(currentRow, 1).Value = values[0];
+        worksheet.Cell(currentRow, 2).Value = values[1];
+        worksheet.Cell(currentRow, 3).FormulaA1 = string.Format(LogTokens.HourFormulae, currentRow);
+
+        for (int i = 3; i <= values.Length; i++)
+        {
+            var cell = worksheet.Cell(currentRow, i + 1);
+            var value = values[i - 1];
+            var isNumericCell = specialIndices.Contains(i);
+
+            cell.Value = isNumericCell ? value.GetValidNumber() : value;
+        }
+    }
 
     /// <summary> Logic to process excel sheet. </summary>
     /// <param name="worksheet">Worksheet object, excel sheet object</param>
@@ -119,35 +137,44 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
             }
 
             var specialIndices = GetNumberColumnIndexes(headers);
+            var incompleteCellData = new List<string>();
 
             // Process each line of the log file and fill the worksheet
             foreach (var line in lines.Skip(1))
             {
                 var values = line.Split(' ').Select(x => x.RemoveInvalidXmlChars()).ToArray();
 
-                worksheet.Cell(currentRow, 1).Value = values[0];
-                worksheet.Cell(currentRow, 2).Value = values[1];
-                worksheet.Cell(currentRow, 3).FormulaA1 = string.Format(LogTokens.HourFormulae, currentRow);
-
-                for (int i = 3; i <= values.Length; i++)
+                // Handling borken iis log row data
+                if (values.Length < headers.Count - 1)
                 {
-                    var cell = worksheet.Cell(currentRow, i + 1);
-                    var value = values[i - 1];
-                    var isNumericCell = specialIndices.Contains(i);
-
-                    // In rare cases spacially with special chars in urls, url contains space.
-                    // This will cause incorrect update of later cells, so we need to handle it.
-                    if (isNumericCell && !value.IsNumeric())
+                    var prevDataCount = incompleteCellData.Count;
+                    if (prevDataCount == 0)
+                        incompleteCellData.AddRange(values);
+                    else if (values.Length == 1)
+                        incompleteCellData[prevDataCount - 1] += values[0];
+                    else
                     {
-                        Logger.LogWarning($"Broken or invalid data at line {currentRow} in file {file}, output repair attempted.");
-                        UpdatePreviousCells(worksheet, currentRow, i, value);
-                        values = [.. values.Where(x => x != value)];
-                        i--;
-                        continue;
+                        incompleteCellData[prevDataCount - 1] += values[0];
+                        incompleteCellData.AddRange(values.Skip(1));
                     }
 
-                    cell.Value = isNumericCell ? value.GetValidNumber() : value;
+                    lines = [.. lines.Where(x => x != line)];
+                    continue;
                 }
+
+                // Create row if there is broken row computed data available
+                if (incompleteCellData.Count > 0)
+                {
+                    Logger.LogWarning($"Broken or invalid data at line {currentRow } in file {file}, output repair attempted.");
+                    _handler.UpdateList(file, Brushes.Tomato);
+                    var prevCellData = incompleteCellData.ToArray();
+                    AddRowData(worksheet, specialIndices, prevCellData, currentRow);
+                    incompleteCellData.Clear();
+                    _handler.UpdateProgress(Encoding.UTF8.GetByteCount(string.Join(' ', prevCellData)));
+                    currentRow++;
+                }
+
+                AddRowData(worksheet, specialIndices, values, currentRow);
 
                 _handler.UpdateProgress(Encoding.UTF8.GetByteCount(line));
                 currentRow++;
