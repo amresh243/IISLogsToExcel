@@ -9,6 +9,11 @@
         <GradientStop Color="LightSkyBlue"/>
     </LinearGradientBrush>
 
+    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" x:Key="ProgressColor">
+        <GradientStop Color="#289628" Offset="1"/>
+        <GradientStop Color="LimeGreen"/>
+    </LinearGradientBrush>
+
     <LinearGradientBrush Opacity="0.5" EndPoint="0.5,1" StartPoint="0.5,0" x:Key="ControlDimmed">
         <GradientStop Color="SkyBlue" Offset="1" />
         <GradientStop Color="LightSkyBlue" />

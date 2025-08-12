@@ -107,6 +107,7 @@ public partial class IISLogExporter : Window
         enableLogging.Foreground = foreColor;
         createPivotTable.Foreground = foreColor;
         systemTheme.Foreground = foreColor;
+        groupOptions.Foreground = foreColor;
 
         foreach (var item in _logFiles)
             item.Color = foreColor;
