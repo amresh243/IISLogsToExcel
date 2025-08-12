@@ -85,7 +85,6 @@ public partial class IISLogExporter : Window
             InitializeVariables(_folderPath);
         else
             _folderPath = string.Empty;
-
     }
 
     /// <summary> Changes controls background and foreground based on system theme. </summary>
@@ -367,6 +366,9 @@ public partial class IISLogExporter : Window
         }
     }
 
+    private string GetFileNameWithoutRoot(string file) =>
+        file.Replace(_folderPath + "\\", "");
+
     /// <summary> Initiates list with log files found in the selected folder. </summary>
     /// <param name="logFiles">list of log files</param>
     private void InitializeList(string[] logFiles)
@@ -380,7 +382,7 @@ public partial class IISLogExporter : Window
         foreach (var file in logFiles)
         {
             var fileName = ExcelSheetProcessor.GetSheetName(file, true);
-            var listItem = new LogFile { Name = file, ID = id++.ToString(), Color = foreColor };
+            var listItem = new LogFile { Name = GetFileNameWithoutRoot(file), ID = id++.ToString(), Color = foreColor };
             _logFiles.Add(listItem);
             lbLogFiles.Items.Add(listItem);
         }
@@ -393,7 +395,8 @@ public partial class IISLogExporter : Window
     /// <param name="color">forecolor to be set</param>
     public void UpdateList(string file, Brush color)
     {
-        var item = _logFiles.FirstOrDefault(x => x.Name == file);
+        var fileName = GetFileNameWithoutRoot(file);
+        var item = _logFiles.FirstOrDefault(x => x.Name == fileName);
         if (item != null)
         {
             item.Color = color;
