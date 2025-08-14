@@ -99,4 +99,19 @@ public static class Utility
         // Default to light mode if Key not found
         return false;
     }
+
+    public static string GetFormattedSize(long size)
+    {
+        if (size < 1024)
+            return $"{size} Bytes";
+        else if (size < 1048576)
+            return $"{size / 1024.0:F2} KB";
+        else if (size < 1073741824)
+            return $"{size / 1048576.0:F2} MB";
+        else
+            return $"{size / 1073741824.0:F2} GB";
+    }
+
+    public static string GetFileNameWithoutRoot(string file, string root) =>
+        root.EndsWith('\\') ? file.Replace(root + "\\", "") : file.Replace(root, "");
 }
