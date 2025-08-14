@@ -10,6 +10,7 @@
         DragOver="FolderPath_DragOver"
         Drop="FolderPath_Drop"
         Closing="Window_Closing"
+        MouseDoubleClick="Application_DblClick"
         ToolTip="Converts IIS log data to excel. Drop log folder here to select location.">
     <Window.Resources>
         <ResourceDictionary>

@@ -4,6 +4,7 @@ using Microsoft.Win32;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -30,6 +31,17 @@ public partial class IISLogExporter : Window
         Logger.LogInfo("Settings saved successfully.");
         Logger.LogInfo("Application shutting down.");
         Logger.LogHeader();
+    }
+
+    /// <summary> Opens appliction folder in explorer. </summary>
+    private void Application_DblClick(object sender, RoutedEventArgs e)
+    {
+        if (e != null && e.OriginalSource.GetType().Name != Constants.validHandler)
+            return;
+
+        string appDirectory = AppContext.BaseDirectory;
+        Logger.LogInfo($"Opening application folder path in explorer: {appDirectory}.");
+        Process.Start(Constants.ExplorerApp, appDirectory);
     }
 
     /// <summary> DragOver event handler, only allows folder to be dropped. </summary>
@@ -119,11 +131,12 @@ public partial class IISLogExporter : Window
     /// <summary> Opens folder selector dialog if no selection else opens selected folder in explorer. </summary>
     private void FolderPathTextBox_DblClick(object sender, RoutedEventArgs e)
     {
+        //DependencyObject source = e.OriginalSource as TextBox;
         if (!Directory.Exists(_folderPath))
             SelectFolderButton_Click(sender, e);
         else
         {
-            Logger.LogInfo($"Opening folder in explorer: {_folderPath}.");
+            Logger.LogInfo($"Opening selected folder path in explorer: {_folderPath}.");
             Process.Start(Constants.ExplorerApp, _folderPath);
         }
     }
