@@ -1,4 +1,6 @@
-﻿using Microsoft.Win32;
+﻿// Author: Amresh Kumar (July 2025)
+
+using Microsoft.Win32;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
