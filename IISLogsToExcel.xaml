@@ -170,10 +170,16 @@
                                                Foreground="DeepSkyBlue"
                                                FontWeight="DemiBold"/>
                                     <TextBlock Text="{Binding Name, Mode=TwoWay}"
-                                               Foreground="{Binding Color, Mode=TwoWay}" />
+                                               Foreground="{Binding Color, Mode=TwoWay}" 
+                                               ToolTip="{Binding ToolTip, Mode=TwoWay}"/>
                                 </WrapPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <EventSetter Event="MouseDoubleClick" Handler="ListBoxItem_DoubleClick"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
                     </ListBox>
                     <Button Name="processButton" 
                             Content="PROCESS LOGS OF LISTED FILES" 
