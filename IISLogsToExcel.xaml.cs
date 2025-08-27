@@ -19,7 +19,7 @@ public partial class IISLogExporter : Window
     private readonly IniFile _iniFile = new(Constants.IniFile);
     private readonly List<LogFileItem> _logFiles = [];
     private readonly MessageDialog _messageBox;
-    private ContextMenu _contextMenu = new ContextMenu();
+    private readonly ContextMenu _contextMenu = new();
 
     private string _folderName = string.Empty;
     private string _folderPath = string.Empty;
