@@ -126,7 +126,7 @@ public partial class IISLogExporter : Window
         else
         {
             Logger.DisableLogging = false;
-            Logger.Create(Constants.LogFile);
+            Logger.Create(Constants.LogFile, this);
             Logger.LogInfo("Logging option enabled.");
         }
     }

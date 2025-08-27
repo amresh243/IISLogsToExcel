@@ -20,28 +20,46 @@ public static class Logger
         }
     }
 
+    private static void Initialize(string logFile)
+    {
+        if (!_loggingEnabled)
+            return;
+
+        var logParts = logFile.Split(LogTokens.ExtensionSplitMarker);
+        var extension = logParts.LastOrDefault();
+        var firstPart = logFile.Replace(extension ?? "", string.Empty);
+
+        _logFilePath = $"{firstPart}{DateTime.Now:yyyyMMdd}.{extension}";
+
+        if (!File.Exists(_logFilePath))
+        {
+            using (File.Create(_logFilePath)) { }
+        }
+    }
+
     public static void Create(string logFile)
     {
         try
         {
-            if (!_loggingEnabled)
-                return;
-
-            var logParts = logFile.Split(LogTokens.ExtensionSplitMarker);
-            var extension = logParts.LastOrDefault();
-            var firstPart = logFile.Replace(extension ?? "", string.Empty);
-
-            _logFilePath = $"{firstPart}{DateTime.Now:yyyyMMdd}.{extension}";
-
-            if (!File.Exists(_logFilePath))
-            {
-                using (File.Create(_logFilePath)) {}
-            }
+            Initialize(logFile);
         }
         catch
         {
             _loggingEnabled = false;
             MessageBox.Show(Messages.LoggingError, Captions.LoggingError, MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    public static void Create(string logFile, IISLogExporter app)
+    {
+        try
+        {
+            Initialize(logFile);
+        }
+        catch
+        {
+            _loggingEnabled = false;
+            app.MessageBox.Show(Messages.LoggingError, Captions.LoggingError, DialogTypes.Warning);
         }
     }
 

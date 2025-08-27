@@ -74,7 +74,7 @@ public partial class IISLogExporter : Window
 
         if (_enableLogging)
         {
-            Logger.Create(Constants.LogFile);
+            Logger.Create(Constants.LogFile, this);
             Logger.LogInfo("Settings loaded successfully.");
         }
         else
