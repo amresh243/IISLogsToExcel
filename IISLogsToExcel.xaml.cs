@@ -4,7 +4,9 @@ using ClosedXML.Excel;
 using System.Data;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace IISLogsToExcel;
@@ -16,6 +18,8 @@ public partial class IISLogExporter : Window
     private readonly ExcelSheetProcessor _processor;
     private readonly IniFile _iniFile = new(Constants.IniFile);
     private readonly List<LogFileItem> _logFiles = [];
+    private readonly MessageDialog _messageBox;
+    private ContextMenu _contextMenu = new ContextMenu();
 
     private string _folderName = string.Empty;
     private string _folderPath = string.Empty;
@@ -31,6 +35,7 @@ public partial class IISLogExporter : Window
     private long _processingCount = 0;
 
     public List<LogFileItem> LogFiles => _logFiles;
+    public MessageDialog MessageBox => _messageBox;
 
     #endregion Variables
 
@@ -42,6 +47,7 @@ public partial class IISLogExporter : Window
         InitializeComponent();
 
         _processor = new ExcelSheetProcessor(this);
+        _messageBox = new MessageDialog(this);
 
         LoadSettings(folderPath);
     }
@@ -74,6 +80,7 @@ public partial class IISLogExporter : Window
         else
             Logger.DisableLogging = true;
 
+        InitializeMenu();
         InitializeTheme(_isDarkMode);
 
         if (!string.IsNullOrEmpty(folderPath))
@@ -95,6 +102,7 @@ public partial class IISLogExporter : Window
         lbLogFiles.Background = backColor;
         progressBar.Background = backColor;
         folderPathTextBox.Background = backColor;
+        _contextMenu.Background = backColor;
         progressText.Foreground = foreColor;
         folderPathTextBox.Foreground = foreColor;
         lbLogFiles.Foreground = foreColor;
@@ -104,12 +112,56 @@ public partial class IISLogExporter : Window
         createPivotTable.Foreground = foreColor;
         systemTheme.Foreground = foreColor;
         groupOptions.Foreground = foreColor;
+        _contextMenu.Foreground = foreColor;
 
         foreach (var item in _logFiles)
             item.Color = foreColor;
 
         lbLogFiles.Items.Refresh();
+        _messageBox.ApplyTheme(isDarkMode);
         Logger.LogInfo("Theme initialized successfully.");
+    }
+
+    /// <summary> Returns an Image control with the specified resource image path. </summary>
+    private static Image GetIcon(string iconPath, double width = 16, double height = 16)
+    {
+        var icon = new BitmapImage(new Uri($"pack://application:,,,{iconPath}"));
+        return new Image { Source = icon, Width = width, Height = height };
+    }
+
+    /// <summary> Initializes context menu with required menu items and their event handlers. </summary>
+    private void InitializeMenu()
+    {
+        Logger.LogInfo("Initializing context menu...");
+        var menuItemInput = new MenuItem { Header = MenuEntry.InputLocation, Icon = GetIcon("/res/folder.png") };
+        var menuItemLog = new MenuItem { Header = MenuEntry.LogLocation, Icon = GetIcon("/res/folder.png") };
+        var menuItemProcess = new MenuItem { Header = MenuEntry.ProcessLogs, Icon = GetIcon("/res/process.png") };
+        var menuItemCleanLogs = new MenuItem { Header = MenuEntry.CleanOldLogs, Icon = GetIcon("/res/cleanlog.png") };
+        var menuItemReset = new MenuItem { Header = MenuEntry.ResetApplication, Icon = GetIcon("/res/reset.png") };
+        var menuItemExit = new MenuItem { Header = MenuEntry.ExitApplication, Icon = GetIcon("/res/exit.png") };
+        var menuItemAbout = new MenuItem { Header = MenuEntry.AboutApplication, Icon = GetIcon("/app-icon.ico") };
+
+        menuItemInput.Click += FolderPathTextBox_DblClick;
+        menuItemLog.Click += Application_DblClick;
+        menuItemProcess.Click += ProcessButton_Click;
+        menuItemCleanLogs.Click += CleanLogHistory_Click;
+        menuItemReset.Click += ResetApplication_Click;
+        menuItemExit.Click += MenuItemExit_Click; ;
+        menuItemAbout.Click += AboutApplication_Click;
+
+        _contextMenu.Items.Add(menuItemInput);
+        _contextMenu.Items.Add(menuItemLog);
+        _contextMenu.Items.Add(new Separator());
+        _contextMenu.Items.Add(menuItemProcess);
+        _contextMenu.Items.Add(new Separator());
+        _contextMenu.Items.Add(menuItemCleanLogs);
+        _contextMenu.Items.Add(menuItemReset);
+        _contextMenu.Items.Add(menuItemExit);
+        _contextMenu.Items.Add(new Separator());
+        _contextMenu.Items.Add(menuItemAbout);
+
+        this.ContextMenu = _contextMenu;
+        Logger.LogInfo("Context menu initialized.");
     }
 
     /// <summary> Changes the state of controls based on the enable parameter. </summary>
@@ -122,6 +174,12 @@ public partial class IISLogExporter : Window
         isSingleWorkBook.IsEnabled = enable;
         createPivotTable.IsEnabled = enable;
         enableLogging.IsEnabled = enable;
+
+        MenuItem menuItemProcess = _contextMenu.Items[3] as MenuItem ?? new MenuItem();
+        MenuItem menuItemReset = _contextMenu.Items[6] as MenuItem ?? new MenuItem();
+
+        menuItemProcess.IsEnabled = enable;
+        menuItemReset.IsEnabled = enable;
 
         if (enable)
             _totalSize = _processedSize = 0;
@@ -167,6 +225,10 @@ public partial class IISLogExporter : Window
         progressBar.Value = 0;
         _totalSize = _processedSize = 0;
         progressText.Text = $"0%";
+        _folderPath = _folderName = "";
+        folderPathTextBox.Text = "";
+        lbLogFiles.Items.Clear();
+        _logFiles.Clear();
 
         if (Directory.Exists(folderPath))
         {
@@ -253,7 +315,7 @@ public partial class IISLogExporter : Window
         {
             Dispatcher.Invoke(() =>
             {
-                MessageBox.Show(this, string.Format(Messages.AppError, ex.Message), Captions.AppError);
+                _messageBox.Show(string.Format(Messages.AppError, ex.Message), Captions.AppError, DialogTypes.Error);
             });
 
             Logger.LogException("Error while saving Excel file!", ex);

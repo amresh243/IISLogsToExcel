@@ -6,11 +6,11 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>app-icon.ico</ApplicationIcon>
     <Authors>Amresh Kumar</Authors>
     <SignAssembly>True</SignAssembly>
-    <AssemblyVersion>1.3.9</AssemblyVersion>
-    <FileVersion>1.3.9</FileVersion>
+    <AssemblyVersion>1.4.0</AssemblyVersion>
+    <FileVersion>1.4.0</FileVersion>
+    <ApplicationIcon>app-icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,11 +19,20 @@
     <None Remove="App.config" />
     <None Remove="IISLogsToExcel.pfx" />
     <None Remove="README.md" />
+    <None Remove="res\cleanlog.png" />
+    <None Remove="res\error.png" />
+    <None Remove="res\exit.png" />
+    <None Remove="res\folder.png" />
+    <None Remove="res\info.png" />
+    <None Remove="res\process.png" />
+    <None Remove="res\question.png" />
+    <None Remove="res\reset.png" />
+    <None Remove="res\warning.png" />
     <None Remove="Unused Methods.txt" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="app-icon.ico" />
+    <Resource Include="app-icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,6 +41,18 @@
 
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="res\cleanlog.png" />
+    <Resource Include="res\error.png" />
+    <Resource Include="res\exit.png" />
+    <Resource Include="res\folder.png" />
+    <Resource Include="res\info.png" />
+    <Resource Include="res\process.png" />
+    <Resource Include="res\question.png" />
+    <Resource Include="res\reset.png" />
+    <Resource Include="res\warning.png" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

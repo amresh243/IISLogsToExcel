@@ -5,6 +5,7 @@ namespace IISLogsToExcel;
 internal static class Constants
 {
     public static string[] NumberColumns = { "s-port", "sc-status", "sc-substatus", "sc-win32-status", "sc-bytes", "cs-bytes", "time-taken" };
+    public static string[] validHandlers = { "Border", "MenuItem" };
 
     public const string LogHeader = "=============================================================";
     public const string LogMarker = "#########~{0}~#########";
@@ -59,6 +60,10 @@ internal static class Messages
     public const string ProcessingStarted = "Processing...";
     public const string ProcessingCompleted = "Processing complete.";
     public const string LoggingError = "Failed to initialize logging. Please check file permissions or path.";
+    public const string ExitWarning = "Application is processing data, are you sure you want to quit?";
+    public const string ConfirmReset = "Are you sure you want to reset settings to default?";
+    public const string NoOldLogs = "No old log files found to delete.";
+    public const string LogCleanupError = "Error encountered while cleaning old log files!";
 }
 
 internal static class Captions
@@ -70,6 +75,9 @@ internal static class Captions
     public const string LogError = "Log Export Error!";
     public const string PivotError = "Pivot Error!";
     public const string LoggingError = "Logging Error!";
+    public const string ExitWarning = "Confirm Exit";
+    public const string ConfirmReset = "Confirm Reset";
+    public const string LogCleanup = "Log Cleanup Summary";
 }
 
 internal static class Headers
@@ -81,4 +89,16 @@ internal static class Headers
     public const string UriStemCount = "cs-uri-stem[count]";
     public const string TimeTaken = "time-taken";
     public const string TimeTakenAvg = "time-taken[avg]";
+}
+
+
+internal static class MenuEntry
+{
+    public const string InputLocation = "Open Input Location" ;
+    public const string LogLocation = "Open Log Location";
+    public const string ProcessLogs = "Process Logs";
+    public const string CleanOldLogs = "Clean Old Logs";
+    public const string ResetApplication = "Reset Application";
+    public const string ExitApplication = "Exit Application";
+    public const string AboutApplication = "About IISLogsToExcel";
 }
