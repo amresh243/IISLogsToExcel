@@ -4,6 +4,7 @@ using Microsoft.Win32;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -18,7 +19,16 @@ public partial class IISLogExporter : Window
     private void Window_Closing(object? sender, CancelEventArgs e)
     {
         if (_isProcessing)
+        {
+            DialogResults result = _messageBox.Show(Messages.ExitWarning, Captions.ExitWarning, DialogTypes.Question);
+            if (result == DialogResults.No)
+            {
+                e.Cancel = true;
+                return;
+            }
+
             Logger.LogWarning("Application shutdown initiated while processing data.");
+        }
 
         Logger.LogInfo("Saving settings before closing the application...");
         _iniFile.SetValue(Constants.SettingsSection, Constants.SingleWorkbook, _isSingleBook.ToString());
@@ -27,6 +37,8 @@ public partial class IISLogExporter : Window
         _iniFile.SetValue(Constants.SettingsSection, Constants.DarkMode, systemTheme.IsChecked?.ToString() ?? Constants.False);
         _iniFile.SetValue(Constants.SettingsSection, Constants.FolderPath, _folderPath);
         _iniFile.Save();
+        _messageBox.Close();
+
         Logger.LogInfo("Settings saved successfully.");
         Logger.LogInfo("Application shutting down.");
         Logger.LogHeader();
@@ -35,7 +47,7 @@ public partial class IISLogExporter : Window
     /// <summary> Opens appliction folder in explorer. </summary>
     private void Application_DblClick(object sender, RoutedEventArgs e)
     {
-        if (e != null && e.OriginalSource.GetType().Name != Constants.validHandler)
+        if (e != null && !Constants.validHandlers.Contains(e.OriginalSource.GetType().Name))
             return;
 
         string appDirectory = AppContext.BaseDirectory;
@@ -176,7 +188,7 @@ public partial class IISLogExporter : Window
         if (string.IsNullOrWhiteSpace(_folderPath) || !Directory.Exists(_folderPath))
         {
             Logger.LogWarning("Invalid folder path selected!");
-            MessageBox.Show(this, Messages.InvalidInput, Captions.InvalidInput);
+            _messageBox.Show(Messages.InvalidInput, Captions.InvalidInput, DialogTypes.Warning);
             return;
         }
 
@@ -184,7 +196,7 @@ public partial class IISLogExporter : Window
         if (logFiles.Length == 0)
         {
             Logger.LogWarning($"No log files found in the selected folder {_folderPath}!");
-            MessageBox.Show(this, Messages.NoLogs, Captions.NoLogs);
+            _messageBox.Show(Messages.NoLogs, Captions.NoLogs, DialogTypes.Warning);
             return;
         }
 
@@ -206,7 +218,7 @@ public partial class IISLogExporter : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, string.Format(Messages.AppError, ex.Message), Captions.AppError);
+            _messageBox.Show(string.Format(Messages.AppError, ex.Message), Captions.AppError, DialogTypes.Error);
             Logger.LogException("Error while processing log files!", ex);
         }
 
@@ -218,8 +230,110 @@ public partial class IISLogExporter : Window
 
         stopwatch.Stop();
 
+        if(!_isProcessing)
+            _messageBox.Hide();
+        else
+            _isProcessing = false;
+
         Logger.LogInfo($"Processing completed successfully in {stopwatch.Elapsed.TotalSeconds} seconds.");
         Logger.LogMarker(++_processingCount);
+    }
+
+    /// <summary> Right click app event handler, shows context menu. </summary>
+    private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        Point position = e.GetPosition(this);
+        
+        _contextMenu.PlacementTarget = this;
+        _contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Relative;
+        _contextMenu.HorizontalOffset = position.X;
+        _contextMenu.VerticalOffset = position.Y;
+        _contextMenu.IsOpen = true;
+    }
+
+    /// <summary> Cleans old log files except today's log file. </summary>
+    private void CleanLogHistory_Click(object sender, RoutedEventArgs e)
+    {
+        Logger.LogInfo("Cleaning old log files...");
+        string appDirectory = AppContext.BaseDirectory;
+        string today = DateTime.Now.ToString("yyyyMMdd");
+        var logFiles = Utility.GetLogFiles(appDirectory).Where(x => x.Contains(Constants.ApplicationName) && !x.Contains(today)).ToList();
+
+        if (logFiles.Count == 0)
+        {
+            Logger.LogInfo(Messages.NoOldLogs);
+            _messageBox.Show(Messages.NoOldLogs, Captions.LogCleanup, DialogTypes.Info);
+            return;
+        }
+
+        try
+        {
+            foreach (var file in logFiles)
+            {
+                File.Delete(file);
+                Logger.LogInfo($"Deleted old log file: {file}");
+            }
+
+            var msg = $"Old log files cleanup completed. Total files deleted: {logFiles.Count}";
+            _messageBox.Show(msg, Captions.LogCleanup, DialogTypes.Info);
+            Logger.LogInfo(msg);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogException("Error encountered while cleaning old log files!", ex);
+            _messageBox.Show(string.Format(Messages.LogCleanupError, ex.Message), Captions.LogCleanup, DialogTypes.Error);
+        }
+    }
+
+    /// <summary> Resets application settings to default values. </summary>
+    private void ResetApplication_Click(object sender, RoutedEventArgs e)
+    {
+        Logger.LogInfo("Resetting application...");
+
+        DialogResults result = _messageBox.Show(Messages.ConfirmReset, Captions.ConfirmReset, DialogTypes.Question);
+        if (result == DialogResults.No)
+        {
+            Logger.LogInfo("Application reset canceled.");
+            return;
+        }
+
+        _messageBox.Close();
+
+        InitializeVariables(string.Empty);
+        InitializeTheme(false);
+
+        isSingleWorkBook.IsChecked = false;
+        enableLogging.IsChecked = false;
+        createPivotTable.IsChecked = false;
+        systemTheme.IsChecked = false;
+        _isSingleBook = false;
+        _enableLogging = false;
+        _createPivot = false;
+        _isDarkMode = false;
+
+        UpdateStatus("Application reset completed.");
+        Logger.LogInfo("Application reset completed.");
+    }
+
+    /// <summary> Shows about application dialog. </summary>
+    private void AboutApplication_Click(object sender, RoutedEventArgs e)
+    {
+
+        string version = Assembly.GetExecutingAssembly()?.GetName()?.Version?.ToString() ?? "";
+        string message = "About IIS Logs To Excel Converter...\n\n";
+        message += $"IISLogsToExcel Version: {version}\n";
+        message += $"Copyright © {DateTime.Now.Year} Amresh Kumar\n";
+        message += $"Write to kumar.anirudha@gmail.com";
+
+        _messageBox.Show(message, "About IISLogsToExcel", DialogTypes.Info, GetIcon("/app-icon.ico", 48, 48));
+    }
+
+    /// <summary> Menu item exit event handler, closes application. </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void MenuItemExit_Click(object sender, RoutedEventArgs e)
+    {
+        this.Close();
     }
 
     #endregion Event Handlers

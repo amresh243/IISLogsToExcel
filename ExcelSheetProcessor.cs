@@ -3,7 +3,6 @@
 using ClosedXML.Excel;
 using System.IO;
 using System.Text;
-using System.Windows;
 using System.Windows.Media;
 
 namespace IISLogsToExcel;
@@ -189,7 +188,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
         {
             var message = string.Format(Messages.LogError, currentRow, file);
 
-            MessageBox.Show(message, Captions.LogError, MessageBoxButton.OK, MessageBoxImage.Warning);
+            _handler.MessageBox.Show(message, Captions.LogError, DialogTypes.Warning);
             worksheet.Rows(currentRow, MaxSheetRows).Hide();
             worksheet.SetAutoFilter();
             _handler.UpdateList(file, Brushes.Tomato);
@@ -238,7 +237,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
         {
             var message = string.Format(Messages.PivotError, sheetName);
 
-            MessageBox.Show(message, Captions.PivotError, MessageBoxButton.OK, MessageBoxImage.Warning);
+            _handler.MessageBox.Show(message, Captions.PivotError, DialogTypes.Warning);
             _handler.UpdateList(file, Brushes.Tomato);
             Logger.LogException(message, new Exception($"Error encountered while processing pivot data for sheet {sheetName}"));
         }
