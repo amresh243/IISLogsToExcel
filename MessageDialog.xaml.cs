@@ -13,7 +13,7 @@ public enum DialogTypes { Error = 0, Warning = 1, Info = 2, Question = 3 }
 /// </summary>
 public partial class MessageDialog : Window
 {
-    private Window? _owner;
+    private readonly Window? _owner;
     private DialogResults _result = DialogResults.No;
     private readonly Dictionary<DialogTypes, BitmapImage> _icons = new Dictionary<DialogTypes, BitmapImage>
     {
