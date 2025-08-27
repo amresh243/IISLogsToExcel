@@ -21,7 +21,7 @@
         </ResourceDictionary>
     </Window.Resources>
     <Border Name="appborder" 
-            BorderThickness="3"
+            BorderThickness="1"
             BorderBrush="{StaticResource ControlEnabled}">
         <DockPanel>
             <Grid DockPanel.Dock="Top">

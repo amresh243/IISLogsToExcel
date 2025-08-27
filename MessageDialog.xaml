@@ -13,7 +13,7 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <Border BorderThickness="3"
+    <Border BorderThickness="1"
          BorderBrush="{StaticResource ControlEnabled}">
         <DockPanel>
             <Grid Background="{StaticResource ControlEnabled}" DockPanel.Dock="Top" >
