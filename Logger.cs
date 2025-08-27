@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿// Author: Amresh Kumar (July 2025)
+
+using System.IO;
 using System.Windows;
 
 namespace IISLogsToExcel;
@@ -7,6 +9,8 @@ public static class Logger
 {
     private static bool _loggingEnabled = true;
     private static string _logFilePath = string.Empty;
+
+    public static string LogFilePath => _logFilePath;
 
     public static bool DisableLogging
     {

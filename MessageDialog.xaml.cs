@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿// Author: Amresh Kumar (August 2025)
+
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -8,14 +10,12 @@ namespace IISLogsToExcel;
 public enum DialogResults { No = 0, Yes = 1 }
 public enum DialogTypes { Error = 0, Warning = 1, Info = 2, Question = 3 }
 
-/// <summary>
-/// Interaction logic for MessageDialog.xaml
-/// </summary>
+/// <summary> Interaction logic for MessageDialog.xaml </summary>
 public partial class MessageDialog : Window
 {
-    private Window? _owner;
+    private readonly Window? _owner;
     private DialogResults _result = DialogResults.No;
-    private readonly Dictionary<DialogTypes, BitmapImage> _icons = new Dictionary<DialogTypes, BitmapImage>
+    private readonly Dictionary<DialogTypes, BitmapImage> _icons = new()
     {
         { DialogTypes.Info, new BitmapImage(new Uri("pack://application:,,,/res/info.png")) },
         { DialogTypes.Warning, new BitmapImage(new Uri("pack://application:,,,/res/warning.png")) },
@@ -23,12 +23,15 @@ public partial class MessageDialog : Window
         { DialogTypes.Question, new BitmapImage(new Uri("pack://application:,,,/res/question.png")) }
     };
 
+    /// <summary> Constructor </summary>
     public MessageDialog(Window owner)
     {
         _owner = owner;
         InitializeComponent();
+        this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
     }
 
+    /// <summary> Show the dialog with specified message, title, type and icon </summary>
     public DialogResults Show(string message, string title, DialogTypes type = DialogTypes.Info, Image? icon = null)
     {
         dlgImage.Source = (icon == null) ? _icons[type] : icon.Source;
@@ -38,15 +41,13 @@ public partial class MessageDialog : Window
             case DialogTypes.Error:
             case DialogTypes.Warning:
             case DialogTypes.Info:
-                yesButton.Visibility = Visibility.Hidden;
+                yesButton.Visibility = noButton.Visibility = Visibility.Hidden;
                 closeButton.Visibility = Visibility.Visible;
-                noButton.Visibility = Visibility.Hidden;
                 closeButton.Focus();
                 break;
             case DialogTypes.Question:
-                yesButton.Visibility = Visibility.Visible;
+                yesButton.Visibility = noButton.Visibility = Visibility.Visible;
                 closeButton.Visibility = Visibility.Hidden;
-                noButton.Visibility = Visibility.Visible;
                 noButton.Focus();
                 break;
         }
@@ -54,12 +55,12 @@ public partial class MessageDialog : Window
         AppTitle.Text = title;
         Message.Text = message;
         this.Owner = _owner;
-        this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
         this.ShowDialog();
 
         return _result;
     }
 
+    /// <summary> Apply dark or light theme to the dialog </summary>
     public void ApplyTheme(bool isDark = false)
     {
         var foreColor = (isDark) ? Brushes.White : Brushes.Black;
@@ -70,12 +71,14 @@ public partial class MessageDialog : Window
         this.Background = backColor;
     }
 
+    /// <summary> Yes button click event handler </summary>
     private void Yes_Click(object sender, RoutedEventArgs e)
     {
         _result = DialogResults.Yes;
         this.Hide();
     }
 
+    /// <summary> No, Close and X button click event handler </summary>
     private void No_Click(object sender, RoutedEventArgs e)
     {
         _result = DialogResults.No;

@@ -37,11 +37,11 @@ public partial class IISLogExporter : Window
         _iniFile.SetValue(Constants.SettingsSection, Constants.DarkMode, systemTheme.IsChecked?.ToString() ?? Constants.False);
         _iniFile.SetValue(Constants.SettingsSection, Constants.FolderPath, _folderPath);
         _iniFile.Save();
-        _messageBox.Close();
 
         Logger.LogInfo("Settings saved successfully.");
         Logger.LogInfo("Application shutting down.");
         Logger.LogHeader();
+        _messageBox.Close();
     }
 
     /// <summary> Opens appliction folder in explorer. </summary>
@@ -52,7 +52,9 @@ public partial class IISLogExporter : Window
 
         string appDirectory = AppContext.BaseDirectory;
         Logger.LogInfo($"Opening application folder path in explorer: {appDirectory}.");
-        Process.Start(Constants.ExplorerApp, appDirectory);
+        var logFile = Logger.LogFilePath;
+        var command = File.Exists(logFile) ? $"/select,\"{logFile}\"" : appDirectory;
+        Process.Start(Constants.ExplorerApp, command);
     }
 
     /// <summary> DragOver event handler, only allows folder to be dropped. </summary>
@@ -78,8 +80,6 @@ public partial class IISLogExporter : Window
     }
 
     /// <summary> Drop event handler, sets the folder path with the dropped folder path. </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void FolderPath_Drop(object sender, DragEventArgs e)
     {
         if (_isProcessing)
@@ -164,12 +164,10 @@ public partial class IISLogExporter : Window
     /// <summary> List item double click event handler </summary>
     private void ListBoxItem_DoubleClick(object sender, MouseButtonEventArgs e)
     {
-        var item = sender as ListBoxItem;
-        if (item != null)
+        if (sender is ListBoxItem item)
         {
             var logFileItem = item.Content as LogFileItem;
             var file = logFileItem?.FullPath;
-
             if (File.Exists(file))
             {
                 Logger.LogInfo($"Opening file in notepad: {file}.");
@@ -184,7 +182,6 @@ public partial class IISLogExporter : Window
     private async void ProcessButton_Click(object sender, RoutedEventArgs e)
     {
         var stopwatch = Stopwatch.StartNew();
-
         if (string.IsNullOrWhiteSpace(_folderPath) || !Directory.Exists(_folderPath))
         {
             Logger.LogWarning("Invalid folder path selected!");
@@ -329,8 +326,6 @@ public partial class IISLogExporter : Window
     }
 
     /// <summary> Menu item exit event handler, closes application. </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void MenuItemExit_Click(object sender, RoutedEventArgs e)
     {
         this.Close();
