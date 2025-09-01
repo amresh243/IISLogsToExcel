@@ -21,7 +21,6 @@ internal static class Constants
     public const string ThemeKey = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
     public const string ThemeValue = "AppsUseLightTheme";
     public const string ExplorerApp = "explorer.exe";
-    public const string NotepadApp = "notepad.exe";
     public const string False = "false";
 }
 
