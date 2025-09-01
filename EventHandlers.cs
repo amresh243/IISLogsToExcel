@@ -171,7 +171,15 @@ public partial class IISLogExporter : Window
             if (File.Exists(file))
             {
                 Logger.LogInfo($"Opening file in notepad: {file}.");
-                Process.Start(Constants.NotepadApp, file);
+                try
+                {
+                    Process.Start(new ProcessStartInfo(file) { UseShellExecute = true });
+                }
+                catch (Exception ex)
+                {
+                    _messageBox.Show($"Failed to open file: {ex.Message}", "Log File Open Error", DialogTypes.Error);
+                    Logger.LogException($"Error while opening log file!", ex);
+                }
             }
             else
                 Logger.LogWarning($"File {file} doesn't exist.");
@@ -293,8 +301,6 @@ public partial class IISLogExporter : Window
             Logger.LogInfo("Application reset canceled.");
             return;
         }
-
-        _messageBox.Close();
 
         InitializeVariables(string.Empty);
         InitializeTheme(false);

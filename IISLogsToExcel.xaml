@@ -163,7 +163,7 @@
                     <ListBox ItemsSource="{Binding Path=LogFiles, Mode=TwoWay}"
                              Name="lbLogFiles" 
                              IsTabStop="False"
-                             ToolTip="List of log files to process."
+                             ToolTip="List of log files to process, double click on log file to open."
                              Height="130">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
