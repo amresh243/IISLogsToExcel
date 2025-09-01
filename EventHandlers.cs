@@ -233,12 +233,8 @@ public partial class IISLogExporter : Window
             ChangeControlState(true);
         });
 
+        _isProcessing = false;
         stopwatch.Stop();
-
-        if(!_isProcessing)
-            _messageBox.Hide();
-        else
-            _isProcessing = false;
 
         Logger.LogInfo($"Processing completed successfully in {stopwatch.Elapsed.TotalSeconds} seconds.");
         Logger.LogMarker(++_processingCount);
