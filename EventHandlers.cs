@@ -294,8 +294,6 @@ public partial class IISLogExporter : Window
             return;
         }
 
-        _messageBox.Close();
-
         InitializeVariables(string.Empty);
         InitializeTheme(false);
 
