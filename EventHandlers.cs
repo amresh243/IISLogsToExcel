@@ -170,7 +170,7 @@ public partial class IISLogExporter : Window
             var file = logFileItem?.FullPath;
             if (File.Exists(file))
             {
-                Logger.LogInfo($"Opening file in notepad: {file}.");
+                Logger.LogInfo($"Opening file with associated application: {file}.");
                 try
                 {
                     Process.Start(new ProcessStartInfo(file) { UseShellExecute = true });
