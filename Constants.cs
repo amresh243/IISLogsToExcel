@@ -90,7 +90,6 @@ internal static class Headers
     public const string TimeTakenAvg = "time-taken[avg]";
 }
 
-
 internal static class MenuEntry
 {
     public const string InputLocation = "Open Input Location" ;
@@ -100,4 +99,18 @@ internal static class MenuEntry
     public const string ResetApplication = "Reset Application";
     public const string ExitApplication = "Exit Application";
     public const string AboutApplication = "About IISLogsToExcel";
+}
+
+internal static class Icons
+{
+    public const string Info = "pack://application:,,,/res/info.png";
+    public const string Warning = "pack://application:,,,/res/warning.png";
+    public const string Error = "pack://application:,,,/res/error.png";
+    public const string Question = "pack://application:,,,/res/question.png";
+    public const string App = "pack://application:,,,/app-icon.ico";
+    public const string Folder = "pack://application:,,,/res/folder.png";
+    public const string Process = "pack://application:,,,/res/process.png";
+    public const string CleanLogs = "pack://application:,,,/res/cleanlog.png";
+    public const string Reset = "pack://application:,,,/res/reset.png";
+    public const string Exit = "pack://application:,,,/res/exit.png";
 }

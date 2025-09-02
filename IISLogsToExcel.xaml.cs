@@ -125,7 +125,7 @@ public partial class IISLogExporter : Window
     /// <summary> Returns an Image control with the specified resource image path. </summary>
     private static Image GetIcon(string iconPath, double width = 16, double height = 16)
     {
-        var icon = new BitmapImage(new Uri($"pack://application:,,,{iconPath}"));
+        var icon = new BitmapImage(new Uri(iconPath));
         return new Image { Source = icon, Width = width, Height = height };
     }
 
@@ -133,13 +133,13 @@ public partial class IISLogExporter : Window
     private void InitializeMenu()
     {
         Logger.LogInfo("Initializing context menu...");
-        var menuItemInput = new MenuItem { Header = MenuEntry.InputLocation, Icon = GetIcon("/res/folder.png") };
-        var menuItemLog = new MenuItem { Header = MenuEntry.LogLocation, Icon = GetIcon("/res/folder.png") };
-        var menuItemProcess = new MenuItem { Header = MenuEntry.ProcessLogs, Icon = GetIcon("/res/process.png") };
-        var menuItemCleanLogs = new MenuItem { Header = MenuEntry.CleanOldLogs, Icon = GetIcon("/res/cleanlog.png") };
-        var menuItemReset = new MenuItem { Header = MenuEntry.ResetApplication, Icon = GetIcon("/res/reset.png") };
-        var menuItemExit = new MenuItem { Header = MenuEntry.ExitApplication, Icon = GetIcon("/res/exit.png") };
-        var menuItemAbout = new MenuItem { Header = MenuEntry.AboutApplication, Icon = GetIcon("/app-icon.ico") };
+        var menuItemInput = new MenuItem { Header = MenuEntry.InputLocation, Icon = GetIcon(Icons.Folder) };
+        var menuItemLog = new MenuItem { Header = MenuEntry.LogLocation, Icon = GetIcon(Icons.Folder) };
+        var menuItemProcess = new MenuItem { Header = MenuEntry.ProcessLogs, Icon = GetIcon(Icons.Process) };
+        var menuItemCleanLogs = new MenuItem { Header = MenuEntry.CleanOldLogs, Icon = GetIcon(Icons.CleanLogs) };
+        var menuItemReset = new MenuItem { Header = MenuEntry.ResetApplication, Icon = GetIcon(Icons.Reset) };
+        var menuItemExit = new MenuItem { Header = MenuEntry.ExitApplication, Icon = GetIcon(Icons.Exit) };
+        var menuItemAbout = new MenuItem { Header = MenuEntry.AboutApplication, Icon = GetIcon(Icons.App) };
 
         menuItemInput.Click += FolderPathTextBox_DblClick;
         menuItemLog.Click += Application_DblClick;

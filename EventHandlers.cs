@@ -321,7 +321,7 @@ public partial class IISLogExporter : Window
         message.AppendLine($"Copyright © {DateTime.Now.Year} Amresh Kumar");
         message.Append("Write to kumar.anirudha@gmail.com");
 
-        _messageBox.Show(message.ToString(), "About IISLogsToExcel", DialogTypes.Info, GetIcon("/app-icon.ico", 48, 48));
+        _messageBox.Show(message.ToString(), "About IISLogsToExcel", DialogTypes.Info, GetIcon(Icons.App, 48, 48));
     }
 
     /// <summary> Menu item exit event handler, closes application. </summary>

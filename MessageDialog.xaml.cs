@@ -17,10 +17,10 @@ public partial class MessageDialog : Window
     private DialogResults _result = DialogResults.No;
     private readonly Dictionary<DialogTypes, BitmapImage> _icons = new()
     {
-        { DialogTypes.Info, new BitmapImage(new Uri("pack://application:,,,/res/info.png")) },
-        { DialogTypes.Warning, new BitmapImage(new Uri("pack://application:,,,/res/warning.png")) },
-        { DialogTypes.Error, new BitmapImage(new Uri("pack://application:,,,/res/error.png")) },
-        { DialogTypes.Question, new BitmapImage(new Uri("pack://application:,,,/res/question.png")) }
+        { DialogTypes.Info, new BitmapImage(new Uri(Icons.Info)) },
+        { DialogTypes.Warning, new BitmapImage(new Uri(Icons.Warning)) },
+        { DialogTypes.Error, new BitmapImage(new Uri(Icons.Error)) },
+        { DialogTypes.Question, new BitmapImage(new Uri(Icons.Question)) }
     };
 
     /// <summary> Constructor </summary>
