@@ -10,7 +10,21 @@ public static class Logger
     private static bool _loggingEnabled = true;
     private static string _logFilePath = string.Empty;
 
-    public static string LogFilePath => _logFilePath;
+    public static string LogFilePath
+    {
+        get
+        {
+            if (!string.IsNullOrEmpty(_logFilePath))
+                return _logFilePath;
+
+            string logFile = Constants.LogFile;
+            var logParts = logFile.Split(LogTokens.ExtensionSplitMarker);
+            var extension = logParts.LastOrDefault();
+            var firstPart = logFile.Replace(extension ?? string.Empty, string.Empty);
+
+            return $"{firstPart}{DateTime.Now:yyyyMMdd}.{extension}";
+        }
+    }
 
     public static bool DisableLogging
     {

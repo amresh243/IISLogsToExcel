@@ -53,9 +53,86 @@ public partial class IISLogExporter : Window
 
         string appDirectory = AppContext.BaseDirectory;
         Logger.LogInfo($"Opening application folder path in explorer: {appDirectory}.");
-        var logFile = Logger.LogFilePath;
-        var command = File.Exists(logFile) ? $"/select,\"{logFile}\"" : appDirectory;
+        var appFile = Path.Combine(appDirectory, $"{Constants.ApplicationName}.exe");
+        var command = $"/select,\"{appFile}\"";
         Process.Start(Constants.ExplorerApp, command);
+    }
+
+    private bool LoggedWarning(string file, string body, string caption)
+    {
+        Logger.LogInfo($"Attempting to open {file}...");
+        if (!File.Exists(file))
+        {
+            string message = string.Format(body, file);
+            _messageBox.Show(message, caption, DialogTypes.Warning);
+            Logger.LogWarning(message);
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary> Opens log file. </summary>
+    private void OpenLog_Click(object sender, RoutedEventArgs e)
+    {
+        string appDirectory = AppContext.BaseDirectory;
+        var logFile = Path.Combine(appDirectory, Logger.LogFilePath);
+        if (LoggedWarning(logFile, Messages.LogWarning, Captions.LogWarning))
+            return;
+
+        Logger.LogInfo($"Opening app log {logFile} with associated application.");
+        try
+        {
+            Process.Start(new ProcessStartInfo(logFile) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            _messageBox.Show($"Failed to open app log. Error: {ex.Message}", "App Log Open Error", DialogTypes.Error);
+            Logger.LogException($"Error while opening app log!", ex);
+        }
+    }
+
+    /// <summary> Opens settings file. </summary>
+    private void OpenSettings_Click(object sender, RoutedEventArgs e)
+    {
+        string appDirectory = AppContext.BaseDirectory;
+        var iniFile = Path.Combine(appDirectory, Constants.IniFile);
+        if (LoggedWarning(iniFile, Messages.IniWarning, Captions.IniWarning))
+            return;
+
+        Logger.LogInfo($"Opening app settings {iniFile} with associated application.");
+        try
+        {
+            Process.Start(new ProcessStartInfo(iniFile) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            _messageBox.Show($"Failed to open app settings. Error: {ex.Message}", "App Setting Open Error", DialogTypes.Error);
+            Logger.LogException($"Error while opening app settings!", ex);
+        }
+    }
+
+    /// <summary> List item double click event handler </summary>
+    private void ListBoxItem_DoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is ListBoxItem item)
+        {
+            var logFileItem = item.Content as LogFileItem;
+            var file = logFileItem?.FullPath ?? string.Empty;
+            if (LoggedWarning(file, Messages.IISLogWarning, Captions.IISLogWarning))
+                return;
+
+            Logger.LogInfo($"Opening IIS log file with associated application: {file}.");
+            try
+            {
+                Process.Start(new ProcessStartInfo(file) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                _messageBox.Show($"Failed to open IIS log file. Error {ex.Message}", "IIS Log Open Error", DialogTypes.Error);
+                Logger.LogException($"Error while opening IIS log file!", ex);
+            }
+        }
     }
 
     /// <summary> DragOver event handler, only allows folder to be dropped. </summary>
@@ -162,31 +239,6 @@ public partial class IISLogExporter : Window
             InitializeVariables(dialog.FolderName);
     }
 
-    /// <summary> List item double click event handler </summary>
-    private void ListBoxItem_DoubleClick(object sender, MouseButtonEventArgs e)
-    {
-        if (sender is ListBoxItem item)
-        {
-            var logFileItem = item.Content as LogFileItem;
-            var file = logFileItem?.FullPath;
-            if (File.Exists(file))
-            {
-                Logger.LogInfo($"Opening file with associated application: {file}.");
-                try
-                {
-                    Process.Start(new ProcessStartInfo(file) { UseShellExecute = true });
-                }
-                catch (Exception ex)
-                {
-                    _messageBox.Show($"Failed to open file: {ex.Message}", "Log File Open Error", DialogTypes.Error);
-                    Logger.LogException($"Error while opening log file!", ex);
-                }
-            }
-            else
-                Logger.LogWarning($"File {file} doesn't exist.");
-        }
-    }
-
     /// <summary> Process log button handler </summary>
     private async void ProcessButton_Click(object sender, RoutedEventArgs e)
     {
@@ -219,8 +271,6 @@ public partial class IISLogExporter : Window
                 await Task.Run(() => CreateSeperateFiles());
             else
                 await Task.Run(() => CreateSingleFile());
-
-            _isProcessing = false;
         }
         catch (Exception ex)
         {
@@ -228,11 +278,8 @@ public partial class IISLogExporter : Window
             Logger.LogException("Error while processing log files!", ex);
         }
 
-        Dispatcher.Invoke(() =>
-        {
-            statusText.Text = Messages.ProcessingCompleted;
-            ChangeControlState(true);
-        });
+        statusText.Text = Messages.ProcessingCompleted;
+        ChangeControlState(true);
 
         _isProcessing = false;
         stopwatch.Stop();

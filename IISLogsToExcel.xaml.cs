@@ -132,7 +132,8 @@ public partial class IISLogExporter : Window
     {
         Logger.LogInfo("Initializing context menu...");
         var menuItemInput = new MenuItem { Header = MenuEntry.InputLocation, Icon = GetIcon(Icons.Folder) };
-        var menuItemLog = new MenuItem { Header = MenuEntry.LogLocation, Icon = GetIcon(Icons.Folder) };
+        var menuItemLog = new MenuItem { Header = MenuEntry.OpenAppLog, Icon = GetIcon(Icons.AppLog) };
+        var menuItemSettings = new MenuItem { Header = MenuEntry.OpenAppSettings, Icon = GetIcon(Icons.AppSettings) };
         var menuItemProcess = new MenuItem { Header = MenuEntry.ProcessLogs, Icon = GetIcon(Icons.Process) };
         var menuItemCleanLogs = new MenuItem { Header = MenuEntry.CleanOldLogs, Icon = GetIcon(Icons.CleanLogs) };
         var menuItemReset = new MenuItem { Header = MenuEntry.ResetApplication, Icon = GetIcon(Icons.Reset) };
@@ -140,7 +141,8 @@ public partial class IISLogExporter : Window
         var menuItemAbout = new MenuItem { Header = MenuEntry.AboutApplication, Icon = GetIcon(Icons.App) };
 
         menuItemInput.Click += FolderPathTextBox_DblClick;
-        menuItemLog.Click += Application_DblClick;
+        menuItemLog.Click += OpenLog_Click;
+        menuItemSettings.Click += OpenSettings_Click;
         menuItemProcess.Click += ProcessButton_Click;
         menuItemCleanLogs.Click += CleanLogHistory_Click;
         menuItemReset.Click += ResetApplication_Click;
@@ -149,6 +151,7 @@ public partial class IISLogExporter : Window
 
         _contextMenu.Items.Add(menuItemInput);
         _contextMenu.Items.Add(menuItemLog);
+        _contextMenu.Items.Add(menuItemSettings);
         _contextMenu.Items.Add(new Separator());
         _contextMenu.Items.Add(menuItemProcess);
         _contextMenu.Items.Add(new Separator());

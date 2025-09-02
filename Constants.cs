@@ -65,6 +65,9 @@ internal static class Messages
     public const string ConfirmReset = "Are you sure you want to reset settings to default?";
     public const string NoOldLogs = "No old log files found to delete.";
     public const string LogCleanupError = "Error encountered while cleaning old log files!";
+    public const string IniWarning = "Setting file {0} doesn't exist!";
+    public const string LogWarning = "Log file {0} doesn't exist!";
+    public const string IISLogWarning = "IIS log file {0} doesn't exist!";
 }
 
 internal static class Captions
@@ -80,6 +83,9 @@ internal static class Captions
     public const string ExitWarning = "Confirm Exit";
     public const string ConfirmReset = "Confirm Reset";
     public const string LogCleanup = "Log Cleanup Summary";
+    public const string IniWarning = "App Settings Missing!";
+    public const string LogWarning = "App Log Missing!";
+    public const string IISLogWarning = "IIS Log Missing!";
 }
 
 internal static class Headers
@@ -96,7 +102,8 @@ internal static class Headers
 internal static class MenuEntry
 {
     public const string InputLocation = "Open Input Location" ;
-    public const string LogLocation = "Open Log Location";
+    public const string OpenAppLog = "Open App Log";
+    public const string OpenAppSettings = "Open App Settings";
     public const string ProcessLogs = "Process Logs";
     public const string CleanOldLogs = "Clean Old Logs";
     public const string ResetApplication = "Reset Application";
@@ -116,4 +123,6 @@ internal static class Icons
     public const string CleanLogs = "pack://application:,,,/res/cleanlog.png";
     public const string Reset = "pack://application:,,,/res/reset.png";
     public const string Exit = "pack://application:,,,/res/exit.png";
+    public const string AppLog = "pack://application:,,,/res/log-file.png";
+    public const string AppSettings = "pack://application:,,,/res/ini-file.png";
 }
