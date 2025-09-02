@@ -22,6 +22,7 @@ internal static class Constants
     public const string ThemeValue = "AppsUseLightTheme";
     public const string ExplorerApp = "explorer.exe";
     public const string False = "false";
+    public const string ZeroPercent = "0%";
 }
 
 internal static class LogTokens

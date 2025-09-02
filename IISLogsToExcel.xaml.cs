@@ -224,9 +224,9 @@ public partial class IISLogExporter : Window
         progressBar.Maximum = 100;
         progressBar.Value = 0;
         _totalSize = _processedSize = 0;
-        progressText.Text = $"0%";
-        _folderPath = _folderName = "";
-        folderPathTextBox.Text = "";
+        progressText.Text = Constants.ZeroPercent;
+        _folderPath = _folderName = string.Empty;
+        folderPathTextBox.Text = string.Empty;
         lbLogFiles.Items.Clear();
         _logFiles.Clear();
 
