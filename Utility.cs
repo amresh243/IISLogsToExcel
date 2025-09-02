@@ -23,10 +23,7 @@ public static class Utility
     /// <summary> Checks if the given string is numeric. </summary>
     public static bool IsNumeric(this string input)
     {
-        if (string.IsNullOrEmpty(input))
-            return false;
-
-        if (input.Any(c => !char.IsDigit(c)))
+        if (string.IsNullOrEmpty(input) || input.Any(c => !char.IsDigit(c)))
             return false;
 
         return true;

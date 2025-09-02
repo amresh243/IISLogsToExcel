@@ -24,6 +24,8 @@
     <None Remove="res\exit.png" />
     <None Remove="res\folder.png" />
     <None Remove="res\info.png" />
+    <None Remove="res\ini-file.png" />
+    <None Remove="res\log-file.png" />
     <None Remove="res\process.png" />
     <None Remove="res\question.png" />
     <None Remove="res\reset.png" />
@@ -49,6 +51,8 @@
     <Resource Include="res\exit.png" />
     <Resource Include="res\folder.png" />
     <Resource Include="res\info.png" />
+    <Resource Include="res\ini-file.png" />
+    <Resource Include="res\log-file.png" />
     <Resource Include="res\process.png" />
     <Resource Include="res\question.png" />
     <Resource Include="res\reset.png" />
