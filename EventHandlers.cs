@@ -37,7 +37,7 @@ public partial class IISLogExporter : Window
         _iniFile.SetValue(Constants.SettingsSection, Constants.EnableLogging, _enableLogging.ToString());
         _iniFile.SetValue(Constants.SettingsSection, Constants.DarkMode, systemTheme.IsChecked?.ToString() ?? Constants.False);
         _iniFile.SetValue(Constants.SettingsSection, Constants.FolderPath, _folderPath);
-        _iniFile.Save();
+        _iniFile.Save(this);
 
         Logger.LogInfo("Settings saved successfully.");
         Logger.LogInfo("Application shutting down.");
@@ -315,7 +315,7 @@ public partial class IISLogExporter : Window
     private void AboutApplication_Click(object sender, RoutedEventArgs e)
     {
 
-        string version = Assembly.GetExecutingAssembly()?.GetName()?.Version?.ToString() ?? "";
+        string version = Assembly.GetExecutingAssembly()?.GetName()?.Version?.ToString() ?? string.Empty;
         StringBuilder message = new("About IIS Logs To Excel Converter...\n\n");
         message.AppendLine($"IISLogsToExcel Version: {version}");
         message.AppendLine($"Copyright © {DateTime.Now.Year} Amresh Kumar");

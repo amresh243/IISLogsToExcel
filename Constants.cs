@@ -60,6 +60,7 @@ internal static class Messages
     public const string ProcessingStarted = "Processing...";
     public const string ProcessingCompleted = "Processing complete.";
     public const string LoggingError = "Failed to initialize logging. Please check file permissions or path.";
+    public const string SettingError = "Failed to save settings. Please check file permissions or path.";
     public const string ExitWarning = "Application is processing data, are you sure you want to quit?";
     public const string ConfirmReset = "Are you sure you want to reset settings to default?";
     public const string NoOldLogs = "No old log files found to delete.";
@@ -75,6 +76,7 @@ internal static class Captions
     public const string LogError = "Log Export Error!";
     public const string PivotError = "Pivot Error!";
     public const string LoggingError = "Logging Error!";
+    public const string SettingError = "Settings Error!";
     public const string ExitWarning = "Confirm Exit";
     public const string ConfirmReset = "Confirm Reset";
     public const string LogCleanup = "Log Cleanup Summary";
