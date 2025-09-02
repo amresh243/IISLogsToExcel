@@ -361,7 +361,6 @@ public partial class IISLogExporter : Window
     /// <summary> Shows about application dialog. </summary>
     private void AboutApplication_Click(object sender, RoutedEventArgs e)
     {
-
         string version = Assembly.GetExecutingAssembly()?.GetName()?.Version?.ToString() ?? string.Empty;
         StringBuilder message = new("About IIS Logs To Excel Converter...\n\n");
         message.AppendLine($"IISLogsToExcel Version: {version}");
