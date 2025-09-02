@@ -4,8 +4,8 @@ namespace IISLogsToExcel;
 
 internal static class Constants
 {
-    public static string[] NumberColumns = { "s-port", "sc-status", "sc-substatus", "sc-win32-status", "sc-bytes", "cs-bytes", "time-taken" };
-    public static string[] validHandlers = { "Border", "MenuItem" };
+    public static string[] NumberColumns = ["s-port", "sc-status", "sc-substatus", "sc-win32-status", "sc-bytes", "cs-bytes", "time-taken"];
+    public static string[] validHandlers = ["Border", "MenuItem"];
 
     public const string LogHeader = "=============================================================";
     public const string LogMarker = "#########~{0}~#########";
