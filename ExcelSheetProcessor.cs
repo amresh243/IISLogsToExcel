@@ -39,7 +39,8 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
 
         if (isFile)
         {
-            var fileName = file.Split(LogTokens.PathSplitMarker).LastOrDefault()?.Split(LogTokens.FileSplitMarker).LastOrDefault() ?? "";
+            var fileName = file.Split(LogTokens.PathSplitMarker).LastOrDefault()?.Split(LogTokens.FileSplitMarker).LastOrDefault() 
+                ?? string.Empty;
             var fileNameLength = fileName.Length;
 
             return (fileNameLength > 10) ? fileName[(fileNameLength - 10)..] : fileName;
@@ -74,7 +75,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
     #region Excel Data Processing Methods
 
     /// <summary> Processes a row of data and adds it to the worksheet. </summary>
-    private void AddRowData(IXLWorksheet worksheet, HashSet<int> specialIndices, string[] values, int currentRow)
+    private static void AddRowData(IXLWorksheet worksheet, HashSet<int> specialIndices, string[] values, int currentRow)
     {
         worksheet.Cell(currentRow, 1).Value = values[0];
         worksheet.Cell(currentRow, 2).Value = values[1];
@@ -141,7 +142,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
             {
                 var values = line.Split(' ').Select(x => x.RemoveInvalidXmlChars()).ToArray();
 
-                // Handling borken iis log row data
+                // Handling broken iis log row data
                 if (values.Length < headers.Count - 1)
                 {
                     var prevDataCount = incompleteCellData.Count;
@@ -192,7 +193,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
             worksheet.Rows(currentRow, MaxSheetRows).Hide();
             worksheet.SetAutoFilter();
             _handler.UpdateList(file, Brushes.Tomato);
-            Logger.LogException(message, new Exception($"Error enountered while processing line {currentRow} in file {file}"));
+            Logger.LogException(message, new Exception($"Error encountered while processing line {currentRow} in file {file}"));
         }
     }
 

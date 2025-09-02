@@ -165,7 +165,7 @@ public partial class IISLogExporter : Window
     }
 
     /// <summary> Changes the state of controls based on the enable parameter. </summary>
-    /// <param name="enable"> true=enalbe/false=disable </param>
+    /// <param name="enable"> true=enable/false=disable </param>
     private void ChangeControlState(bool enable)
     {
         Logger.LogInfo($"Changing control state to {(enable ? "Enabled" : "Disabled")}...");
@@ -328,7 +328,7 @@ public partial class IISLogExporter : Window
 
     #region Thread Methods
 
-    /// <summary> Creates seperate excel file for each file under folder. </summary>
+    /// <summary> Creates separate excel file for each file under folder. </summary>
     private void CreateSeperateFiles()
     {
         Logger.LogInfo("Creating separate Excel files for each log file...");
@@ -357,7 +357,7 @@ public partial class IISLogExporter : Window
             if (_createPivot)
                 _processor.SetupPivotSheet(workbook, worksheet, sheetName, file);
 
-            // Saving the workbook seperate excel files
+            // Saving the workbook separate excel files
             var excelFile = $"{ExcelSheetProcessor.GetSheetName(file)}{LogTokens.ExcelExtension}";
             Logger.LogInfo($"Log file processed successfully: {file}");
             msg = string.Format(Messages.LogFileExporting, excelFile);
@@ -408,7 +408,7 @@ public partial class IISLogExporter : Window
         var msg = string.Format(Messages.LogFileExporting, excelFile);
         UpdateStatus(msg);
         Logger.LogInfo(msg);
-        bool isSucess = SaveExcelFile(workbook, Path.Combine(_folderPath, excelFile));
+        SaveExcelFile(workbook, Path.Combine(_folderPath, excelFile));
 
         _processedSize = _totalSize;
         UpdateProgress(_processedSize, false);

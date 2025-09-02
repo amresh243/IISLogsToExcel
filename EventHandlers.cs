@@ -45,7 +45,7 @@ public partial class IISLogExporter : Window
         _messageBox.Close();
     }
 
-    /// <summary> Opens appliction folder in explorer. </summary>
+    /// <summary> Opens application folder in explorer. </summary>
     private void Application_DblClick(object sender, RoutedEventArgs e)
     {
         if (e != null && !Constants.validHandlers.Contains(e.OriginalSource.GetType().Name))
@@ -295,7 +295,7 @@ public partial class IISLogExporter : Window
         DialogResults result = _messageBox.Show(Messages.ConfirmReset, Captions.ConfirmReset, DialogTypes.Question);
         if (result == DialogResults.No)
         {
-            Logger.LogInfo("Application reset canceled.");
+            Logger.LogInfo("Application reset cancelled.");
             return;
         }
 
