@@ -57,20 +57,18 @@ public partial class IISLogExporter : Window
 
     #region Control State Modifiers
 
+    private bool GetBoolValue(string key) =>
+        bool.Parse(_iniFile.GetValue(Constants.SettingsSection, key) ?? Constants.False);
+
     /// <summary> Loads settings from the INI file and initializes controls. </summary>
     /// <param name="folderPath">folder path to handle, if received from command line.</param>
     private void LoadSettings(string folderPath)
     {
-        _isSingleBook = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.SingleWorkbook) ?? Constants.False);
-        _createPivot = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.CreatePivot) ?? Constants.False);
-        _enableLogging = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.EnableLogging) ?? Constants.False);
-        _isDarkMode = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.DarkMode) ?? Constants.False);
+        isSingleWorkBook.IsChecked = _isSingleBook = GetBoolValue(Constants.SingleWorkbook);
+        createPivotTable.IsChecked = _createPivot = GetBoolValue(Constants.CreatePivot);
+        enableLogging.IsChecked = _enableLogging = GetBoolValue(Constants.EnableLogging);
+        systemTheme.IsChecked = _isDarkMode = GetBoolValue(Constants.DarkMode);
         _folderPath = _iniFile.GetValue(Constants.SettingsSection, Constants.FolderPath) ?? string.Empty;
-
-        isSingleWorkBook.IsChecked = _isSingleBook;
-        createPivotTable.IsChecked = _createPivot;
-        enableLogging.IsChecked = _enableLogging;
-        systemTheme.IsChecked = _isDarkMode;
 
         if (_enableLogging)
         {
