@@ -4,8 +4,8 @@ namespace IISLogsToExcel;
 
 internal static class Constants
 {
-    public static string[] NumberColumns = { "s-port", "sc-status", "sc-substatus", "sc-win32-status", "sc-bytes", "cs-bytes", "time-taken" };
-    public static string[] validHandlers = { "Border", "MenuItem" };
+    public static string[] NumberColumns = ["s-port", "sc-status", "sc-substatus", "sc-win32-status", "sc-bytes", "cs-bytes", "time-taken"];
+    public static string[] validHandlers = ["Border", "MenuItem"];
 
     public const string LogHeader = "=============================================================";
     public const string LogMarker = "#########~{0}~#########";
@@ -22,6 +22,7 @@ internal static class Constants
     public const string ThemeValue = "AppsUseLightTheme";
     public const string ExplorerApp = "explorer.exe";
     public const string False = "false";
+    public const string ZeroPercent = "0%";
 }
 
 internal static class LogTokens
@@ -59,6 +60,7 @@ internal static class Messages
     public const string ProcessingStarted = "Processing...";
     public const string ProcessingCompleted = "Processing complete.";
     public const string LoggingError = "Failed to initialize logging. Please check file permissions or path.";
+    public const string SettingError = "Failed to save settings. Please check file permissions or path.";
     public const string ExitWarning = "Application is processing data, are you sure you want to quit?";
     public const string ConfirmReset = "Are you sure you want to reset settings to default?";
     public const string NoOldLogs = "No old log files found to delete.";
@@ -74,6 +76,7 @@ internal static class Captions
     public const string LogError = "Log Export Error!";
     public const string PivotError = "Pivot Error!";
     public const string LoggingError = "Logging Error!";
+    public const string SettingError = "Settings Error!";
     public const string ExitWarning = "Confirm Exit";
     public const string ConfirmReset = "Confirm Reset";
     public const string LogCleanup = "Log Cleanup Summary";
@@ -90,7 +93,6 @@ internal static class Headers
     public const string TimeTakenAvg = "time-taken[avg]";
 }
 
-
 internal static class MenuEntry
 {
     public const string InputLocation = "Open Input Location" ;
@@ -100,4 +102,18 @@ internal static class MenuEntry
     public const string ResetApplication = "Reset Application";
     public const string ExitApplication = "Exit Application";
     public const string AboutApplication = "About IISLogsToExcel";
+}
+
+internal static class Icons
+{
+    public const string Info = "pack://application:,,,/res/info.png";
+    public const string Warning = "pack://application:,,,/res/warning.png";
+    public const string Error = "pack://application:,,,/res/error.png";
+    public const string Question = "pack://application:,,,/res/question.png";
+    public const string App = "pack://application:,,,/app-icon.ico";
+    public const string Folder = "pack://application:,,,/res/folder.png";
+    public const string Process = "pack://application:,,,/res/process.png";
+    public const string CleanLogs = "pack://application:,,,/res/cleanlog.png";
+    public const string Reset = "pack://application:,,,/res/reset.png";
+    public const string Exit = "pack://application:,,,/res/exit.png";
 }

@@ -1,6 +1,7 @@
 // Author: Amresh Kumar (July 2025)
 
 using System.IO;
+using System.Windows;
 
 namespace IISLogsToExcel;
 
@@ -26,10 +27,10 @@ public class IniFile
             {
                 var trimmed = line.Trim();
 
-                if (string.IsNullOrWhiteSpace(trimmed) || trimmed.StartsWith(";"))
+                if (string.IsNullOrWhiteSpace(trimmed) || trimmed.StartsWith(';'))
                     continue;
 
-                if (trimmed.StartsWith("[") && trimmed.EndsWith("]"))
+                if (trimmed.StartsWith('[') && trimmed.EndsWith(']'))
                 {
                     currentSection = trimmed[1..^1].Trim();
                     if (!_data.ContainsKey(currentSection))
@@ -65,24 +66,43 @@ public class IniFile
         _data[section][key] = value;
     }
 
+    private bool UpdateSettings()
+    {
+        using var writer = new StreamWriter(_filePath);
+        foreach (var section in _data)
+        {
+            writer.WriteLine($"[{section.Key}]");
+            foreach (var kvp in section.Value)
+                writer.WriteLine($"{kvp.Key}={kvp.Value}");
+
+            writer.WriteLine();
+        }
+
+        return true;
+    }
+
     public bool Save()
     {
         try
         {
-            using var writer = new StreamWriter(_filePath);
-            foreach (var section in _data)
-            {
-                writer.WriteLine($"[{section.Key}]");
-                foreach (var kvp in section.Value)
-                    writer.WriteLine($"{kvp.Key}={kvp.Value}");
-                
-                writer.WriteLine();
-            }
-
-            return true;
+            return UpdateSettings();
         }
         catch
         {
+            MessageBox.Show(Messages.SettingError, Captions.SettingError, MessageBoxButton.OK, MessageBoxImage.Warning);
+            return false;
+        }
+    }
+
+    public bool Save(IISLogExporter app)
+    {
+        try
+        {
+            return UpdateSettings();
+        }
+        catch
+        {
+            app?.MessageBox.Show(Messages.SettingError, Captions.SettingError, DialogTypes.Warning);
             return false;
         }
     }

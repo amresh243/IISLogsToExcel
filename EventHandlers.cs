@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -36,7 +37,7 @@ public partial class IISLogExporter : Window
         _iniFile.SetValue(Constants.SettingsSection, Constants.EnableLogging, _enableLogging.ToString());
         _iniFile.SetValue(Constants.SettingsSection, Constants.DarkMode, systemTheme.IsChecked?.ToString() ?? Constants.False);
         _iniFile.SetValue(Constants.SettingsSection, Constants.FolderPath, _folderPath);
-        _iniFile.Save();
+        _iniFile.Save(this);
 
         Logger.LogInfo("Settings saved successfully.");
         Logger.LogInfo("Application shutting down.");
@@ -44,7 +45,7 @@ public partial class IISLogExporter : Window
         _messageBox.Close();
     }
 
-    /// <summary> Opens appliction folder in explorer. </summary>
+    /// <summary> Opens application folder in explorer. </summary>
     private void Application_DblClick(object sender, RoutedEventArgs e)
     {
         if (e != null && !Constants.validHandlers.Contains(e.OriginalSource.GetType().Name))
@@ -294,21 +295,17 @@ public partial class IISLogExporter : Window
         DialogResults result = _messageBox.Show(Messages.ConfirmReset, Captions.ConfirmReset, DialogTypes.Question);
         if (result == DialogResults.No)
         {
-            Logger.LogInfo("Application reset canceled.");
+            Logger.LogInfo("Application reset cancelled.");
             return;
         }
 
         InitializeVariables(string.Empty);
         InitializeTheme(false);
 
-        isSingleWorkBook.IsChecked = false;
-        enableLogging.IsChecked = false;
-        createPivotTable.IsChecked = false;
-        systemTheme.IsChecked = false;
-        _isSingleBook = false;
-        _enableLogging = false;
-        _createPivot = false;
-        _isDarkMode = false;
+        isSingleWorkBook.IsChecked = _isSingleBook = false;
+        enableLogging.IsChecked = _enableLogging = false;
+        createPivotTable.IsChecked = _createPivot = false;
+        systemTheme.IsChecked = _isDarkMode = false;
 
         UpdateStatus("Application reset completed.");
         Logger.LogInfo("Application reset completed.");
@@ -318,13 +315,13 @@ public partial class IISLogExporter : Window
     private void AboutApplication_Click(object sender, RoutedEventArgs e)
     {
 
-        string version = Assembly.GetExecutingAssembly()?.GetName()?.Version?.ToString() ?? "";
-        string message = "About IIS Logs To Excel Converter...\n\n";
-        message += $"IISLogsToExcel Version: {version}\n";
-        message += $"Copyright © {DateTime.Now.Year} Amresh Kumar\n";
-        message += $"Write to kumar.anirudha@gmail.com";
+        string version = Assembly.GetExecutingAssembly()?.GetName()?.Version?.ToString() ?? string.Empty;
+        StringBuilder message = new("About IIS Logs To Excel Converter...\n\n");
+        message.AppendLine($"IISLogsToExcel Version: {version}");
+        message.AppendLine($"Copyright © {DateTime.Now.Year} Amresh Kumar");
+        message.Append("Write to kumar.anirudha@gmail.com");
 
-        _messageBox.Show(message, "About IISLogsToExcel", DialogTypes.Info, GetIcon("/app-icon.ico", 48, 48));
+        _messageBox.Show(message.ToString(), "About IISLogsToExcel", DialogTypes.Info, GetIcon(Icons.App, 48, 48));
     }
 
     /// <summary> Menu item exit event handler, closes application. </summary>

@@ -57,20 +57,18 @@ public partial class IISLogExporter : Window
 
     #region Control State Modifiers
 
+    private bool GetBoolValue(string key) =>
+        bool.Parse(_iniFile.GetValue(Constants.SettingsSection, key) ?? Constants.False);
+
     /// <summary> Loads settings from the INI file and initializes controls. </summary>
     /// <param name="folderPath">folder path to handle, if received from command line.</param>
     private void LoadSettings(string folderPath)
     {
-        _isSingleBook = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.SingleWorkbook) ?? Constants.False);
-        _createPivot = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.CreatePivot) ?? Constants.False);
-        _enableLogging = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.EnableLogging) ?? Constants.False);
-        _isDarkMode = bool.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.DarkMode) ?? Constants.False);
+        isSingleWorkBook.IsChecked = _isSingleBook = GetBoolValue(Constants.SingleWorkbook);
+        createPivotTable.IsChecked = _createPivot = GetBoolValue(Constants.CreatePivot);
+        enableLogging.IsChecked = _enableLogging = GetBoolValue(Constants.EnableLogging);
+        systemTheme.IsChecked = _isDarkMode = GetBoolValue(Constants.DarkMode);
         _folderPath = _iniFile.GetValue(Constants.SettingsSection, Constants.FolderPath) ?? string.Empty;
-
-        isSingleWorkBook.IsChecked = _isSingleBook;
-        createPivotTable.IsChecked = _createPivot;
-        enableLogging.IsChecked = _enableLogging;
-        systemTheme.IsChecked = _isDarkMode;
 
         if (_enableLogging)
         {
@@ -125,7 +123,7 @@ public partial class IISLogExporter : Window
     /// <summary> Returns an Image control with the specified resource image path. </summary>
     private static Image GetIcon(string iconPath, double width = 16, double height = 16)
     {
-        var icon = new BitmapImage(new Uri($"pack://application:,,,{iconPath}"));
+        var icon = new BitmapImage(new Uri(iconPath));
         return new Image { Source = icon, Width = width, Height = height };
     }
 
@@ -133,13 +131,13 @@ public partial class IISLogExporter : Window
     private void InitializeMenu()
     {
         Logger.LogInfo("Initializing context menu...");
-        var menuItemInput = new MenuItem { Header = MenuEntry.InputLocation, Icon = GetIcon("/res/folder.png") };
-        var menuItemLog = new MenuItem { Header = MenuEntry.LogLocation, Icon = GetIcon("/res/folder.png") };
-        var menuItemProcess = new MenuItem { Header = MenuEntry.ProcessLogs, Icon = GetIcon("/res/process.png") };
-        var menuItemCleanLogs = new MenuItem { Header = MenuEntry.CleanOldLogs, Icon = GetIcon("/res/cleanlog.png") };
-        var menuItemReset = new MenuItem { Header = MenuEntry.ResetApplication, Icon = GetIcon("/res/reset.png") };
-        var menuItemExit = new MenuItem { Header = MenuEntry.ExitApplication, Icon = GetIcon("/res/exit.png") };
-        var menuItemAbout = new MenuItem { Header = MenuEntry.AboutApplication, Icon = GetIcon("/app-icon.ico") };
+        var menuItemInput = new MenuItem { Header = MenuEntry.InputLocation, Icon = GetIcon(Icons.Folder) };
+        var menuItemLog = new MenuItem { Header = MenuEntry.LogLocation, Icon = GetIcon(Icons.Folder) };
+        var menuItemProcess = new MenuItem { Header = MenuEntry.ProcessLogs, Icon = GetIcon(Icons.Process) };
+        var menuItemCleanLogs = new MenuItem { Header = MenuEntry.CleanOldLogs, Icon = GetIcon(Icons.CleanLogs) };
+        var menuItemReset = new MenuItem { Header = MenuEntry.ResetApplication, Icon = GetIcon(Icons.Reset) };
+        var menuItemExit = new MenuItem { Header = MenuEntry.ExitApplication, Icon = GetIcon(Icons.Exit) };
+        var menuItemAbout = new MenuItem { Header = MenuEntry.AboutApplication, Icon = GetIcon(Icons.App) };
 
         menuItemInput.Click += FolderPathTextBox_DblClick;
         menuItemLog.Click += Application_DblClick;
@@ -165,7 +163,7 @@ public partial class IISLogExporter : Window
     }
 
     /// <summary> Changes the state of controls based on the enable parameter. </summary>
-    /// <param name="enable"> true=enalbe/false=disable </param>
+    /// <param name="enable"> true=enable/false=disable </param>
     private void ChangeControlState(bool enable)
     {
         Logger.LogInfo($"Changing control state to {(enable ? "Enabled" : "Disabled")}...");
@@ -224,9 +222,9 @@ public partial class IISLogExporter : Window
         progressBar.Maximum = 100;
         progressBar.Value = 0;
         _totalSize = _processedSize = 0;
-        progressText.Text = $"0%";
-        _folderPath = _folderName = "";
-        folderPathTextBox.Text = "";
+        progressText.Text = Constants.ZeroPercent;
+        _folderPath = _folderName = string.Empty;
+        folderPathTextBox.Text = string.Empty;
         lbLogFiles.Items.Clear();
         _logFiles.Clear();
 
@@ -328,7 +326,7 @@ public partial class IISLogExporter : Window
 
     #region Thread Methods
 
-    /// <summary> Creates seperate excel file for each file under folder. </summary>
+    /// <summary> Creates separate excel file for each file under folder. </summary>
     private void CreateSeperateFiles()
     {
         Logger.LogInfo("Creating separate Excel files for each log file...");
@@ -357,7 +355,7 @@ public partial class IISLogExporter : Window
             if (_createPivot)
                 _processor.SetupPivotSheet(workbook, worksheet, sheetName, file);
 
-            // Saving the workbook seperate excel files
+            // Saving the workbook separate excel files
             var excelFile = $"{ExcelSheetProcessor.GetSheetName(file)}{LogTokens.ExcelExtension}";
             Logger.LogInfo($"Log file processed successfully: {file}");
             msg = string.Format(Messages.LogFileExporting, excelFile);
@@ -408,7 +406,7 @@ public partial class IISLogExporter : Window
         var msg = string.Format(Messages.LogFileExporting, excelFile);
         UpdateStatus(msg);
         Logger.LogInfo(msg);
-        bool isSucess = SaveExcelFile(workbook, Path.Combine(_folderPath, excelFile));
+        SaveExcelFile(workbook, Path.Combine(_folderPath, excelFile));
 
         _processedSize = _totalSize;
         UpdateProgress(_processedSize, false);

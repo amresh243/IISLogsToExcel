@@ -27,14 +27,12 @@ public static class Logger
 
         var logParts = logFile.Split(LogTokens.ExtensionSplitMarker);
         var extension = logParts.LastOrDefault();
-        var firstPart = logFile.Replace(extension ?? "", string.Empty);
+        var firstPart = logFile.Replace(extension ?? string.Empty, string.Empty);
 
         _logFilePath = $"{firstPart}{DateTime.Now:yyyyMMdd}.{extension}";
 
         if (!File.Exists(_logFilePath))
-        {
-            using (File.Create(_logFilePath)) { }
-        }
+            using (File.Create(_logFilePath)) {}
     }
 
     public static void Create(string logFile)
@@ -59,7 +57,7 @@ public static class Logger
         catch
         {
             _loggingEnabled = false;
-            app.MessageBox.Show(Messages.LoggingError, Captions.LoggingError, DialogTypes.Warning);
+            app?.MessageBox.Show(Messages.LoggingError, Captions.LoggingError, DialogTypes.Warning);
         }
     }
 
