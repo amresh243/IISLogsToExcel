@@ -39,8 +39,8 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
 
         if (isFile)
         {
-            var fileName = file.Split(LogTokens.PathSplitMarker).LastOrDefault()?.Split(LogTokens.FileSplitMarker).LastOrDefault() 
-                ?? string.Empty;
+            var fileName = file.Split(LogTokens.PathSplitMarker).LastOrDefault()?
+                .Split(LogTokens.FileSplitMarker).LastOrDefault() ?? string.Empty;
             var fileNameLength = fileName.Length;
 
             return (fileNameLength > 10) ? fileName[(fileNameLength - 10)..] : fileName;
