@@ -21,6 +21,7 @@ public partial class IISLogExporter : Window
     {
         if (_isProcessing)
         {
+            _isConfirmationDlgOpen = true;
             DialogResults result = _messageBox.Show(Messages.ExitWarning, Captions.ExitWarning, DialogTypes.Question);
             if (result == DialogResults.No)
             {
@@ -283,6 +284,12 @@ public partial class IISLogExporter : Window
 
         _isProcessing = false;
         stopwatch.Stop();
+
+        if(_isConfirmationDlgOpen)
+        {
+            _isConfirmationDlgOpen = false;
+            _messageBox.Hide();
+        }
 
         Logger.LogInfo($"Processing completed successfully in {stopwatch.Elapsed.TotalSeconds} seconds.");
         Logger.LogMarker(++_processingCount);

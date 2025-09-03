@@ -29,6 +29,7 @@ public partial class IISLogExporter : Window
     private bool _enableLogging = true;
     private bool _isDarkMode = false;
     private bool _isProcessing = false;
+    private bool _isConfirmationDlgOpen = false;
 
     private long _totalSize = 0;
     private long _processedSize = 0;
