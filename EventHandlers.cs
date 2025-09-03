@@ -14,6 +14,25 @@ namespace IISLogsToExcel;
 
 public partial class IISLogExporter : Window
 {
+    #region Utility Methods
+
+    private bool LoggedWarning(string file, string body, string caption)
+    {
+        Logger.LogInfo($"Attempting to open {file}...");
+        if (!File.Exists(file))
+        {
+            string message = string.Format(body, file);
+            _messageBox.Show(message, caption, DialogTypes.Warning);
+            Logger.LogWarning(message);
+            return true;
+        }
+
+        return false;
+    }
+
+    #endregion Utility Methods
+
+
     #region Event Handlers
 
     // Change the Window_Closing method signature to accept nullable sender
@@ -57,20 +76,6 @@ public partial class IISLogExporter : Window
         var appFile = Path.Combine(appDirectory, $"{Constants.ApplicationName}.exe");
         var command = $"/select,\"{appFile}\"";
         Process.Start(Constants.ExplorerApp, command);
-    }
-
-    private bool LoggedWarning(string file, string body, string caption)
-    {
-        Logger.LogInfo($"Attempting to open {file}...");
-        if (!File.Exists(file))
-        {
-            string message = string.Format(body, file);
-            _messageBox.Show(message, caption, DialogTypes.Warning);
-            Logger.LogWarning(message);
-            return true;
-        }
-
-        return false;
     }
 
     /// <summary> Opens log file. </summary>
