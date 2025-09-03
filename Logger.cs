@@ -17,12 +17,7 @@ public static class Logger
             if (!string.IsNullOrEmpty(_logFilePath))
                 return _logFilePath;
 
-            string logFile = Constants.LogFile;
-            var logParts = logFile.Split(LogTokens.ExtensionSplitMarker);
-            var extension = logParts.LastOrDefault();
-            var firstPart = logFile.Replace(extension ?? string.Empty, string.Empty);
-
-            return $"{firstPart}{DateTime.Now:yyyyMMdd}.{extension}";
+            return GetComputedLogFile(Constants.LogFile);
         }
     }
 
@@ -34,16 +29,21 @@ public static class Logger
         }
     }
 
+    private static string GetComputedLogFile(string logFile)
+    {
+        var logParts = logFile.Split(LogTokens.ExtensionSplitMarker);
+        var extension = logParts.LastOrDefault();
+        var firstPart = logFile.Replace(extension ?? string.Empty, string.Empty);
+
+        return $"{firstPart}{DateTime.Now:yyyyMMdd}.{extension}";
+    }
+
     private static void Initialize(string logFile)
     {
         if (!_loggingEnabled)
             return;
 
-        var logParts = logFile.Split(LogTokens.ExtensionSplitMarker);
-        var extension = logParts.LastOrDefault();
-        var firstPart = logFile.Replace(extension ?? string.Empty, string.Empty);
-
-        _logFilePath = $"{firstPart}{DateTime.Now:yyyyMMdd}.{extension}";
+        _logFilePath = GetComputedLogFile(logFile);
 
         if (!File.Exists(_logFilePath))
             using (File.Create(_logFilePath)) {}
