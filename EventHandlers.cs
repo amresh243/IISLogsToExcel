@@ -14,6 +14,25 @@ namespace IISLogsToExcel;
 
 public partial class IISLogExporter : Window
 {
+    #region Utility Methods
+
+    private bool LoggedWarning(string file, string body, string caption)
+    {
+        Logger.LogInfo($"Attempting to open {file}...");
+        if (!File.Exists(file))
+        {
+            string message = string.Format(body, file);
+            _messageBox.Show(message, caption, DialogTypes.Warning);
+            Logger.LogWarning(message);
+            return true;
+        }
+
+        return false;
+    }
+
+    #endregion Utility Methods
+
+
     #region Event Handlers
 
     // Change the Window_Closing method signature to accept nullable sender
@@ -21,6 +40,7 @@ public partial class IISLogExporter : Window
     {
         if (_isProcessing)
         {
+            _isConfirmationDlgOpen = true;
             DialogResults result = _messageBox.Show(Messages.ExitWarning, Captions.ExitWarning, DialogTypes.Question);
             if (result == DialogResults.No)
             {
@@ -56,20 +76,6 @@ public partial class IISLogExporter : Window
         var appFile = Path.Combine(appDirectory, $"{Constants.ApplicationName}.exe");
         var command = $"/select,\"{appFile}\"";
         Process.Start(Constants.ExplorerApp, command);
-    }
-
-    private bool LoggedWarning(string file, string body, string caption)
-    {
-        Logger.LogInfo($"Attempting to open {file}...");
-        if (!File.Exists(file))
-        {
-            string message = string.Format(body, file);
-            _messageBox.Show(message, caption, DialogTypes.Warning);
-            Logger.LogWarning(message);
-            return true;
-        }
-
-        return false;
     }
 
     /// <summary> Opens log file. </summary>
@@ -284,6 +290,12 @@ public partial class IISLogExporter : Window
         _isProcessing = false;
         stopwatch.Stop();
 
+        if(_isConfirmationDlgOpen)
+        {
+            _isConfirmationDlgOpen = false;
+            _messageBox.Hide();
+        }
+
         Logger.LogInfo($"Processing completed successfully in {stopwatch.Elapsed.TotalSeconds} seconds.");
         Logger.LogMarker(++_processingCount);
     }
@@ -371,10 +383,8 @@ public partial class IISLogExporter : Window
     }
 
     /// <summary> Menu item exit event handler, closes application. </summary>
-    private void MenuItemExit_Click(object sender, RoutedEventArgs e)
-    {
+    private void MenuItemExit_Click(object sender, RoutedEventArgs e) =>
         this.Close();
-    }
 
     #endregion Event Handlers
 }
