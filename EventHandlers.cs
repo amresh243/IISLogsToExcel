@@ -378,10 +378,8 @@ public partial class IISLogExporter : Window
     }
 
     /// <summary> Menu item exit event handler, closes application. </summary>
-    private void MenuItemExit_Click(object sender, RoutedEventArgs e)
-    {
+    private void MenuItemExit_Click(object sender, RoutedEventArgs e) =>
         this.Close();
-    }
 
     #endregion Event Handlers
 }
