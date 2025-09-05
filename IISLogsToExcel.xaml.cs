@@ -18,6 +18,7 @@ public partial class IISLogExporter : Window
     private readonly ExcelSheetProcessor _processor;
     private readonly IniFile _iniFile = new(Constants.IniFile);
     private readonly List<LogFileItem> _logFiles = [];
+    private readonly List<MenuItem> _stateBasedMenuItems = [];
     private readonly MessageDialog _messageBox;
     private readonly ContextMenu _contextMenu = new();
 
@@ -132,6 +133,8 @@ public partial class IISLogExporter : Window
     private void InitializeMenu()
     {
         Logger.LogInfo("Initializing context menu...");
+        _stateBasedMenuItems.Clear();
+
         var menuItemInput = new MenuItem { Header = MenuEntry.InputLocation, Icon = GetIcon(Icons.Folder) };
         var menuItemLog = new MenuItem { Header = MenuEntry.OpenAppLog, Icon = GetIcon(Icons.AppLog) };
         var menuItemSettings = new MenuItem { Header = MenuEntry.OpenAppSettings, Icon = GetIcon(Icons.AppSettings) };
@@ -162,6 +165,8 @@ public partial class IISLogExporter : Window
         _contextMenu.Items.Add(new Separator());
         _contextMenu.Items.Add(menuItemAbout);
 
+        _stateBasedMenuItems.Add(menuItemProcess);
+        _stateBasedMenuItems.Add(menuItemReset);
         this.ContextMenu = _contextMenu;
         Logger.LogInfo("Context menu initialized.");
     }
@@ -177,11 +182,8 @@ public partial class IISLogExporter : Window
         createPivotTable.IsEnabled = enable;
         enableLogging.IsEnabled = enable;
 
-        MenuItem menuItemProcess = _contextMenu.Items[3] as MenuItem ?? new MenuItem();
-        MenuItem menuItemReset = _contextMenu.Items[6] as MenuItem ?? new MenuItem();
-
-        menuItemProcess.IsEnabled = enable;
-        menuItemReset.IsEnabled = enable;
+        foreach (var menuItem in _stateBasedMenuItems)
+            menuItem.IsEnabled = enable;
 
         if (enable)
             _totalSize = _processedSize = 0;
