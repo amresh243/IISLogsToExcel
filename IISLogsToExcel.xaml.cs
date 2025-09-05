@@ -150,7 +150,7 @@ public partial class IISLogExporter : Window
         menuItemProcess.Click += ProcessButton_Click;
         menuItemCleanLogs.Click += CleanLogHistory_Click;
         menuItemReset.Click += ResetApplication_Click;
-        menuItemExit.Click += MenuItemExit_Click; ;
+        menuItemExit.Click += MenuItemExit_Click;
         menuItemAbout.Click += AboutApplication_Click;
 
         _contextMenu.Items.Add(menuItemInput);
