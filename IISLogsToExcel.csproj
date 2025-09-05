@@ -60,7 +60,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="&quot;C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool.exe&quot; sign /f &quot;IISLogsToExcel.pfx&quot; /p &quot;#IISLogsToExcel#&quot; /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 &quot;$(ProjectDir)bin\$(ConfigurationName)\net8.0-windows\IISLogsToExcel.exe&quot;" />
+    <Exec Command="&quot;C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool.exe&quot; sign /f &quot;IISLogsToExcel.pfx&quot; /p &quot;#IISLogsToExcel#&quot; /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 &quot;$(ProjectDir)bin\$(ConfigurationName)\net8.0-windows\IISLogsToExcel.exe&quot;&#xD;&#xA;&quot;C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool.exe&quot; sign /f &quot;IISLogsToExcel.pfx&quot; /p &quot;#IISLogsToExcel#&quot; /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 &quot;$(ProjectDir)bin\$(ConfigurationName)\net8.0-windows\IISLogsToExcel.dll&quot;" />
   </Target>
 
 </Project>
