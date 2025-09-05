@@ -110,5 +110,5 @@ public static class Utility
     }
 
     public static string GetFileNameWithoutRoot(string file, string root) =>
-        root.EndsWith('\\') ? file.Replace(root + "\\", string.Empty) : file.Replace(root, string.Empty);
+        !root.EndsWith('\\') ? file.Replace(root + "\\", string.Empty) : file.Replace(root, string.Empty);
 }
