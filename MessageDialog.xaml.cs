@@ -14,7 +14,11 @@ public enum DialogTypes { Error = 0, Warning = 1, Info = 2, Question = 3 }
 public partial class MessageDialog : Window
 {
     private readonly Window? _owner;
+    private readonly Brush _defaultTitleBarColor = Brushes.DodgerBlue;
+    private readonly Brush _warningTitleBarColor = Brushes.Goldenrod;
+    private readonly Brush _errorTitleBarColor = Brushes.Tomato;
     private DialogResults _result = DialogResults.No;
+
     private readonly Dictionary<DialogTypes, BitmapImage> _icons = new()
     {
         { DialogTypes.Info, new BitmapImage(new Uri(Icons.Info)) },
@@ -29,14 +33,36 @@ public partial class MessageDialog : Window
         _owner = owner;
         InitializeComponent();
         this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        _defaultTitleBarColor = TitleBar.Background;
+        _warningTitleBarColor = Utility.GetLinearGradientBrush(Colors.LightGoldenrodYellow, Colors.Goldenrod);
+        _errorTitleBarColor = Utility.GetLinearGradientBrush(Colors.Gold, Colors.Crimson);
+    }
+
+    /// <summary> Update dialog title bar color based on dialog type </summary>
+    private void UpdateTitleBackground(DialogTypes type)
+    {
+        switch (type)
+        {
+            case DialogTypes.Error:
+                TitleBar.Background = _errorTitleBarColor;
+                break;
+            case DialogTypes.Warning:
+                TitleBar.Background = _warningTitleBarColor;
+                break;
+            case DialogTypes.Info:
+            case DialogTypes.Question:
+                TitleBar.Background = _defaultTitleBarColor;
+                break;
+        }
     }
 
     /// <summary> Show the dialog with specified message, title, type and icon </summary>
     public DialogResults Show(string message, string title, DialogTypes type = DialogTypes.Info, Image? icon = null)
     {
         dlgImage.Source = (icon == null) ? _icons[type] : icon.Source;
+        UpdateTitleBackground(type);
 
-        switch(type)
+        switch (type)
         {
             case DialogTypes.Error:
             case DialogTypes.Warning:

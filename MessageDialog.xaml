@@ -16,7 +16,7 @@
     <Border BorderThickness="1"
          BorderBrush="{StaticResource ControlEnabled}">
         <DockPanel>
-            <Grid Background="{StaticResource ControlEnabled}" DockPanel.Dock="Top" >
+            <Grid Name="TitleBar" Background="{StaticResource ControlEnabled}" DockPanel.Dock="Top" >
                 <TextBlock Name="AppTitle" FontWeight="DemiBold" Margin="0, 0, 0, 2" Text="Window" 
                            HorizontalAlignment="Center" VerticalAlignment="Top" />
                 <Button Name="closeDlg" Content="X" Width="18" HorizontalAlignment="Right" 
@@ -37,13 +37,13 @@
                     </Grid.ColumnDefinitions>
                     <Button Name="yesButton" Content="Yes" Height="20" Width="60" Margin="5" Click="Yes_Click" Grid.Column="0" 
                         HorizontalAlignment="Left" FontWeight="DemiBold" Style="{DynamicResource RoundedButton}" 
-                        Background="{StaticResource ControlEnabled}"/>
+                        Background="Tomato"/>
                     <Button Name ="closeButton" Content="Close" Height="20" Width="60" Margin="5" Click="No_Click" Grid.Column="1"
                         HorizontalAlignment="Center" FontWeight="DemiBold" Style="{DynamicResource RoundedButton}" 
                         Background="{StaticResource ControlEnabled}"/>
                     <Button Name ="noButton" Content="No" Height="20" Width="60" Margin="5" Click="No_Click" Grid.Column="2" 
                         HorizontalAlignment="Right" FontWeight="DemiBold" Style="{DynamicResource RoundedButton}" 
-                        Background="{StaticResource ControlEnabled}"/>
+                        Background="LimeGreen"/>
                 </Grid>
             </StackPanel>
         </DockPanel>

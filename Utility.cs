@@ -3,6 +3,8 @@
 using Microsoft.Win32;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Media;
 
 namespace IISLogsToExcel;
 
@@ -34,7 +36,7 @@ public static class Utility
     {
         if (string.IsNullOrEmpty(input))
             return false;
-        
+
         return Regex.IsMatch(input, _numberPatterns);
     }
 
@@ -110,4 +112,21 @@ public static class Utility
 
     public static string GetFileNameWithoutRoot(string file, string root) =>
         !root.EndsWith('\\') ? file.Replace(root + "\\", string.Empty) : file.Replace(root, string.Empty);
+
+    /// <summary> Create a vertical linear gradient brush from startColor to endColor </summary>
+    public static LinearGradientBrush GetLinearGradientBrush(Color startColor, Color endColor, double opacity = 0)
+    {
+        LinearGradientBrush brush = new()
+        {
+            StartPoint = new Point(0.5, 0),
+            EndPoint = new Point(0.5, 1)
+        };
+
+        brush.GradientStops.Add(new GradientStop(startColor, 0.0));
+        brush.GradientStops.Add(new GradientStop(endColor, 1.0));
+        if (opacity > 0)
+            brush.Opacity = opacity;
+
+        return brush;
+    }
 }
