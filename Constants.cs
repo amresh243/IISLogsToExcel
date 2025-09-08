@@ -101,7 +101,7 @@ internal static class Headers
 
 internal static class MenuEntry
 {
-    public const string InputLocation = "Open Input Location" ;
+    public const string InputLocation = "Open Input Location";
     public const string OpenAppLog = "Open App Log";
     public const string OpenAppSettings = "Open App Settings";
     public const string ProcessLogs = "Process Logs";

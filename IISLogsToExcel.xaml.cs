@@ -260,12 +260,12 @@ public partial class IISLogExporter : Window
         foreach (var file in logFiles)
         {
             var fileName = ExcelSheetProcessor.GetSheetName(file, true);
-            var listItem = new LogFileItem 
+            var listItem = new LogFileItem
             {
-                Name = Utility.GetFileNameWithoutRoot(file, _folderPath), 
-                ID = id++.ToString(), 
-                FullPath = file, 
-                Color = foreColor 
+                Name = Utility.GetFileNameWithoutRoot(file, _folderPath),
+                ID = id++.ToString(),
+                FullPath = file,
+                Color = foreColor
             };
             var fileInfo = new FileInfo(file);
             listItem.ToolTip = $"{file}\nSize: {Utility.GetFormattedSize(fileInfo.Length)}\nCreated: {fileInfo.CreationTime}";
@@ -349,7 +349,7 @@ public partial class IISLogExporter : Window
             Logger.LogInfo(msg);
             UpdateStatus(msg);
             UpdateList(file, Brushes.LimeGreen);
-            
+
             var workbook = new XLWorkbook();
             var sheetName = (!_isSingleBook) ? LogTokens.DefaultLogSheet : file;
             var worksheet = workbook.Worksheets.Add(sheetName);

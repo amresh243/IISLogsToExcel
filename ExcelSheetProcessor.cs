@@ -163,7 +163,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
                 // Create row if there is broken row computed data available
                 if (incompleteCellData.Count > 0)
                 {
-                    Logger.LogWarning($"Broken or invalid data at line {currentRow } in file {file}, output repair attempted.");
+                    Logger.LogWarning($"Broken or invalid data at line {currentRow} in file {file}, output repair attempted.");
                     _handler.UpdateList(file, Brushes.Tomato);
                     var prevCellData = incompleteCellData.ToArray();
                     AddRowData(worksheet, specialIndices, prevCellData, currentRow);

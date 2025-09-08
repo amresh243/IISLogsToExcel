@@ -13,10 +13,9 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <Border BorderThickness="1"
-         BorderBrush="{StaticResource ControlEnabled}">
+    <Border BorderThickness="1" BorderBrush="{StaticResource ControlEnabled}">
         <DockPanel>
-            <Grid Background="{StaticResource ControlEnabled}" DockPanel.Dock="Top" >
+            <Grid Name="TitleBar" Background="{StaticResource ControlEnabled}" DockPanel.Dock="Top" >
                 <TextBlock Name="AppTitle" FontWeight="DemiBold" Margin="0, 0, 0, 2" Text="Window" 
                            HorizontalAlignment="Center" VerticalAlignment="Top" />
                 <Button Name="closeDlg" Content="X" Width="18" HorizontalAlignment="Right" 
@@ -24,26 +23,26 @@
                         FontWeight="DemiBold" Style="{DynamicResource RoundedButton}" 
                         Background="Red"/>
             </Grid>
-            <StackPanel Margin="20">
+            <StackPanel Margin="10">
                 <StackPanel Orientation="Horizontal">
                     <Image Name="dlgImage" Height="48" Width="48" HorizontalAlignment="Left" Source="/res/info.png" />
                     <TextBlock Name="Message" Text="" Margin="5,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" Height="Auto" />
                 </StackPanel>
-                <Grid>
+                <Grid Margin="0, 5, 0, 0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Button Name="yesButton" Content="Yes" Height="20" Width="60" Margin="5" Click="Yes_Click" Grid.Column="0" 
-                        HorizontalAlignment="Left" FontWeight="DemiBold" Style="{DynamicResource RoundedButton}" 
+                    <Button Name="yesButton" Content="YES" Height="22" Width="60" Margin="5" Click="Yes_Click" Grid.Column="0" 
+                        HorizontalAlignment="Left" FontWeight="DemiBold" Style="{DynamicResource RoundedButton}" FontSize="14"
+                        Background="OrangeRed"/>
+                    <Button Name ="closeButton" Content="CLOSE" Height="22" Width="60" Margin="5" Click="No_Click" Grid.Column="1"
+                        HorizontalAlignment="Center" FontWeight="DemiBold" Style="{DynamicResource RoundedButton}" FontSize="14"
                         Background="{StaticResource ControlEnabled}"/>
-                    <Button Name ="closeButton" Content="Close" Height="20" Width="60" Margin="5" Click="No_Click" Grid.Column="1"
-                        HorizontalAlignment="Center" FontWeight="DemiBold" Style="{DynamicResource RoundedButton}" 
-                        Background="{StaticResource ControlEnabled}"/>
-                    <Button Name ="noButton" Content="No" Height="20" Width="60" Margin="5" Click="No_Click" Grid.Column="2" 
-                        HorizontalAlignment="Right" FontWeight="DemiBold" Style="{DynamicResource RoundedButton}" 
-                        Background="{StaticResource ControlEnabled}"/>
+                    <Button Name ="noButton" Content="NO" Height="22" Width="60" Margin="5" Click="No_Click" Grid.Column="2" 
+                        HorizontalAlignment="Right" FontWeight="DemiBold" Style="{DynamicResource RoundedButton}" FontSize="14"
+                        Background="LimeGreen"/>
                 </Grid>
             </StackPanel>
         </DockPanel>

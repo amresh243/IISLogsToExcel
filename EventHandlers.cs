@@ -290,7 +290,7 @@ public partial class IISLogExporter : Window
         _isProcessing = false;
         stopwatch.Stop();
 
-        if(_isConfirmationDlgOpen)
+        if (_isConfirmationDlgOpen)
         {
             _isConfirmationDlgOpen = false;
             _messageBox.Hide();
@@ -304,7 +304,7 @@ public partial class IISLogExporter : Window
     private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
         Point position = e.GetPosition(this);
-        
+
         _contextMenu.PlacementTarget = this;
         _contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Relative;
         _contextMenu.HorizontalOffset = position.X;
