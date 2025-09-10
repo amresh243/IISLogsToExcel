@@ -34,8 +34,8 @@ public partial class MessageDialog : Window
         InitializeComponent();
         this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
         _defaultTitleBarColor = TitleBar.Background;
-        _warningTitleBarColor = Utility.GetLinearGradientBrush(Colors.LightGoldenrodYellow, Colors.Goldenrod);
-        _errorTitleBarColor = Utility.GetLinearGradientBrush(Colors.Gold, Colors.Crimson);
+        _warningTitleBarColor = Utility.GetGradientBrush(Colors.LightGoldenrodYellow, Colors.Goldenrod);
+        _errorTitleBarColor = Utility.GetGradientBrush(Colors.Gold, Colors.Crimson);
     }
 
     /// <summary> Update dialog title bar color based on dialog type </summary>
