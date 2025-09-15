@@ -4,6 +4,7 @@
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         ShowInTaskbar="False"
+        MouseDown="Window_MouseDown"
         SizeToContent="WidthAndHeight"
         WindowStyle="None">
     <Window.Resources>

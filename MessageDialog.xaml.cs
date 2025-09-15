@@ -2,6 +2,7 @@
 
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -109,5 +110,12 @@ public partial class MessageDialog : Window
     {
         _result = DialogResults.No;
         this.Hide();
+    }
+
+    /// <summary> Allow window drag on title bar mouse down </summary>
+    private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Left)
+            this.DragMove();
     }
 }
