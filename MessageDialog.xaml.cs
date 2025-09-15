@@ -2,6 +2,7 @@
 
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -34,8 +35,8 @@ public partial class MessageDialog : Window
         InitializeComponent();
         this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
         _defaultTitleBarColor = TitleBar.Background;
-        _warningTitleBarColor = Utility.GetLinearGradientBrush(Colors.LightGoldenrodYellow, Colors.Goldenrod);
-        _errorTitleBarColor = Utility.GetLinearGradientBrush(Colors.Gold, Colors.Crimson);
+        _warningTitleBarColor = Utility.GetGradientBrush(Colors.LightGoldenrodYellow, Colors.Goldenrod);
+        _errorTitleBarColor = Utility.GetGradientBrush(Colors.Gold, Colors.Crimson);
     }
 
     /// <summary> Update dialog title bar color based on dialog type </summary>
@@ -109,5 +110,12 @@ public partial class MessageDialog : Window
     {
         _result = DialogResults.No;
         this.Hide();
+    }
+
+    /// <summary> Allow window drag on title bar mouse down </summary>
+    private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Left)
+            this.DragMove();
     }
 }

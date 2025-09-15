@@ -114,7 +114,7 @@ public static class Utility
         !root.EndsWith('\\') ? file.Replace(root + "\\", string.Empty) : file.Replace(root, string.Empty);
 
     /// <summary> Create a vertical linear gradient brush from startColor to endColor </summary>
-    public static LinearGradientBrush GetLinearGradientBrush(Color startColor, Color endColor, double opacity = 0)
+    public static LinearGradientBrush GetGradientBrush(Color startColor, Color endColor, double opacity = 0)
     {
         LinearGradientBrush brush = new()
         {
