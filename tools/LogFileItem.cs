@@ -3,7 +3,7 @@
 using System.ComponentModel;
 using System.Windows.Media;
 
-namespace IISLogsToExcel;
+namespace IISLogsToExcel.tools;
 
 public class LogFileItem : INotifyPropertyChanged
 {
