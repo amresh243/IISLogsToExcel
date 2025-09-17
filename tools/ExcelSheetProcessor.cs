@@ -5,7 +5,7 @@ using System.IO;
 using System.Text;
 using System.Windows.Media;
 
-namespace IISLogsToExcel;
+namespace IISLogsToExcel.tools;
 
 internal class ExcelSheetProcessor(IISLogExporter handler)
 {
@@ -43,7 +43,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
                 .Split(LogTokens.FileSplitMarker).LastOrDefault() ?? string.Empty;
             var fileNameLength = fileName.Length;
 
-            return (fileNameLength > 10) ? fileName[(fileNameLength - 10)..] : fileName;
+            return fileNameLength > 10 ? fileName[(fileNameLength - 10)..] : fileName;
         }
 
         var sheetName = file.Split(LogTokens.PathSplitMarker).LastOrDefault()?
@@ -53,7 +53,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
             return file;
 
         var sheetNameLength = sheetName.Length;
-        var sheet = (sheetNameLength > 6) ? sheetName[(sheetNameLength - 6)..] : sheetName;
+        var sheet = sheetNameLength > 6 ? sheetName[(sheetNameLength - 6)..] : sheetName;
         if (sheets != null && sheets.Length > 0)
         {
             var existingCount = sheets.Count(name => name == sheet);
