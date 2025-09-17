@@ -16,9 +16,6 @@ public enum DialogTypes { Error = 0, Warning = 1, Info = 2, Question = 3 }
 public partial class MessageDialog : Window
 {
     private readonly Window? _owner;
-    private readonly Brush _defaultTitleBarColor = Brushes.DodgerBlue;
-    private readonly Brush _warningTitleBarColor = Brushes.Goldenrod;
-    private readonly Brush _errorTitleBarColor = Brushes.Tomato;
     private DialogResults _result = DialogResults.No;
 
     private readonly Dictionary<DialogTypes, BitmapImage> _icons = new()
@@ -29,40 +26,29 @@ public partial class MessageDialog : Window
         { DialogTypes.Question, new BitmapImage(new Uri(Icons.Question)) }
     };
 
+    private readonly Dictionary<DialogTypes, Brush>? _titleBarColors;
+
     /// <summary> Constructor </summary>
     public MessageDialog(Window owner)
     {
-        _owner = owner;
         InitializeComponent();
-        this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-        _defaultTitleBarColor = TitleBar.Background;
-        _warningTitleBarColor = Utility.GetGradientBrush(Colors.LightGoldenrodYellow, Colors.Goldenrod);
-        _errorTitleBarColor = Utility.GetGradientBrush(Colors.Gold, Colors.Crimson);
-    }
 
-    /// <summary> Update dialog title bar color based on dialog type </summary>
-    private void UpdateTitleBackground(DialogTypes type)
-    {
-        switch (type)
+        _owner = owner;
+        this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        _titleBarColors = new Dictionary<DialogTypes, Brush>
         {
-            case DialogTypes.Error:
-                TitleBar.Background = _errorTitleBarColor;
-                break;
-            case DialogTypes.Warning:
-                TitleBar.Background = _warningTitleBarColor;
-                break;
-            case DialogTypes.Info:
-            case DialogTypes.Question:
-                TitleBar.Background = _defaultTitleBarColor;
-                break;
-        }
+            { DialogTypes.Info, TitleBar.Background },
+            { DialogTypes.Warning, Utility.GetGradientBrush(Colors.LightGoldenrodYellow, Colors.Goldenrod) },
+            { DialogTypes.Error, Utility.GetGradientBrush(Colors.Gold, Colors.Crimson) },
+            { DialogTypes.Question, TitleBar.Background }
+        };
     }
 
     /// <summary> Show the dialog with specified message, title, type and icon </summary>
     public DialogResults Show(string message, string title, DialogTypes type = DialogTypes.Info, Image? icon = null)
     {
         dlgImage.Source = (icon == null) ? _icons[type] : icon.Source;
-        UpdateTitleBackground(type);
+        TitleBar.Background = _titleBarColors?[type] ?? TitleBar.Background;
 
         switch (type)
         {
