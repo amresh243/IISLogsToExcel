@@ -66,7 +66,6 @@ public static class Utility
         // Use regex to match and rebuild the string
         MatchCollection matches = Regex.Matches(text, _xmlPatterns);
         return string.Concat(matches.Cast<Match>().Select(m => m.Value));
-
     }
 
     /// <summary> Returns all log files under the given folder path. </summary>
