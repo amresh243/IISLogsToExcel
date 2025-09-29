@@ -139,11 +139,14 @@ public partial class IISLogExporter : Window
         var menuItemInput = new MenuItem { Header = MenuEntry.InputLocation, Icon = GetIcon(Icons.Folder) };
         var menuItemLog = new MenuItem { Header = MenuEntry.OpenAppLog, Icon = GetIcon(Icons.AppLog) };
         var menuItemSettings = new MenuItem { Header = MenuEntry.OpenAppSettings, Icon = GetIcon(Icons.AppSettings) };
-        var menuItemProcess = new MenuItem { Header = MenuEntry.ProcessLogs, Icon = GetIcon(Icons.Process) };
+        var menuItemProcess = new MenuItem { Header = MenuEntry.ProcessLogs, Icon = GetIcon(Icons.Process), 
+            FontWeight = FontWeights.DemiBold, Foreground = Brushes.LimeGreen };
         var menuItemCleanLogs = new MenuItem { Header = MenuEntry.CleanOldLogs, Icon = GetIcon(Icons.CleanLogs) };
-        var menuItemReset = new MenuItem { Header = MenuEntry.ResetApplication, Icon = GetIcon(Icons.Reset) };
+        var menuItemReset = new MenuItem { Header = MenuEntry.ResetApplication, Icon = GetIcon(Icons.Reset), 
+            FontWeight = FontWeights.DemiBold, Foreground = Brushes.Goldenrod };
         var menuItemExit = new MenuItem { Header = MenuEntry.ExitApplication, Icon = GetIcon(Icons.Exit) };
-        var menuItemAbout = new MenuItem { Header = MenuEntry.AboutApplication, Icon = GetIcon(Icons.App) };
+        var menuItemAbout = new MenuItem { Header = MenuEntry.AboutApplication, Icon = GetIcon(Icons.App),
+            FontWeight = FontWeights.DemiBold, Foreground = appborder.BorderBrush };
 
         menuItemInput.Click += FolderPathTextBox_DblClick;
         menuItemLog.Click += OpenLog_Click;

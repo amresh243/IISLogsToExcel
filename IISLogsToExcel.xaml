@@ -169,7 +169,7 @@
                             <DataTemplate>
                                 <WrapPanel>
                                     <TextBlock Text="{Binding ID, Mode=TwoWay}" 
-                                               Foreground="DeepSkyBlue"
+                                               Foreground="{StaticResource ControlEnabled}"
                                                FontWeight="DemiBold"/>
                                     <TextBlock Text="{Binding Name, Mode=TwoWay}"
                                                Foreground="{Binding Color, Mode=TwoWay}" 
