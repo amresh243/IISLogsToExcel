@@ -22,6 +22,7 @@ public partial class IISLogExporter : Window
     private readonly List<MenuItem> _stateBasedMenuItems = [];
     private readonly MessageDialog _messageBox;
     private readonly ContextMenu _contextMenu = new();
+    private MenuItem? _menuItemProcess, _menuItemReset, _menuItemAbout;
 
     private string _folderName = string.Empty;
     private string _folderPath = string.Empty;
@@ -92,6 +93,18 @@ public partial class IISLogExporter : Window
             _folderPath = string.Empty;
     }
 
+    /// <summary> Utility funtion to update special menu item foreground. </summary>
+    /// <param name="menuItem"> Menu item for which forground to be updated </param>
+    /// <param name="forColor"> Foreground color to be used </param>
+    private static void UpdateSepcialMenuTheme(MenuItem? menuItem, Brush forColor)
+    {
+        if (menuItem == null)
+            return;
+
+        menuItem.Foreground = forColor;
+        menuItem.FontWeight = FontWeights.DemiBold;
+    }
+
     /// <summary> Changes controls background and foreground based on system theme. </summary>
     private void InitializeTheme(bool isDarkMode)
     {
@@ -114,6 +127,10 @@ public partial class IISLogExporter : Window
         systemTheme.Foreground = foreColor;
         groupOptions.Foreground = foreColor;
         _contextMenu.Foreground = foreColor;
+
+        UpdateSepcialMenuTheme(_menuItemProcess, Brushes.LimeGreen);
+        UpdateSepcialMenuTheme(_menuItemReset, Brushes.Goldenrod);
+        UpdateSepcialMenuTheme(_menuItemAbout, appborder.BorderBrush);
 
         foreach (var item in _logFiles)
             item.Color = foreColor;
@@ -139,38 +156,38 @@ public partial class IISLogExporter : Window
         var menuItemInput = new MenuItem { Header = MenuEntry.InputLocation, Icon = GetIcon(Icons.Folder) };
         var menuItemLog = new MenuItem { Header = MenuEntry.OpenAppLog, Icon = GetIcon(Icons.AppLog) };
         var menuItemSettings = new MenuItem { Header = MenuEntry.OpenAppSettings, Icon = GetIcon(Icons.AppSettings) };
-        var menuItemProcess = new MenuItem { Header = MenuEntry.ProcessLogs, Icon = GetIcon(Icons.Process), 
+        _menuItemProcess = new MenuItem { Header = MenuEntry.ProcessLogs, Icon = GetIcon(Icons.Process), 
             FontWeight = FontWeights.DemiBold, Foreground = Brushes.LimeGreen };
         var menuItemCleanLogs = new MenuItem { Header = MenuEntry.CleanOldLogs, Icon = GetIcon(Icons.CleanLogs) };
-        var menuItemReset = new MenuItem { Header = MenuEntry.ResetApplication, Icon = GetIcon(Icons.Reset), 
+        _menuItemReset = new MenuItem { Header = MenuEntry.ResetApplication, Icon = GetIcon(Icons.Reset), 
             FontWeight = FontWeights.DemiBold, Foreground = Brushes.Goldenrod };
         var menuItemExit = new MenuItem { Header = MenuEntry.ExitApplication, Icon = GetIcon(Icons.Exit) };
-        var menuItemAbout = new MenuItem { Header = MenuEntry.AboutApplication, Icon = GetIcon(Icons.App),
+        _menuItemAbout = new MenuItem { Header = MenuEntry.AboutApplication, Icon = GetIcon(Icons.App),
             FontWeight = FontWeights.DemiBold, Foreground = appborder.BorderBrush };
 
         menuItemInput.Click += FolderPathTextBox_DblClick;
         menuItemLog.Click += OpenLog_Click;
         menuItemSettings.Click += OpenSettings_Click;
-        menuItemProcess.Click += ProcessButton_Click;
+        _menuItemProcess.Click += ProcessButton_Click;
         menuItemCleanLogs.Click += CleanLogHistory_Click;
-        menuItemReset.Click += ResetApplication_Click;
+        _menuItemReset.Click += ResetApplication_Click;
         menuItemExit.Click += MenuItemExit_Click;
-        menuItemAbout.Click += AboutApplication_Click;
+        _menuItemAbout.Click += AboutApplication_Click;
 
         _contextMenu.Items.Add(menuItemInput);
         _contextMenu.Items.Add(menuItemLog);
         _contextMenu.Items.Add(menuItemSettings);
         _contextMenu.Items.Add(new Separator());
-        _contextMenu.Items.Add(menuItemProcess);
+        _contextMenu.Items.Add(_menuItemProcess);
         _contextMenu.Items.Add(new Separator());
         _contextMenu.Items.Add(menuItemCleanLogs);
-        _contextMenu.Items.Add(menuItemReset);
+        _contextMenu.Items.Add(_menuItemReset);
         _contextMenu.Items.Add(menuItemExit);
         _contextMenu.Items.Add(new Separator());
-        _contextMenu.Items.Add(menuItemAbout);
+        _contextMenu.Items.Add(_menuItemAbout);
 
-        _stateBasedMenuItems.Add(menuItemProcess);
-        _stateBasedMenuItems.Add(menuItemReset);
+        _stateBasedMenuItems.Add(_menuItemProcess);
+        _stateBasedMenuItems.Add(_menuItemReset);
         this.ContextMenu = _contextMenu;
         Logger.LogInfo("Context menu initialized.");
     }
