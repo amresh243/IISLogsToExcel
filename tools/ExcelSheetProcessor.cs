@@ -129,7 +129,9 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
                     worksheet.Cell(currentRow, i + 1).Value = headers[i];
 
                 worksheet.SheetView.Freeze(currentRow, 0);
-                worksheet.Row(currentRow).Style.Font.Bold = true;
+                var headerRow = worksheet.Range(1, 1, 1, headers.Count);
+                headerRow.Style.Font.Bold = true;
+                headerRow.Style.Fill.BackgroundColor = XLColor.AshGrey;
                 _handler.UpdateProgress(Encoding.UTF8.GetByteCount(lines[0]));
                 currentRow++;
             }
