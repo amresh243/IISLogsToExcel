@@ -187,8 +187,6 @@ public partial class IISLogExporter : Window
         _contextMenu.Items.Add(new Separator());
         _menuItemAbout = CreateMenuItem(MenuEntry.AboutApplication, Icons.App, AboutApplication_Click, false, true, appborder.BorderBrush);
 
-        _stateBasedMenuItems.Add(_menuItemProcess);
-        _stateBasedMenuItems.Add(_menuItemReset);
         this.ContextMenu = _contextMenu;
         Logger.LogInfo("Context menu initialized.");
     }
@@ -197,11 +195,9 @@ public partial class IISLogExporter : Window
     private void ChangeControlState(bool enable)
     {
         Logger.LogInfo($"Changing control state to {(enable ? "Enabled" : "Disabled")}...");
-        selectFolderButton.IsEnabled = enable;
-        processButton.IsEnabled = enable;
-        isSingleWorkBook.IsEnabled = enable;
-        createPivotTable.IsEnabled = enable;
-        enableLogging.IsEnabled = enable;
+        selectFolderButton.IsEnabled = processButton.IsEnabled = enable;
+        isSingleWorkBook.IsEnabled = enableLogging.IsEnabled = enable;
+        createPivotTable.IsEnabled = systemTheme.IsEnabled = enable;
 
         foreach (var menuItem in _stateBasedMenuItems)
             menuItem.IsEnabled = enable;
