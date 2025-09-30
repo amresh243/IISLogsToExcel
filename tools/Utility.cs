@@ -26,8 +26,6 @@ public static class Utility
         !string.IsNullOrEmpty(input) && Regex.IsMatch(input, _numberPatterns);
 
     /// <summary> Removes invalid XML characters from the given text. </summary>
-    /// <param name="text">Input text</param>
-    /// <returns>Cleaned text</returns>
     public static string RemoveInvalidXmlChars(this string text) =>
         string.IsNullOrEmpty(text)
             ? text 
@@ -38,8 +36,6 @@ public static class Utility
                 ch >= 0x10000 && ch <= 0x10FFFF)]);
 
     /// <summary> Removes invalid XML characters from the given text (slower) </summary>
-    /// <param name="text">Input text</param>
-    /// <returns>Cleaned text</returns>
     public static string RemoveInvalidXmlChars2(this string text) =>
         string.IsNullOrEmpty(text)
             ? text
@@ -47,8 +43,6 @@ public static class Utility
             : string.Concat(Regex.Matches(text, _xmlPatterns).Cast<Match>().Select(m => m.Value));
 
     /// <summary> Returns all log files under the given folder path. </summary>
-    /// <param name="folderPath">Log folder path.</param>
-    /// <returns>Array of list file paths.</returns>
     public static string[] GetLogFiles(string folderPath, string extension = "*.log") =>
         string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath)
             ? []
@@ -72,6 +66,7 @@ public static class Utility
         return false;
     }
 
+    /// <summary> Returns the formatted size string for the given size in bytes. </summary>
     public static string GetFormattedSize(long size)
     {
         if (size < 1024)
@@ -84,6 +79,7 @@ public static class Utility
             return $"{size / 1073741824.0:F2} GB";
     }
 
+    /// <summary> Returns the file name without the root folder path. </summary>
     public static string GetFileNameWithoutRoot(string file, string root) =>
         !root.EndsWith('\\') ? file.Replace(root + "\\", string.Empty) : file.Replace(root, string.Empty);
 
