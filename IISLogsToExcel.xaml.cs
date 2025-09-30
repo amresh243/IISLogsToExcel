@@ -53,6 +53,8 @@ public partial class IISLogExporter : Window
         _processor = new ExcelSheetProcessor(this);
         _messageBox = new MessageDialog(this);
 
+        _isDarkMode = Utility.IsSystemInDarkMode();
+        systemTheme.IsChecked = _isDarkMode;
         LoadSettings(folderPath);
     }
 
@@ -68,11 +70,12 @@ public partial class IISLogExporter : Window
     /// <param name="folderPath">folder path to handle, if received from command line.</param>
     private void LoadSettings(string folderPath)
     {
+        _folderPath = _iniFile.GetValue(Constants.SettingsSection, Constants.FolderPath) ?? string.Empty;
         isSingleWorkBook.IsChecked = _isSingleBook = GetBoolValue(Constants.SingleWorkbook);
         createPivotTable.IsChecked = _createPivot = GetBoolValue(Constants.CreatePivot);
         enableLogging.IsChecked = _enableLogging = GetBoolValue(Constants.EnableLogging);
-        systemTheme.IsChecked = _isDarkMode = GetBoolValue(Constants.DarkMode);
-        _folderPath = _iniFile.GetValue(Constants.SettingsSection, Constants.FolderPath) ?? string.Empty;
+        if(File.Exists(Constants.IniFile))
+            systemTheme.IsChecked = _isDarkMode = GetBoolValue(Constants.DarkMode);
 
         if (_enableLogging)
         {
