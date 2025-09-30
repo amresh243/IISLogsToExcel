@@ -14,70 +14,45 @@ public static class Utility
     private const string _numberPatterns = @"^\d+$";
 
     /// <summary> Returns a valid number from the given string. </summary>
-    public static int GetValidNumber(this string text)
-    {
-        if (int.TryParse(text, out int number))
-            return number;
-
-        return 0;
-    }
+    public static int GetValidNumber(this string text) =>
+        int.TryParse(text, out int number) ? number : 0;
 
     /// <summary> Checks if the given string is numeric. </summary>
-    public static bool IsNumeric(this string input)
-    {
-        if (string.IsNullOrEmpty(input) || input.Any(c => !char.IsDigit(c)))
-            return false;
-
-        return true;
-    }
+    public static bool IsNumeric(this string input) =>
+        !string.IsNullOrEmpty(input) && !input.Any(static c => !char.IsDigit(c));
 
     /// <summary> Checks if the given string is numeric (slower). </summary>
-    public static bool IsNumeric2(this string input)
-    {
-        if (string.IsNullOrEmpty(input))
-            return false;
-
-        return Regex.IsMatch(input, _numberPatterns);
-    }
+    public static bool IsNumeric2(this string input) =>
+        !string.IsNullOrEmpty(input) && Regex.IsMatch(input, _numberPatterns);
 
     /// <summary> Removes invalid XML characters from the given text. </summary>
     /// <param name="text">Input text</param>
     /// <returns>Cleaned text</returns>
-    public static string RemoveInvalidXmlChars(this string text)
-    {
-        if (string.IsNullOrEmpty(text))
-            return text;
-
-        return new string([.. text.Where(ch =>
-            ch == 0x9 || ch == 0xA || ch == 0xD ||
-            ch >= 0x20 && ch <= 0xD7FF ||
-            ch >= 0xE000 && ch <= 0xFFFD ||
-            ch >= 0x10000 && ch <= 0x10FFFF)]);
-    }
+    public static string RemoveInvalidXmlChars(this string text) =>
+        string.IsNullOrEmpty(text)
+            ? text 
+            : new string([.. text.Where(ch =>
+                ch == 0x9 || ch == 0xA || ch == 0xD ||
+                ch >= 0x20 && ch <= 0xD7FF ||
+                ch >= 0xE000 && ch <= 0xFFFD ||
+                ch >= 0x10000 && ch <= 0x10FFFF)]);
 
     /// <summary> Removes invalid XML characters from the given text (slower) </summary>
     /// <param name="text">Input text</param>
     /// <returns>Cleaned text</returns>
-    public static string RemoveInvalidXmlChars2(this string text)
-    {
-        if (string.IsNullOrEmpty(text))
-            return text;
-
-        // Use regex to match and rebuild the string
-        MatchCollection matches = Regex.Matches(text, _xmlPatterns);
-        return string.Concat(matches.Cast<Match>().Select(m => m.Value));
-    }
+    public static string RemoveInvalidXmlChars2(this string text) =>
+        string.IsNullOrEmpty(text)
+            ? text
+            // Use regex to match and rebuild the string
+            : string.Concat(Regex.Matches(text, _xmlPatterns).Cast<Match>().Select(m => m.Value));
 
     /// <summary> Returns all log files under the given folder path. </summary>
     /// <param name="folderPath">Log folder path.</param>
     /// <returns>Array of list file paths.</returns>
-    public static string[] GetLogFiles(string folderPath, string extension = "*.log")
-    {
-        if (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath))
-            return [];
-
-        return Directory.GetFiles(folderPath, extension, SearchOption.AllDirectories);
-    }
+    public static string[] GetLogFiles(string folderPath, string extension = "*.log") =>
+        string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath)
+            ? []
+            : Directory.GetFiles(folderPath, extension, SearchOption.AllDirectories);
 
     /// <summary> Checks if the system is in dark mode. </summary>
     public static bool IsSystemInDarkMode()
