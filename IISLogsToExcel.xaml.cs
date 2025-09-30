@@ -135,7 +135,7 @@ public partial class IISLogExporter : Window
             item.Color = foreColor;
 
         lbLogFiles.Items.Refresh();
-        _messageBox.ApplyTheme(isDarkMode);
+        _messageBox.ApplyTheme(backColor, foreColor);
         Logger.LogInfo("Theme initialized successfully.");
     }
 

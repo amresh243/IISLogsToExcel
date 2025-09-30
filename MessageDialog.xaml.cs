@@ -74,12 +74,9 @@ public partial class MessageDialog : Window
         return _result;
     }
 
-    /// <summary> Apply dark or light theme to the dialog </summary>
-    public void ApplyTheme(bool isDark = false)
+    /// <summary> Apply theme colors </summary>
+    public void ApplyTheme(Brush backColor, Brush foreColor)
     {
-        var foreColor = (isDark) ? Brushes.White : Brushes.Black;
-        var backColor = (isDark) ? Brushes.Black : Brushes.White;
-
         Message.Foreground = foreColor;
         Message.Background = backColor;
         this.Background = backColor;
