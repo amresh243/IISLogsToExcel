@@ -41,7 +41,6 @@ public static class Logger
             return;
 
         _logFilePath = GetComputedLogFile(logFile);
-
         if (!File.Exists(_logFilePath))
             using (File.Create(_logFilePath)) {}
     }

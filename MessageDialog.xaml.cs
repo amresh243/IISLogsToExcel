@@ -3,7 +3,6 @@
 using IISLogsToExcel.tools;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -17,7 +16,7 @@ public partial class MessageDialog : Window
 {
     private readonly Window? _owner;
     private DialogResults _result = DialogResults.No;
-
+    private readonly Dictionary<DialogTypes, Brush>? _titleBarColors;
     private readonly Dictionary<DialogTypes, BitmapImage> _icons = new()
     {
         { DialogTypes.Info, new BitmapImage(new Uri(Icons.Info)) },
@@ -25,8 +24,6 @@ public partial class MessageDialog : Window
         { DialogTypes.Error, new BitmapImage(new Uri(Icons.Error)) },
         { DialogTypes.Question, new BitmapImage(new Uri(Icons.Question)) }
     };
-
-    private readonly Dictionary<DialogTypes, Brush>? _titleBarColors;
 
     /// <summary> Constructor </summary>
     public MessageDialog(Window owner)
@@ -74,35 +71,11 @@ public partial class MessageDialog : Window
         return _result;
     }
 
-    /// <summary> Apply dark or light theme to the dialog </summary>
-    public void ApplyTheme(bool isDark = false)
+    /// <summary> Apply theme colors </summary>
+    public void ApplyTheme(Brush backColor, Brush foreColor)
     {
-        var foreColor = (isDark) ? Brushes.White : Brushes.Black;
-        var backColor = (isDark) ? Brushes.Black : Brushes.White;
-
         Message.Foreground = foreColor;
         Message.Background = backColor;
         this.Background = backColor;
-    }
-
-    /// <summary> Yes button click event handler </summary>
-    private void Yes_Click(object sender, RoutedEventArgs e)
-    {
-        _result = DialogResults.Yes;
-        this.Hide();
-    }
-
-    /// <summary> No, Close and X button click event handler </summary>
-    private void No_Click(object sender, RoutedEventArgs e)
-    {
-        _result = DialogResults.No;
-        this.Hide();
-    }
-
-    /// <summary> Allow window drag on title bar mouse down </summary>
-    private void Window_MouseDown(object sender, MouseButtonEventArgs e)
-    {
-        if (e.ChangedButton == MouseButton.Left)
-            this.DragMove();
     }
 }
