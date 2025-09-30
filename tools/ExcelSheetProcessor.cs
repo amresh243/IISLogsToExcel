@@ -36,15 +36,15 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
         if (isFile)
         {
             var fileName = file.Split(LogTokens.PathSplitMarker).LastOrDefault()?
-                .Split(LogTokens.FileSplitMarker).LastOrDefault() ?? string.Empty;
+                               .Split(LogTokens.FileSplitMarker).LastOrDefault() ?? string.Empty;
             var fileNameLength = fileName.Length;
 
             return fileNameLength > 10 ? fileName[(fileNameLength - 10)..] : fileName;
         }
 
         var sheetName = file.Split(LogTokens.PathSplitMarker).LastOrDefault()?
-            .Split(LogTokens.FileSplitMarker).LastOrDefault()?
-            .Split(LogTokens.ExtensionSplitMarker).FirstOrDefault();
+                            .Split(LogTokens.FileSplitMarker).LastOrDefault()?
+                            .Split(LogTokens.ExtensionSplitMarker).FirstOrDefault();
         if (string.IsNullOrEmpty(sheetName))
             return file;
 
@@ -96,7 +96,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
             Logger.LogInfo($"Creating sheet {worksheet.Name} against file {file}...");
 
             var lines = File.ReadAllLines(file, Encoding.UTF8)
-                .Where(l => !l.StartsWith(LogTokens.CommentMarker) || l.StartsWith(LogTokens.LogMarker)).ToList();
+                            .Where(l => !l.StartsWith(LogTokens.CommentMarker) || l.StartsWith(LogTokens.LogMarker)).ToList();
             if (lines.Count == 0)
             {
                 _handler.UpdateList(file, Brushes.Tomato);
@@ -132,12 +132,10 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
 
             var specialIndices = GetNumberColumnIndexes(headers);
             var incompleteCellData = new List<string>();
-
             // Process each line of the log file and fill the worksheet
             foreach (var line in lines.Skip(1))
             {
                 var values = line.Split(' ').Select(x => x.RemoveInvalidXmlChars()).ToArray();
-
                 // Handling broken iis log row data
                 if (values.Length < headers.Count - 1)
                 {
@@ -169,7 +167,6 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
                 }
 
                 AddRowData(worksheet, specialIndices, values, currentRow);
-
                 _handler.UpdateProgress(Encoding.UTF8.GetByteCount(line));
                 currentRow++;
             }

@@ -52,8 +52,8 @@ public partial class IISLogExporter : Window
 
         _processor = new ExcelSheetProcessor(this);
         _messageBox = new MessageDialog(this);
-
         systemTheme.IsChecked = _isDarkMode = Utility.IsSystemInDarkMode();
+
         LoadSettings(folderPath);
     }
 
@@ -131,7 +131,6 @@ public partial class IISLogExporter : Window
         UpdateSepcialMenuTheme(_menuItemProcess, Brushes.LimeGreen);
         UpdateSepcialMenuTheme(_menuItemReset, Brushes.Goldenrod);
         UpdateSepcialMenuTheme(_menuItemAbout, appborder.BorderBrush);
-
         foreach (var item in _logFiles)
             item.Color = foreColor;
 
@@ -353,7 +352,6 @@ public partial class IISLogExporter : Window
 
             // Creating log sheet
             _processor.SetupLogSheet(worksheet, file);
-
             // Creating pivot sheet, if option enabled
             if (_createPivot)
                 _processor.SetupPivotSheet(workbook, worksheet, sheetName, file);
@@ -396,7 +394,6 @@ public partial class IISLogExporter : Window
 
             // Creating log sheet
             _processor.SetupLogSheet(worksheet, file);
-
             // Creating pivot sheet, if option enabled
             if (_createPivot)
                 _processor.SetupPivotSheet(workbook, worksheet, sheetName, file);

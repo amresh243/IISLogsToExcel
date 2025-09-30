@@ -273,7 +273,6 @@ public partial class IISLogExporter : Window
         try
         {
             _isProcessing = true;
-
             if (!_isSingleBook)
                 await Task.Run(() => CreateSeperateFiles());
             else
@@ -290,7 +289,6 @@ public partial class IISLogExporter : Window
 
         _isProcessing = false;
         stopwatch.Stop();
-
         if (_isConfirmationDlgOpen)
         {
             _isConfirmationDlgOpen = false;
@@ -320,7 +318,6 @@ public partial class IISLogExporter : Window
         string appDirectory = AppContext.BaseDirectory;
         string today = DateTime.Now.ToString("yyyyMMdd");
         var logFiles = Utility.GetLogFiles(appDirectory).Where(x => x.Contains(Constants.ApplicationName) && !x.Contains(today)).ToList();
-
         if (logFiles.Count == 0)
         {
             Logger.LogInfo(Messages.NoOldLogs);
