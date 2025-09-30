@@ -45,18 +45,11 @@ public class IniFile
                 }
             }
         }
-        catch
-        {
-            // nothing to do here
-        }
+        catch { /* nothing to do here */ }
     }
 
-    public string? GetValue(string section, string key)
-    {
-        return _data.TryGetValue(section, out var sectionData) && sectionData.TryGetValue(key, out var value)
-            ? value
-            : null;
-    }
+    public string? GetValue(string section, string key) =>
+        _data.TryGetValue(section, out var sectionData) && sectionData.TryGetValue(key, out var value) ? value : null;
 
     public void SetValue(string section, string key, string value)
     {

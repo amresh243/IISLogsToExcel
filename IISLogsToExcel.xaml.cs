@@ -141,11 +141,8 @@ public partial class IISLogExporter : Window
     }
 
     /// <summary> Returns an Image control with the specified resource image path. </summary>
-    private static Image GetIcon(string iconPath, double width = 16, double height = 16)
-    {
-        var icon = new BitmapImage(new Uri(iconPath));
-        return new Image { Source = icon, Width = width, Height = height };
-    }
+    private static Image GetIcon(string iconPath, double width = 16, double height = 16) =>
+        new() { Source = new BitmapImage(new Uri(iconPath)), Width = width, Height = height };
 
     /// <summary> Initializes context menu with required menu items and their event handlers. </summary>
     private void InitializeMenu()
@@ -214,13 +211,11 @@ public partial class IISLogExporter : Window
 
     /// <summary> Updates status bar with the given message. </summary>
     /// <param name="message"> Message to be displayed </param>
-    public void UpdateStatus(string message)
-    {
+    public void UpdateStatus(string message) =>
         Dispatcher.Invoke(() =>
         {
             statusText.Text = message;
         });
-    }
 
     /// <summary> Updates progress status on the progress bar. </summary>
     public void UpdateProgress(long progressedSize, bool addProgress = true)
