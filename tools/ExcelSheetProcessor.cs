@@ -181,8 +181,8 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
             }
 
             Logger.LogInfo($"Processed {currentRow - 1} lines from file {file}.");
-            // Unfortunately excel has static row count of 1048576
             _handler.UpdateStatus(string.Format(Messages.CreateSheet, worksheet.Name));
+            // Unfortunately excel has static row count of 1048576
             worksheet.Rows(currentRow, MaxSheetRows).Hide();
             worksheet.SetAutoFilter();
             Logger.LogInfo($"Excel sheet {worksheet.Name} created for file {file} with {currentRow - 1} rows.");
