@@ -148,12 +148,7 @@ public partial class IISLogExporter : Window
     private MenuItem CreateMenuItem(string header, string iconPath, RoutedEventHandler clickHandler,
         bool isStateBased = false, bool isDemiBold = false, Brush? foreColor = null)
     {
-        var menuItem = new MenuItem
-        {
-            Header = header,
-            Icon = GetIcon(iconPath)
-        };
-
+        var menuItem = new MenuItem {Header = header, Icon = GetIcon(iconPath)};
         if(isDemiBold && foreColor != null)
         {
             menuItem.FontWeight = FontWeights.DemiBold;
@@ -210,10 +205,7 @@ public partial class IISLogExporter : Window
 
     /// <summary> Updates status bar with the given message. </summary>
     public void UpdateStatus(string message) =>
-        Dispatcher.Invoke(() =>
-        {
-            statusText.Text = message;
-        });
+        Dispatcher.Invoke(() => { statusText.Text = message; });
 
     /// <summary> Updates progress status on the progress bar. </summary>
     public void UpdateProgress(long progressedSize, bool addProgress = true)
@@ -296,10 +288,7 @@ public partial class IISLogExporter : Window
         if (item != null)
         {
             item.Color = color;
-            Dispatcher.Invoke(() =>
-            {
-                lbLogFiles.Items.Refresh();
-            });
+            Dispatcher.Invoke(() => { lbLogFiles.Items.Refresh(); });
         }
     }
 
