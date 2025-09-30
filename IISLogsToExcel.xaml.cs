@@ -144,44 +144,48 @@ public partial class IISLogExporter : Window
     private static Image GetIcon(string iconPath, double width = 16, double height = 16) =>
         new() { Source = new BitmapImage(new Uri(iconPath)), Width = width, Height = height };
 
+    /// <summary> Creates and adds a menu item to the context menu with specified properties. </summary>
+    private MenuItem CreateMenuItem(string header, string iconPath, RoutedEventHandler clickHandler,
+        bool isStateBased = false, bool isDemiBold = false, Brush? foreColor = null)
+    {
+        var menuItem = new MenuItem
+        {
+            Header = header,
+            Icon = GetIcon(iconPath)
+        };
+
+        if(isDemiBold && foreColor != null)
+        {
+            menuItem.FontWeight = FontWeights.DemiBold;
+            menuItem.Foreground = foreColor;
+        }
+
+        if(isStateBased)
+            _stateBasedMenuItems.Add(menuItem);
+
+        menuItem.Click += clickHandler;
+        _contextMenu.Items.Add(menuItem);
+
+        return menuItem;
+    }
+
     /// <summary> Initializes context menu with required menu items and their event handlers. </summary>
     private void InitializeMenu()
     {
         Logger.LogInfo("Initializing context menu...");
         _stateBasedMenuItems.Clear();
 
-        var menuItemInput = new MenuItem { Header = MenuEntry.InputLocation, Icon = GetIcon(Icons.Folder) };
-        var menuItemLog = new MenuItem { Header = MenuEntry.OpenAppLog, Icon = GetIcon(Icons.AppLog) };
-        var menuItemSettings = new MenuItem { Header = MenuEntry.OpenAppSettings, Icon = GetIcon(Icons.AppSettings) };
-        _menuItemProcess = new MenuItem { Header = MenuEntry.ProcessLogs, Icon = GetIcon(Icons.Process), 
-            FontWeight = FontWeights.DemiBold, Foreground = Brushes.LimeGreen };
-        var menuItemCleanLogs = new MenuItem { Header = MenuEntry.CleanOldLogs, Icon = GetIcon(Icons.CleanLogs) };
-        _menuItemReset = new MenuItem { Header = MenuEntry.ResetApplication, Icon = GetIcon(Icons.Reset), 
-            FontWeight = FontWeights.DemiBold, Foreground = Brushes.Goldenrod };
-        var menuItemExit = new MenuItem { Header = MenuEntry.ExitApplication, Icon = GetIcon(Icons.Exit) };
-        _menuItemAbout = new MenuItem { Header = MenuEntry.AboutApplication, Icon = GetIcon(Icons.App),
-            FontWeight = FontWeights.DemiBold, Foreground = appborder.BorderBrush };
-
-        menuItemInput.Click += FolderPathTextBox_DblClick;
-        menuItemLog.Click += OpenLog_Click;
-        menuItemSettings.Click += OpenSettings_Click;
-        _menuItemProcess.Click += ProcessButton_Click;
-        menuItemCleanLogs.Click += CleanLogHistory_Click;
-        _menuItemReset.Click += ResetApplication_Click;
-        menuItemExit.Click += MenuItemExit_Click;
-        _menuItemAbout.Click += AboutApplication_Click;
-
-        _contextMenu.Items.Add(menuItemInput);
-        _contextMenu.Items.Add(menuItemLog);
-        _contextMenu.Items.Add(menuItemSettings);
+        CreateMenuItem(MenuEntry.InputLocation, Icons.Folder, FolderPathTextBox_DblClick);
+        CreateMenuItem(MenuEntry.OpenAppLog, Icons.AppLog, OpenLog_Click);
+        CreateMenuItem(MenuEntry.OpenAppSettings, Icons.AppSettings, OpenSettings_Click);
         _contextMenu.Items.Add(new Separator());
-        _contextMenu.Items.Add(_menuItemProcess);
+        _menuItemProcess = CreateMenuItem(MenuEntry.ProcessLogs, Icons.Process, ProcessButton_Click, true, true, Brushes.LimeGreen);
         _contextMenu.Items.Add(new Separator());
-        _contextMenu.Items.Add(menuItemCleanLogs);
-        _contextMenu.Items.Add(_menuItemReset);
-        _contextMenu.Items.Add(menuItemExit);
+        CreateMenuItem(MenuEntry.CleanOldLogs, Icons.CleanLogs, CleanLogHistory_Click);
+        _menuItemReset = CreateMenuItem(MenuEntry.ResetApplication, Icons.Reset, ResetApplication_Click, true, true, Brushes.Goldenrod);
+        CreateMenuItem(MenuEntry.ExitApplication, Icons.Exit, MenuItemExit_Click);
         _contextMenu.Items.Add(new Separator());
-        _contextMenu.Items.Add(_menuItemAbout);
+        _menuItemAbout = CreateMenuItem(MenuEntry.AboutApplication, Icons.App, AboutApplication_Click, false, true, appborder.BorderBrush);
 
         _stateBasedMenuItems.Add(_menuItemProcess);
         _stateBasedMenuItems.Add(_menuItemReset);
