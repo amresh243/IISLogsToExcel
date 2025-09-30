@@ -53,8 +53,7 @@ public partial class IISLogExporter : Window
         _processor = new ExcelSheetProcessor(this);
         _messageBox = new MessageDialog(this);
 
-        _isDarkMode = Utility.IsSystemInDarkMode();
-        systemTheme.IsChecked = _isDarkMode;
+        systemTheme.IsChecked = _isDarkMode = Utility.IsSystemInDarkMode();
         LoadSettings(folderPath);
     }
 
