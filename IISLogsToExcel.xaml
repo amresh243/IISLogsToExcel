@@ -151,7 +151,7 @@
                                       IsChecked="False" 
                                       Margin="105,0,0,2"
                                       Click="SystemTheme_Click" 
-                                      ToolTip="Check to apply dark theme." 
+                                      ToolTip="Check to apply dark theme, default is system dark mode value." 
                                       Style="{DynamicResource SliderCheckBox}" 
                                       FontWeight="DemiBold"/>
                         </StackPanel>

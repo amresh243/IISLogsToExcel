@@ -15,8 +15,6 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
     #region Utility Methods
 
     /// <summary> Returns a set of indexes for columns that contain numeric values. </summary>
-    /// <param name="headers">list of headers</param>
-    /// <returns>index list</returns>
     private static HashSet<int> GetNumberColumnIndexes(List<string> headers)
     {
         try
@@ -30,8 +28,6 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
     }
 
     /// <summary> Returns sheet name from file name. </summary>
-    /// <param name="file">file with path</param>
-    /// <returns>sheet name</returns>
     public static string GetSheetName(string file, bool isFile = false, string[]? sheets = null)
     {
         if (string.IsNullOrEmpty(file))
@@ -92,8 +88,6 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
     }
 
     /// <summary> Logic to process excel sheet. </summary>
-    /// <param name="worksheet">Worksheet object, excel sheet object</param>
-    /// <param name="file">Source log file</param>
     public void SetupLogSheet(IXLWorksheet worksheet, string file)
     {
         int currentRow = 1;
@@ -203,9 +197,6 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
     /// Logic to process pivot sheet. Setups pivot with hour as filter, time as row label, 
     /// cs-uri-stem as value with count and time-taken as value with average.
     /// </summary>
-    /// <param name="workbook">Workbook object, excel workbook object</param>
-    /// <param name="worksheet">Worksheet object, excel sheet object</param>
-    /// <param name="sheetName">sheet against which pivot to be created</param>
     public void SetupPivotSheet(XLWorkbook workbook, IXLWorksheet worksheet, string sheetName, string file)
     {
         try

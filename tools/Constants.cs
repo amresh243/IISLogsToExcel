@@ -8,7 +8,7 @@ internal static class Constants
     public static string[] validHandlers = ["Border", "MenuItem"];
 
     public const string LogHeader = "=============================================================";
-    public const string LogMarker = "#########~{0}~#########";
+    public const string LogMarker = "#############~{0}~#############";
     public const string ApplicationName = "IISLogsToExcel";
     public const string IniFile = "IISLogsToExcel.ini";
     public const string LogFile = "IISLogsToExcel.log";

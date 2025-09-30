@@ -53,6 +53,7 @@ public partial class IISLogExporter : Window
         _processor = new ExcelSheetProcessor(this);
         _messageBox = new MessageDialog(this);
 
+        systemTheme.IsChecked = _isDarkMode = Utility.IsSystemInDarkMode();
         LoadSettings(folderPath);
     }
 
@@ -68,11 +69,12 @@ public partial class IISLogExporter : Window
     /// <param name="folderPath">folder path to handle, if received from command line.</param>
     private void LoadSettings(string folderPath)
     {
+        _folderPath = _iniFile.GetValue(Constants.SettingsSection, Constants.FolderPath) ?? string.Empty;
         isSingleWorkBook.IsChecked = _isSingleBook = GetBoolValue(Constants.SingleWorkbook);
         createPivotTable.IsChecked = _createPivot = GetBoolValue(Constants.CreatePivot);
         enableLogging.IsChecked = _enableLogging = GetBoolValue(Constants.EnableLogging);
-        systemTheme.IsChecked = _isDarkMode = GetBoolValue(Constants.DarkMode);
-        _folderPath = _iniFile.GetValue(Constants.SettingsSection, Constants.FolderPath) ?? string.Empty;
+        if(File.Exists(Constants.IniFile))
+            systemTheme.IsChecked = _isDarkMode = GetBoolValue(Constants.DarkMode);
 
         if (_enableLogging)
         {
@@ -93,15 +95,13 @@ public partial class IISLogExporter : Window
             _folderPath = string.Empty;
     }
 
-    /// <summary> Utility funtion to update special menu item foreground. </summary>
-    /// <param name="menuItem"> Menu item for which forground to be updated </param>
-    /// <param name="forColor"> Foreground color to be used </param>
-    private static void UpdateSepcialMenuTheme(MenuItem? menuItem, Brush forColor)
+    /// <summary> Updates special menu items foreground color with specific theme colors. </summary>
+    private static void UpdateSepcialMenuTheme(MenuItem? menuItem, Brush foreColor)
     {
         if (menuItem == null)
             return;
 
-        menuItem.Foreground = forColor;
+        menuItem.Foreground = foreColor;
         menuItem.FontWeight = FontWeights.DemiBold;
     }
 
@@ -190,7 +190,6 @@ public partial class IISLogExporter : Window
     }
 
     /// <summary> Changes the state of controls based on the enable parameter. </summary>
-    /// <param name="enable"> true=enable/false=disable </param>
     private void ChangeControlState(bool enable)
     {
         Logger.LogInfo($"Changing control state to {(enable ? "Enabled" : "Disabled")}...");
@@ -210,7 +209,6 @@ public partial class IISLogExporter : Window
     }
 
     /// <summary> Updates status bar with the given message. </summary>
-    /// <param name="message"> Message to be displayed </param>
     public void UpdateStatus(string message) =>
         Dispatcher.Invoke(() =>
         {
@@ -237,7 +235,6 @@ public partial class IISLogExporter : Window
     #region Utility Methods
 
     /// <summary> Initializes variables with the given folder path. </summary>
-    /// <param name="folderPath">Source folder location.</param>
     private void InitializeVariables(string folderPath)
     {
         Logger.LogInfo("Initializing application...");
@@ -264,7 +261,6 @@ public partial class IISLogExporter : Window
     }
 
     /// <summary> Initiates list with log files found in the selected folder. </summary>
-    /// <param name="logFiles">list of log files</param>
     private void InitializeList(string[] logFiles)
     {
         Logger.LogInfo($"Initializing log list with {logFiles.Length} log files...");
@@ -293,8 +289,6 @@ public partial class IISLogExporter : Window
     }
 
     /// <summary> Updates the list item color for the given file. </summary>
-    /// <param name="file">file name, to find list item</param>
-    /// <param name="color">forecolor to be set</param>
     public void UpdateList(string file, Brush color)
     {
         var fileName = Utility.GetFileNameWithoutRoot(file, _folderPath);
@@ -310,8 +304,6 @@ public partial class IISLogExporter : Window
     }
 
     /// <summary> Saves workbook object into excel file. </summary>
-    /// <param name="workbook">Workbook object, excel file object</param>
-    /// <param name="xlsFile">Excel file name to be saved</param>
     private bool SaveExcelFile(XLWorkbook workbook, string xlsFile)
     {
         if (workbook == null)

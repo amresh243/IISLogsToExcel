@@ -23,10 +23,7 @@ public static class Logger
 
     public static bool DisableLogging
     {
-        set
-        {
-            _loggingEnabled = !value;
-        }
+        set => _loggingEnabled = !value;
     }
 
     private static string GetComputedLogFile(string logFile)
