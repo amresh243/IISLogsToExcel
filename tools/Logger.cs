@@ -92,26 +92,17 @@ public static class Logger
         File.AppendAllText(_logFilePath, marker + Environment.NewLine);
     }
 
-    public static void LogInfo(string message)
-    {
+    public static void LogInfo(string message) =>
         Log("INFO", message);
-    }
 
-    public static void LogWarning(string message)
-    {
+    public static void LogWarning(string message) =>
         Log("WARNING", message);
-    }
 
-    public static void LogError(string message)
-    {
+    public static void LogError(string message) =>
         Log("ERROR", message);
-    }
 
-    public static void LogException(string message, Exception ex)
-    {
-        string fullMessage = $"{message}\nException: {ex.Message}\nStack Trace: {ex.StackTrace}";
-        Log("EXCEPTION", fullMessage);
-    }
+    public static void LogException(string message, Exception ex) =>
+        Log("EXCEPTION", $"{message}\nException: {ex.Message}\nStack Trace: {ex.StackTrace}");
 
     private static void Log(string level, string message)
     {
