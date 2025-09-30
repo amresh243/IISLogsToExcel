@@ -17,7 +17,7 @@ public partial class MessageDialog : Window
 {
     private readonly Window? _owner;
     private DialogResults _result = DialogResults.No;
-
+    private readonly Dictionary<DialogTypes, Brush>? _titleBarColors;
     private readonly Dictionary<DialogTypes, BitmapImage> _icons = new()
     {
         { DialogTypes.Info, new BitmapImage(new Uri(Icons.Info)) },
@@ -25,8 +25,6 @@ public partial class MessageDialog : Window
         { DialogTypes.Error, new BitmapImage(new Uri(Icons.Error)) },
         { DialogTypes.Question, new BitmapImage(new Uri(Icons.Question)) }
     };
-
-    private readonly Dictionary<DialogTypes, Brush>? _titleBarColors;
 
     /// <summary> Constructor </summary>
     public MessageDialog(Window owner)
@@ -80,27 +78,5 @@ public partial class MessageDialog : Window
         Message.Foreground = foreColor;
         Message.Background = backColor;
         this.Background = backColor;
-    }
-
-    /// <summary> Update dialog result and close the dialog </summary>
-    private void UpdateResultAndClose(DialogResults result)
-    {
-        _result = result;
-        this.Hide();
-    }
-
-    /// <summary> Yes button click event handler </summary>
-    private void Yes_Click(object sender, RoutedEventArgs e) =>
-        UpdateResultAndClose(DialogResults.Yes);
-
-    /// <summary> No, Close and X button click event handler </summary>
-    private void No_Click(object sender, RoutedEventArgs e) =>
-        UpdateResultAndClose(DialogResults.No);
-
-    /// <summary> Allow window drag on title bar mouse down </summary>
-    private void Window_MouseDown(object sender, MouseButtonEventArgs e)
-    {
-        if (e.ChangedButton == MouseButton.Left)
-            this.DragMove();
     }
 }

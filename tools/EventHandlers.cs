@@ -15,7 +15,7 @@ namespace IISLogsToExcel;
 
 public partial class IISLogExporter : Window
 {
-    #region Utility Methods
+    #region Utility Methods IISLogExporter
 
     private bool LoggedWarning(string file, string body, string caption)
     {
@@ -31,10 +31,10 @@ public partial class IISLogExporter : Window
         return false;
     }
 
-    #endregion Utility Methods
+    #endregion Utility Methods IISLogExporter
 
 
-    #region Event Handlers
+    #region Event Handlers IISLogExporter
 
     // Change the Window_Closing method signature to accept nullable sender
     private void Window_Closing(object? sender, CancelEventArgs e)
@@ -384,5 +384,39 @@ public partial class IISLogExporter : Window
     private void MenuItemExit_Click(object sender, RoutedEventArgs e) =>
         this.Close();
 
-    #endregion Event Handlers
+    #endregion Event Handlers IISLogExporter
+}
+
+public partial class MessageDialog : Window
+{
+    #region Utility Methods MessageDialog
+
+    /// <summary> Update dialog result and close the dialog </summary>
+    private void UpdateResultAndClose(DialogResults result)
+    {
+        _result = result;
+        this.Hide();
+    }
+
+    #endregion Utility Methods MessageDialog
+
+
+    #region Event Handlers MessageDialog
+
+    /// <summary> Yes button click event handler </summary>
+    private void Yes_Click(object sender, RoutedEventArgs e) =>
+        UpdateResultAndClose(DialogResults.Yes);
+
+    /// <summary> No, Close and X button click event handler </summary>
+    private void No_Click(object sender, RoutedEventArgs e) =>
+        UpdateResultAndClose(DialogResults.No);
+
+    /// <summary> Allow window drag on title bar mouse down </summary>
+    private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Left)
+            this.DragMove();
+    }
+
+    #endregion Event Handlers MessageDialog
 }
