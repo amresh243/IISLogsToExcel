@@ -82,19 +82,20 @@ public partial class MessageDialog : Window
         this.Background = backColor;
     }
 
-    /// <summary> Yes button click event handler </summary>
-    private void Yes_Click(object sender, RoutedEventArgs e)
+    /// <summary> Update dialog result and close the dialog </summary>
+    private void UpdateResultAndClose(DialogResults result)
     {
-        _result = DialogResults.Yes;
+        _result = result;
         this.Hide();
     }
 
+    /// <summary> Yes button click event handler </summary>
+    private void Yes_Click(object sender, RoutedEventArgs e) =>
+        UpdateResultAndClose(DialogResults.Yes);
+
     /// <summary> No, Close and X button click event handler </summary>
-    private void No_Click(object sender, RoutedEventArgs e)
-    {
-        _result = DialogResults.No;
-        this.Hide();
-    }
+    private void No_Click(object sender, RoutedEventArgs e) =>
+        UpdateResultAndClose(DialogResults.No);
 
     /// <summary> Allow window drag on title bar mouse down </summary>
     private void Window_MouseDown(object sender, MouseButtonEventArgs e)
