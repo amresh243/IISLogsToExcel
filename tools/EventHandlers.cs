@@ -42,7 +42,7 @@ public partial class IISLogExporter : Window
         if (_isProcessing)
         {
             _isConfirmationDlgOpen = true;
-            DialogResults result = _messageBox.Show(Messages.ExitWarning, Captions.ExitWarning, DialogTypes.Question);
+            var result = _messageBox.Show(Messages.ExitWarning, Captions.ExitWarning, DialogTypes.Question, null, QuestionTypes.Warning);
             if (result == DialogResults.No)
             {
                 e.Cancel = true;
@@ -349,7 +349,7 @@ public partial class IISLogExporter : Window
     {
         Logger.LogInfo("Resetting application...");
 
-        DialogResults result = _messageBox.Show(Messages.ConfirmReset, Captions.ConfirmReset, DialogTypes.Question);
+        var result = _messageBox.Show(Messages.ConfirmReset, Captions.ConfirmReset, DialogTypes.Question, null, QuestionTypes.Warning);
         if (result == DialogResults.No)
         {
             Logger.LogInfo("Application reset cancelled.");

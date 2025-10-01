@@ -42,7 +42,7 @@ public static class Logger
 
         _logFilePath = GetComputedLogFile(logFile);
         if (!File.Exists(_logFilePath))
-            using (File.Create(_logFilePath)) {}
+            using (File.Create(_logFilePath)) { }
     }
 
     public static void Create(string logFile)

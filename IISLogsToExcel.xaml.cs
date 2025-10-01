@@ -73,7 +73,7 @@ public partial class IISLogExporter : Window
         isSingleWorkBook.IsChecked = _isSingleBook = GetBoolValue(Constants.SingleWorkbook);
         createPivotTable.IsChecked = _createPivot = GetBoolValue(Constants.CreatePivot);
         enableLogging.IsChecked = _enableLogging = GetBoolValue(Constants.EnableLogging);
-        if(File.Exists(Constants.IniFile))
+        if (File.Exists(Constants.IniFile))
             systemTheme.IsChecked = _isDarkMode = GetBoolValue(Constants.DarkMode);
 
         if (_enableLogging)
@@ -147,14 +147,14 @@ public partial class IISLogExporter : Window
     private MenuItem CreateMenuItem(string header, string iconPath, RoutedEventHandler clickHandler,
         bool isStateBased = false, bool isDemiBold = false, Brush? foreColor = null)
     {
-        var menuItem = new MenuItem {Header = header, Icon = GetIcon(iconPath)};
-        if(isDemiBold && foreColor != null)
+        var menuItem = new MenuItem { Header = header, Icon = GetIcon(iconPath) };
+        if (isDemiBold && foreColor != null)
         {
             menuItem.FontWeight = FontWeights.DemiBold;
             menuItem.Foreground = foreColor;
         }
 
-        if(isStateBased)
+        if (isStateBased)
             _stateBasedMenuItems.Add(menuItem);
 
         menuItem.Click += clickHandler;

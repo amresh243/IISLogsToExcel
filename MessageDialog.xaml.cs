@@ -10,13 +10,26 @@ namespace IISLogsToExcel;
 
 public enum DialogResults { No = 0, Yes = 1 }
 public enum DialogTypes { Error = 0, Warning = 1, Info = 2, Question = 3 }
+public enum QuestionTypes { Info = 0, Warning = 1, Error = 2 }
 
 /// <summary> Interaction logic for MessageDialog.xaml </summary>
 public partial class MessageDialog : Window
 {
-    private readonly Window? _owner;
     private DialogResults _result = DialogResults.No;
-    private readonly Dictionary<DialogTypes, Brush>? _titleBarColors;
+    private readonly Window? _owner;
+    private readonly Dictionary<DialogTypes, LinearGradientBrush> _titleBarColors = new()
+    {
+        { DialogTypes.Info, Utility.GetGradientBrush(Colors.LightSkyBlue, Colors.DeepSkyBlue) },
+        { DialogTypes.Warning, Utility.GetGradientBrush(Colors.LightGoldenrodYellow, Colors.Goldenrod) },
+        { DialogTypes.Error, Utility.GetGradientBrush(Colors.Gold, Colors.Crimson) },
+        { DialogTypes.Question, Utility.GetGradientBrush(Colors.LightSkyBlue, Colors.DeepSkyBlue) }
+    };
+    private readonly Dictionary<QuestionTypes, LinearGradientBrush> _questionTitleBarColor = new()
+    {
+        { QuestionTypes.Info, Utility.GetGradientBrush(Colors.LightSkyBlue, Colors.DeepSkyBlue) },
+        { QuestionTypes.Warning, Utility.GetGradientBrush(Colors.LightGoldenrodYellow, Colors.Goldenrod) },
+        { QuestionTypes.Error, Utility.GetGradientBrush(Colors.Gold, Colors.Crimson) }
+    };
     private readonly Dictionary<DialogTypes, BitmapImage> _icons = new()
     {
         { DialogTypes.Info, new BitmapImage(new Uri(Icons.Info)) },
@@ -32,20 +45,14 @@ public partial class MessageDialog : Window
 
         _owner = owner;
         this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-        _titleBarColors = new Dictionary<DialogTypes, Brush>
-        {
-            { DialogTypes.Info, TitleBar.Background },
-            { DialogTypes.Warning, Utility.GetGradientBrush(Colors.LightGoldenrodYellow, Colors.Goldenrod) },
-            { DialogTypes.Error, Utility.GetGradientBrush(Colors.Gold, Colors.Crimson) },
-            { DialogTypes.Question, TitleBar.Background }
-        };
     }
 
     /// <summary> Show the dialog with specified message, title, type and icon </summary>
-    public DialogResults Show(string message, string title, DialogTypes type = DialogTypes.Info, Image? icon = null)
+    public DialogResults Show(string message, string title, DialogTypes type = DialogTypes.Info, 
+        Image? icon = null, QuestionTypes questionType = QuestionTypes.Info)
     {
         dlgImage.Source = (icon == null) ? _icons[type] : icon.Source;
-        TitleBar.Background = _titleBarColors?[type] ?? TitleBar.Background;
+        TitleBar.Background = _titleBarColors[type];
 
         switch (type)
         {
@@ -59,6 +66,9 @@ public partial class MessageDialog : Window
             case DialogTypes.Question:
                 yesButton.Visibility = noButton.Visibility = Visibility.Visible;
                 closeButton.Visibility = Visibility.Hidden;
+                if (questionType != QuestionTypes.Info)
+                    TitleBar.Background = _questionTitleBarColor[questionType];
+
                 noButton.Focus();
                 break;
         }
