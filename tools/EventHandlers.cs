@@ -17,6 +17,15 @@ public partial class IISLogExporter : Window
 {
     #region Utility Methods IISLogExporter
 
+    private void ApplyCheckBoxStyle(object sender)
+    {
+        CheckBox checkBox = (CheckBox)sender;
+        if (checkBox.IsChecked == true)
+            Utility.SetCheckBoxStyle(checkBox, _selectedBrush);
+        else
+            Utility.SetCheckBoxStyle(checkBox, Utility.GetStyle("ControlDisabled"));
+    }
+
     private bool LoggedWarning(string file, string body, string caption)
     {
         Logger.LogInfo($"Attempting to open {file}...");
@@ -58,6 +67,7 @@ public partial class IISLogExporter : Window
         _iniFile.SetValue(Constants.SettingsSection, Constants.EnableLogging, _enableLogging.ToString());
         _iniFile.SetValue(Constants.SettingsSection, Constants.DarkMode, systemTheme.IsChecked?.ToString() ?? Constants.False);
         _iniFile.SetValue(Constants.SettingsSection, Constants.FolderPath, _folderPath);
+        _iniFile.SetValue(Constants.SettingsSection, Constants.ColorIndex, _colorIndex.ToString());
         _iniFile.Save(this);
 
         Logger.LogInfo("Settings saved successfully.");
@@ -190,6 +200,7 @@ public partial class IISLogExporter : Window
     {
         Logger.LogInfo($"Single workbook option changed to: {(isSingleWorkBook.IsChecked == true ? "Enabled" : "Disabled")}");
         _isSingleBook = (isSingleWorkBook.IsChecked == true);
+        ApplyCheckBoxStyle(sender);
     }
 
     /// <summary> Create pivot Checkbox click handler </summary>
@@ -197,6 +208,7 @@ public partial class IISLogExporter : Window
     {
         Logger.LogInfo($"Create pivot table option changed to: {(createPivotTable.IsChecked == true ? "Enabled" : "Disabled")}");
         _createPivot = (createPivotTable.IsChecked == true);
+        ApplyCheckBoxStyle(sender);
     }
 
     /// <summary> Delete source files Checkbox click handler </summary>
@@ -214,6 +226,8 @@ public partial class IISLogExporter : Window
             Logger.Create(Constants.LogFile, this);
             Logger.LogInfo("Logging option enabled.");
         }
+
+        ApplyCheckBoxStyle(sender);
     }
 
     /// <summary> Applies system theme if the checkbox is checked, otherwise applies light theme. </summary>
@@ -221,6 +235,7 @@ public partial class IISLogExporter : Window
     {
         Logger.LogInfo($"Dark mode theme option changed to: {(systemTheme.IsChecked == true ? "Enabled" : "Disabled")}");
         _isDarkMode = (systemTheme.IsChecked == true);
+        ApplyCheckBoxStyle(sender);
         InitializeTheme(_isDarkMode);
     }
 
@@ -302,7 +317,7 @@ public partial class IISLogExporter : Window
     /// <summary> Right click app event handler, shows context menu. </summary>
     private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
-        Point position = e.GetPosition(this);
+        System.Windows.Point position = e.GetPosition(this);
 
         _contextMenu.PlacementTarget = this;
         _contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Relative;
@@ -363,6 +378,7 @@ public partial class IISLogExporter : Window
         enableLogging.IsChecked = _enableLogging = false;
         createPivotTable.IsChecked = _createPivot = false;
         systemTheme.IsChecked = _isDarkMode = false;
+        colorComboBox.SelectedIndex = _colorIndex = 0;
 
         UpdateStatus("Application reset completed.");
         Logger.LogInfo("Application reset completed.");
@@ -383,6 +399,29 @@ public partial class IISLogExporter : Window
     /// <summary> Menu item exit event handler, closes application. </summary>
     private void MenuItemExit_Click(object sender, RoutedEventArgs e) =>
         this.Close();
+
+    private void ColorComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.AddedItems.Count > 0 && e.AddedItems[0] is ColorItem selectedItem)
+        {
+            Logger.LogInfo($"Changing application theme to '{selectedItem.Name}'...");
+            _selectedBrush = selectedItem.ColorBrush;
+            statusBar.Background = _selectedBrush;
+            selectFolderButton.Background = _selectedBrush;
+            appborder.BorderBrush = _selectedBrush;
+            Utility.SetCheckBoxStyle(isSingleWorkBook, _selectedBrush);
+            Utility.SetCheckBoxStyle(enableLogging, _selectedBrush);
+            Utility.SetCheckBoxStyle(createPivotTable, _selectedBrush);
+            Utility.SetCheckBoxStyle(systemTheme, _selectedBrush);
+            if(_menuItemAbout != null)
+                _menuItemAbout.Foreground = _selectedBrush;
+
+            _messageBox.ApplyControlColor(_selectedBrush);
+            var source = (ComboBox)sender;
+            _colorIndex = source.SelectedIndex;
+            Logger.LogInfo($"Application theme changed to '{selectedItem.Name}.");
+        }
+    }
 
     #endregion Event Handlers IISLogExporter
 }

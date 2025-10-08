@@ -37,6 +37,9 @@ public partial class IISLogExporter : Window
     private long _totalSize = 0;
     private long _processedSize = 0;
     private long _processingCount = 0;
+    private int _colorIndex = 0;
+
+    private Brush _selectedBrush = Utility.GetGradientBrush(Colors.LightSkyBlue, Colors.DeepSkyBlue);
 
     public List<LogFileItem> LogFiles => _logFiles;
     public MessageDialog MessageBox => _messageBox;
@@ -55,12 +58,32 @@ public partial class IISLogExporter : Window
         systemTheme.IsChecked = _isDarkMode = Utility.IsSystemInDarkMode();
 
         LoadSettings(folderPath);
+        InitControlColors();
     }
 
     #endregion Constructor
 
 
     #region Control State Modifiers
+
+    private void InitControlColors()
+    {
+        List<ColorItem> controlColors = [];
+
+        controlColors.Add(new ColorItem());
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Color.FromRgb(255, 114, 118), Colors.Red), "Red Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightGreen, Colors.Green), "Green Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightBlue, Colors.Blue), "Blue Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightCyan, Colors.DarkCyan), "Cyan Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightGoldenrodYellow, Colors.Gold), "Yellow Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightPink, Colors.DeepPink), "Pink Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.Khaki, Colors.DarkOrange), "Orange Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.Plum, Colors.DarkOrchid), "Purple Shade"));
+        foreach (var colorItem in controlColors)
+            colorComboBox.Items.Add(colorItem);
+
+        colorComboBox.SelectedIndex = _colorIndex;
+    }
 
     private bool GetBoolValue(string key) =>
         bool.Parse(_iniFile.GetValue(Constants.SettingsSection, key) ?? Constants.False);
@@ -73,6 +96,7 @@ public partial class IISLogExporter : Window
         isSingleWorkBook.IsChecked = _isSingleBook = GetBoolValue(Constants.SingleWorkbook);
         createPivotTable.IsChecked = _createPivot = GetBoolValue(Constants.CreatePivot);
         enableLogging.IsChecked = _enableLogging = GetBoolValue(Constants.EnableLogging);
+        _colorIndex = int.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.ColorIndex) ?? "0");
         if (File.Exists(Constants.IniFile))
             systemTheme.IsChecked = _isDarkMode = GetBoolValue(Constants.DarkMode);
 
@@ -127,6 +151,7 @@ public partial class IISLogExporter : Window
         systemTheme.Foreground = foreColor;
         groupOptions.Foreground = foreColor;
         _contextMenu.Foreground = foreColor;
+        lbColor.Foreground = foreColor;
 
         UpdateSepcialMenuTheme(_menuItemProcess, Brushes.LimeGreen);
         UpdateSepcialMenuTheme(_menuItemReset, Brushes.Goldenrod);

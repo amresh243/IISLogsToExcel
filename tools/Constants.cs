@@ -17,6 +17,7 @@ internal static class Constants
     public const string CreatePivot = "CreatePivot";
     public const string EnableLogging = "EnableLogging";
     public const string DarkMode = "DarkMode";
+    public const string ColorIndex = "ColorIndex";
     public const string FolderPath = "FolderPath";
     public const string ThemeKey = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
     public const string ThemeValue = "AppsUseLightTheme";
