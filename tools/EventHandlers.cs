@@ -428,6 +428,7 @@ public partial class IISLogExporter : Window
             var source = (ComboBox)sender;
             _colorIndex = source.SelectedIndex;
             RefreshList();
+            UpdateStatus($"Application theme changed to '{selectedItem.Name}'.");
             Logger.LogInfo($"Application theme changed to '{selectedItem.Name}.");
         }
     }

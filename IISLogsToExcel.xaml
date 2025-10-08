@@ -185,7 +185,7 @@
                     </ListBox>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <Label Name="lbColor"
-                               Content="Application Theme" 
+                               Content="APPLICATION THEME" 
                                VerticalAlignment="Center"
                                Margin="0,10,0,0"
                                 HorizontalAlignment="Left"
@@ -203,7 +203,7 @@
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <Rectangle Width="16" Height="16" 
+                                        <Rectangle Width="32" Height="16" 
                                                    Fill="{Binding ColorBrush, Mode=TwoWay}" 
                                                    Stroke="Black"
                                                    StrokeThickness="0.5" 
