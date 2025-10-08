@@ -17,6 +17,7 @@ public partial class IISLogExporter : Window
 {
     #region Utility Methods IISLogExporter
 
+    /// <summary> Applies the selected theme to the checkboxes. </summary>
     private void ApplyCheckBoxStyle(object sender)
     {
         CheckBox checkBox = (CheckBox)sender;
@@ -24,6 +25,13 @@ public partial class IISLogExporter : Window
             Utility.SetCheckBoxStyle(checkBox, _selectedBrush);
         else
             Utility.SetCheckBoxStyle(checkBox, Utility.GetStyle("ControlDisabled"));
+    }
+
+    /// <summary> Changes id color based on selection. </summary>
+    private void RefreshList()
+    {
+        foreach (LogFileItem item in lbLogFiles.Items)
+            item.IdColor = _selectedBrush;
     }
 
     private bool LoggedWarning(string file, string body, string caption)
@@ -419,6 +427,7 @@ public partial class IISLogExporter : Window
             _messageBox.ApplyControlColor(_selectedBrush);
             var source = (ComboBox)sender;
             _colorIndex = source.SelectedIndex;
+            RefreshList();
             Logger.LogInfo($"Application theme changed to '{selectedItem.Name}.");
         }
     }

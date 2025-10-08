@@ -293,7 +293,8 @@ public partial class IISLogExporter : Window
                 Name = Utility.GetFileNameWithoutRoot(file, _folderPath),
                 ID = id++.ToString(),
                 FullPath = file,
-                Color = foreColor
+                Color = foreColor,
+                IdColor = _selectedBrush
             };
             var fileInfo = new FileInfo(file);
             listItem.ToolTip = $"{file}\nSize: {Utility.GetFormattedSize(fileInfo.Length)}\nCreated: {fileInfo.CreationTime}";
