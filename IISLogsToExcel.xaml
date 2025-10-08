@@ -195,6 +195,7 @@
                                   Width="150" 
                                   Height="24" 
                                   Margin="10,10,0,0"
+                                  Style="{StaticResource MyCombo}"
                                   HorizontalAlignment="Center"
                                   SelectionChanged="ColorComboBox_SelectionChanged"
                                   ToolTip="Select control color theme."

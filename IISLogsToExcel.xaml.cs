@@ -79,6 +79,7 @@ public partial class IISLogExporter : Window
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightPink, Colors.DeepPink), "Pink Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.Khaki, Colors.DarkOrange), "Orange Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.Plum, Colors.DarkOrchid), "Purple Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightGray, Colors.DarkGray), "Gray Shade"));
         foreach (var colorItem in controlColors)
             colorComboBox.Items.Add(colorItem);
 
