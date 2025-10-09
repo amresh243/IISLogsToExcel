@@ -280,7 +280,7 @@
                 <Setter Property="Shape.Fill" TargetName="Arrow" Value="#999"/>
             </Trigger>
             <Trigger Property="UIElement.IsEnabled" Value="True">
-                <Setter Property="Panel.Background" TargetName="ButtonBorder" Value="{StaticResource ControlEnabled}"/>
+                <Setter Property="Panel.Background" TargetName="ButtonBorder" Value="#999"/>
                 <Setter Property="Border.BorderBrush" TargetName="ButtonBorder" Value="#999"/>
                 <Setter Property="Shape.Fill" TargetName="Arrow" Value="Black"/>
             </Trigger>
@@ -330,8 +330,8 @@
                     MinWidth="{TemplateBinding FrameworkElement.ActualWidth}"
                     MaxHeight="{TemplateBinding ComboBox.MaxDropDownHeight}">
                                 <Border Name="DropDownBorder" Background="White" Margin="0, 1, 0, 1"
-                        CornerRadius="3" BorderThickness="2" 
-                        BorderBrush="DeepSkyBlue"/>
+                        CornerRadius="3" BorderThickness="1" 
+                        BorderBrush="Black"/>
                                 <ScrollViewer Margin="3, 4, 3, 4" SnapsToDevicePixels="True">
                                     <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
                                 </ScrollViewer>

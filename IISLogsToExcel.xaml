@@ -169,7 +169,7 @@
                             <DataTemplate>
                                 <WrapPanel>
                                     <TextBlock Text="{Binding ID, Mode=TwoWay}" 
-                                               Foreground="{StaticResource ControlEnabled}"
+                                               Foreground="{Binding IdColor, Mode=TwoWay}"
                                                FontWeight="DemiBold"/>
                                     <TextBlock Text="{Binding Name, Mode=TwoWay}"
                                                Foreground="{Binding Color, Mode=TwoWay}" 
@@ -183,18 +183,50 @@
                             </Style>
                         </ListBox.ItemContainerStyle>
                     </ListBox>
-                    <Button Name="processButton" 
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Label Name="lbColor"
+                               Content="APPLICATION THEME" 
+                               VerticalAlignment="Center"
+                               Margin="0,10,0,0"
+                                HorizontalAlignment="Left"
+                                FontWeight="DemiBold" 
+                                FontSize="13"/>
+                        <ComboBox Name="colorComboBox" 
+                                  Width="150" 
+                                  Height="24" 
+                                  Margin="10,10,0,0"
+                                  Style="{StaticResource MyCombo}"
+                                  HorizontalAlignment="Center"
+                                  SelectionChanged="ColorComboBox_SelectionChanged"
+                                  ToolTip="Select control color theme."
+                                  FontWeight="DemiBold" 
+                                  FontSize="13">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Rectangle Width="32" Height="16" 
+                                                   Fill="{Binding ColorBrush, Mode=TwoWay}" 
+                                                   Stroke="Black"
+                                                   StrokeThickness="0.5" 
+                                                   Margin="0,0,5,0"/>
+                                        <TextBlock Text="{Binding Name, Mode=TwoWay}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Button Name="processButton" 
                             Content="PROCESS LOGS OF LISTED FILES" 
                             Click="ProcessButton_Click" 
                             Width="210" 
-                            HorizontalAlignment="Center"
-                            Margin="0,10,0,0"
+                            HorizontalAlignment="Right"
+                            Margin="10,10,0,0"
                             ToolTip="Click to process logs."
                             Height="24" 
                             Style="{DynamicResource RoundedButton}" 
                             Background="LimeGreen" 
                             FontWeight="Bold" 
                             FontSize="13"/>
+                    </StackPanel>
                 </StackPanel>
             </StackPanel>
         </DockPanel>

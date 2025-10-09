@@ -7,16 +7,17 @@ namespace IISLogsToExcel.tools;
 
 public class LogFileItem : INotifyPropertyChanged
 {
-    public LogFileItem(string id, string name, string fullPath, string toolTip, Brush color)
+    public LogFileItem(string id, string name, string fullPath, string toolTip, Brush color, Brush idColor)
     {
         _ID = id;
         _Name = name;
         FullPath = fullPath;
         _ToolTip = toolTip;
         _Color = color;
+        _IdColor = idColor;
     }
 
-    public LogFileItem() : this(string.Empty, string.Empty, string.Empty, string.Empty, Brushes.Black) {}
+    public LogFileItem() : this(string.Empty, string.Empty, string.Empty, string.Empty, Brushes.Black, Brushes.Black) {}
 
     /// <summary> Property to access ID </summary>
     public string ID
@@ -28,6 +29,20 @@ public class LogFileItem : INotifyPropertyChanged
             {
                 _ID = value;
                 RaisePropertyChanged(nameof(ID));
+            }
+        }
+    }
+
+    /// <summary> Property to access id color. </summary>
+    public Brush IdColor
+    {
+        get => _IdColor;
+        set
+        {
+            if (_IdColor != value)
+            {
+                _IdColor = value;
+                RaisePropertyChanged(nameof(IdColor));
             }
         }
     }
@@ -63,7 +78,7 @@ public class LogFileItem : INotifyPropertyChanged
         }
     }
 
-    /// <summary> Returns indigo color if pattern is not standard </summary>
+    /// <summary> Property to access log item color. </summary>
     public Brush Color
     {
         get => _Color;
@@ -86,4 +101,5 @@ public class LogFileItem : INotifyPropertyChanged
     private string _Name = string.Empty;
     private string _ToolTip = string.Empty;
     private Brush _Color = Brushes.Black;
+    private Brush _IdColor = Brushes.Black;
 }

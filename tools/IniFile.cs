@@ -74,7 +74,7 @@ public class IniFile
         return true;
     }
 
-    public bool Save()
+    public bool Save(IISLogExporter? app = null)
     {
         try
         {
@@ -82,20 +82,11 @@ public class IniFile
         }
         catch
         {
-            MessageBox.Show(Messages.SettingError, Captions.SettingError, MessageBoxButton.OK, MessageBoxImage.Warning);
-            return false;
-        }
-    }
+            if(app == null)
+                MessageBox.Show(Messages.SettingError, Captions.SettingError, MessageBoxButton.OK, MessageBoxImage.Warning);
+            else
+                app.MessageBox.Show(Messages.SettingError, Captions.SettingError, DialogTypes.Warning);
 
-    public bool Save(IISLogExporter app)
-    {
-        try
-        {
-            return UpdateSettings();
-        }
-        catch
-        {
-            app?.MessageBox.Show(Messages.SettingError, Captions.SettingError, DialogTypes.Warning);
             return false;
         }
     }
