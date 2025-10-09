@@ -13,7 +13,7 @@ namespace IISLogsToExcel.tools
 
         public ColorItem() : this(Utility.GetGradientBrush(Colors.LightSkyBlue, Colors.DeepSkyBlue), "Default") { }
 
-        /// <summary> Property to access ID </summary>
+        /// <summary> Property to access ID. </summary>
         public Brush ColorBrush
         {
             get => _ColorBrush;
@@ -27,7 +27,7 @@ namespace IISLogsToExcel.tools
             }
         }
 
-        /// <summary> Property to access file name </summary>
+        /// <summary> Property to access file name. </summary>
         public string Name
         {
             get => _Name;

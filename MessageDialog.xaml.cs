@@ -81,15 +81,16 @@ public partial class MessageDialog : Window
         return _result;
     }
 
-    /// <summary> Apply theme colors </summary>
-    public void ApplyTheme(Brush backColor, Brush foreColor)
+    /// <summary> Apply mode colors </summary>
+    public void ApplyMode(Brush backColor, Brush foreColor)
     {
         Message.Foreground = foreColor;
         Message.Background = backColor;
         this.Background = backColor;
     }
 
-    public void ApplyControlColor(Brush brush)
+    /// <summary> Apply application theme colors </summary>
+    public void ApplyApplicationTheme(Brush brush)
     {
         noButton.Background = brush;
         closeButton.Background = brush;

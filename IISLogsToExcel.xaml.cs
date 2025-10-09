@@ -49,6 +49,7 @@ public partial class IISLogExporter : Window
 
     #region Constructor
 
+    /// <summary> Constructor </summary>
     public IISLogExporter(string folderPath = "")
     {
         InitializeComponent();
@@ -58,7 +59,7 @@ public partial class IISLogExporter : Window
         systemTheme.IsChecked = _isDarkMode = Utility.IsSystemInDarkMode();
 
         LoadSettings(folderPath);
-        InitControlColors();
+        InitApplicationTheme();
     }
 
     #endregion Constructor
@@ -66,7 +67,8 @@ public partial class IISLogExporter : Window
 
     #region Control State Modifiers
 
-    private void InitControlColors()
+    /// <summary> Initiates application theme colors in the combo box. </summary>
+    private void InitApplicationTheme()
     {
         List<ColorItem> controlColors = [];
 
@@ -110,7 +112,7 @@ public partial class IISLogExporter : Window
             Logger.DisableLogging = true;
 
         InitializeMenu();
-        InitializeTheme(_isDarkMode);
+        InitializeMode(_isDarkMode);
 
         if (!string.IsNullOrEmpty(folderPath))
             InitializeVariables(folderPath);
@@ -131,9 +133,9 @@ public partial class IISLogExporter : Window
     }
 
     /// <summary> Changes controls background and foreground based on system theme. </summary>
-    private void InitializeTheme(bool isDarkMode)
+    private void InitializeMode(bool isDarkMode)
     {
-        Logger.LogInfo($"Initializing theme: {(isDarkMode ? "Dark Mode" : "Light Mode")}...");
+        Logger.LogInfo($"Initializing mode: {(isDarkMode ? "Dark Mode" : "Light Mode")}...");
         var foreColor = (isDarkMode) ? Brushes.White : Brushes.Black;
         var backColor = (isDarkMode) ? Brushes.Black : Brushes.White;
 
@@ -161,8 +163,8 @@ public partial class IISLogExporter : Window
             item.Color = foreColor;
 
         lbLogFiles.Items.Refresh();
-        _messageBox.ApplyTheme(backColor, foreColor);
-        Logger.LogInfo("Theme initialized successfully.");
+        _messageBox.ApplyMode(backColor, foreColor);
+        Logger.LogInfo("Mode initialized successfully.");
     }
 
     /// <summary> Returns an Image control with the specified resource image path. </summary>

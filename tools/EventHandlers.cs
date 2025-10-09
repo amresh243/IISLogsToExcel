@@ -244,7 +244,7 @@ public partial class IISLogExporter : Window
         Logger.LogInfo($"Dark mode theme option changed to: {(systemTheme.IsChecked == true ? "Enabled" : "Disabled")}");
         _isDarkMode = (systemTheme.IsChecked == true);
         ApplyCheckBoxStyle(sender);
-        InitializeTheme(_isDarkMode);
+        InitializeMode(_isDarkMode);
     }
 
     /// <summary> Opens folder selector dialog if no selection else opens selected folder in explorer. </summary>
@@ -380,7 +380,7 @@ public partial class IISLogExporter : Window
         }
 
         InitializeVariables(string.Empty);
-        InitializeTheme(false);
+        InitializeMode(false);
 
         isSingleWorkBook.IsChecked = _isSingleBook = false;
         enableLogging.IsChecked = _enableLogging = false;
@@ -424,7 +424,7 @@ public partial class IISLogExporter : Window
             if(_menuItemAbout != null)
                 _menuItemAbout.Foreground = _selectedBrush;
 
-            _messageBox.ApplyControlColor(_selectedBrush);
+            _messageBox.ApplyApplicationTheme(_selectedBrush);
             var source = (ComboBox)sender;
             _colorIndex = source.SelectedIndex;
             RefreshList();

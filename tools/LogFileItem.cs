@@ -33,7 +33,7 @@ public class LogFileItem : INotifyPropertyChanged
         }
     }
 
-    /// <summary> Returns indigo color if pattern is not standard </summary>
+    /// <summary> Property to access id color. </summary>
     public Brush IdColor
     {
         get => _IdColor;
@@ -78,7 +78,7 @@ public class LogFileItem : INotifyPropertyChanged
         }
     }
 
-    /// <summary> Returns indigo color if pattern is not standard </summary>
+    /// <summary> Property to access log item color. </summary>
     public Brush Color
     {
         get => _Color;
