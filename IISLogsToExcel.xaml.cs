@@ -37,6 +37,9 @@ public partial class IISLogExporter : Window
     private long _totalSize = 0;
     private long _processedSize = 0;
     private long _processingCount = 0;
+    private int _colorIndex = 0;
+
+    private Brush _selectedBrush = Utility.GetGradientBrush(Colors.LightSkyBlue, Colors.DeepSkyBlue);
 
     public List<LogFileItem> LogFiles => _logFiles;
     public MessageDialog MessageBox => _messageBox;
@@ -46,6 +49,7 @@ public partial class IISLogExporter : Window
 
     #region Constructor
 
+    /// <summary> Constructor </summary>
     public IISLogExporter(string folderPath = "")
     {
         InitializeComponent();
@@ -55,12 +59,34 @@ public partial class IISLogExporter : Window
         systemTheme.IsChecked = _isDarkMode = Utility.IsSystemInDarkMode();
 
         LoadSettings(folderPath);
+        InitApplicationTheme();
     }
 
     #endregion Constructor
 
 
     #region Control State Modifiers
+
+    /// <summary> Initiates application theme colors in the combo box. </summary>
+    private void InitApplicationTheme()
+    {
+        List<ColorItem> controlColors = [];
+
+        controlColors.Add(new ColorItem());
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Color.FromRgb(255, 114, 118), Colors.Red), "Red Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightGreen, Colors.Green), "Green Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightBlue, Colors.Blue), "Blue Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightCyan, Colors.DarkCyan), "Cyan Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightGoldenrodYellow, Colors.Gold), "Yellow Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightPink, Colors.DeepPink), "Pink Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.Khaki, Colors.DarkOrange), "Orange Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.Plum, Colors.DarkOrchid), "Purple Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightGray, Colors.DarkGray), "Gray Shade"));
+        foreach (var colorItem in controlColors)
+            colorComboBox.Items.Add(colorItem);
+
+        colorComboBox.SelectedIndex = _colorIndex;
+    }
 
     private bool GetBoolValue(string key) =>
         bool.Parse(_iniFile.GetValue(Constants.SettingsSection, key) ?? Constants.False);
@@ -73,6 +99,7 @@ public partial class IISLogExporter : Window
         isSingleWorkBook.IsChecked = _isSingleBook = GetBoolValue(Constants.SingleWorkbook);
         createPivotTable.IsChecked = _createPivot = GetBoolValue(Constants.CreatePivot);
         enableLogging.IsChecked = _enableLogging = GetBoolValue(Constants.EnableLogging);
+        _colorIndex = int.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.ColorIndex) ?? "0");
         if (File.Exists(Constants.IniFile))
             systemTheme.IsChecked = _isDarkMode = GetBoolValue(Constants.DarkMode);
 
@@ -85,7 +112,7 @@ public partial class IISLogExporter : Window
             Logger.DisableLogging = true;
 
         InitializeMenu();
-        InitializeTheme(_isDarkMode);
+        InitializeMode(_isDarkMode);
 
         if (!string.IsNullOrEmpty(folderPath))
             InitializeVariables(folderPath);
@@ -106,9 +133,9 @@ public partial class IISLogExporter : Window
     }
 
     /// <summary> Changes controls background and foreground based on system theme. </summary>
-    private void InitializeTheme(bool isDarkMode)
+    private void InitializeMode(bool isDarkMode)
     {
-        Logger.LogInfo($"Initializing theme: {(isDarkMode ? "Dark Mode" : "Light Mode")}...");
+        Logger.LogInfo($"Initializing mode: {(isDarkMode ? "Dark Mode" : "Light Mode")}...");
         var foreColor = (isDarkMode) ? Brushes.White : Brushes.Black;
         var backColor = (isDarkMode) ? Brushes.Black : Brushes.White;
 
@@ -127,6 +154,7 @@ public partial class IISLogExporter : Window
         systemTheme.Foreground = foreColor;
         groupOptions.Foreground = foreColor;
         _contextMenu.Foreground = foreColor;
+        lbColor.Foreground = foreColor;
 
         UpdateSepcialMenuTheme(_menuItemProcess, Brushes.LimeGreen);
         UpdateSepcialMenuTheme(_menuItemReset, Brushes.Goldenrod);
@@ -135,8 +163,8 @@ public partial class IISLogExporter : Window
             item.Color = foreColor;
 
         lbLogFiles.Items.Refresh();
-        _messageBox.ApplyTheme(backColor, foreColor);
-        Logger.LogInfo("Theme initialized successfully.");
+        _messageBox.ApplyMode(backColor, foreColor);
+        Logger.LogInfo("Mode initialized successfully.");
     }
 
     /// <summary> Returns an Image control with the specified resource image path. </summary>
@@ -268,7 +296,8 @@ public partial class IISLogExporter : Window
                 Name = Utility.GetFileNameWithoutRoot(file, _folderPath),
                 ID = id++.ToString(),
                 FullPath = file,
-                Color = foreColor
+                Color = foreColor,
+                IdColor = _selectedBrush
             };
             var fileInfo = new FileInfo(file);
             listItem.ToolTip = $"{file}\nSize: {Utility.GetFormattedSize(fileInfo.Length)}\nCreated: {fileInfo.CreationTime}";

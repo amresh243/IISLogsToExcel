@@ -17,14 +17,14 @@ public partial class MessageDialog : Window
 {
     private DialogResults _result = DialogResults.No;
     private readonly Window? _owner;
-    private readonly Dictionary<DialogTypes, LinearGradientBrush> _titleBarColors = new()
+    private Dictionary<DialogTypes, LinearGradientBrush> _titleBarColors = new()
     {
         { DialogTypes.Info, Utility.GetGradientBrush(Colors.LightSkyBlue, Colors.DeepSkyBlue) },
         { DialogTypes.Warning, Utility.GetGradientBrush(Colors.LightGoldenrodYellow, Colors.Goldenrod) },
         { DialogTypes.Error, Utility.GetGradientBrush(Colors.Gold, Colors.Crimson) },
         { DialogTypes.Question, Utility.GetGradientBrush(Colors.LightSkyBlue, Colors.DeepSkyBlue) }
     };
-    private readonly Dictionary<QuestionTypes, LinearGradientBrush> _questionTitleBarColor = new()
+    private Dictionary<QuestionTypes, LinearGradientBrush> _questionTitleBarColor = new()
     {
         { QuestionTypes.Info, Utility.GetGradientBrush(Colors.LightSkyBlue, Colors.DeepSkyBlue) },
         { QuestionTypes.Warning, Utility.GetGradientBrush(Colors.LightGoldenrodYellow, Colors.Goldenrod) },
@@ -81,11 +81,20 @@ public partial class MessageDialog : Window
         return _result;
     }
 
-    /// <summary> Apply theme colors </summary>
-    public void ApplyTheme(Brush backColor, Brush foreColor)
+    /// <summary> Apply mode colors </summary>
+    public void ApplyMode(Brush backColor, Brush foreColor)
     {
         Message.Foreground = foreColor;
         Message.Background = backColor;
         this.Background = backColor;
+    }
+
+    /// <summary> Apply application theme colors </summary>
+    public void ApplyApplicationTheme(Brush brush)
+    {
+        noButton.Background = brush;
+        closeButton.Background = brush;
+        _titleBarColors[DialogTypes.Info] = (LinearGradientBrush)brush;
+        _questionTitleBarColor[QuestionTypes.Info] = (LinearGradientBrush)brush;
     }
 }

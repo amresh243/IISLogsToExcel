@@ -4,6 +4,7 @@ using Microsoft.Win32;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace IISLogsToExcel.tools;
@@ -97,6 +98,28 @@ public static class Utility
         if (opacity > 0)
             brush.Opacity = opacity;
 
+        return brush;
+    }
+
+    public static void SetCheckBoxStyle(CheckBox checkBox, Brush brush)
+    {
+        if (checkBox == null || checkBox.IsChecked == null)
+            return;
+
+        if (checkBox.IsChecked == false)
+            brush = GetStyle("ControlDisabled");
+
+        checkBox.ApplyTemplate();
+        var foregroundPanel = checkBox.Template.FindName("ForegroundPanel", checkBox) as Border;
+        if (foregroundPanel != null)
+            foregroundPanel.Background = brush;
+
+    }
+
+    public static Brush GetStyle(string key)
+    {
+        Window wnd = Application.Current.MainWindow!;
+        LinearGradientBrush brush = (LinearGradientBrush)wnd.FindResource(key);
         return brush;
     }
 }

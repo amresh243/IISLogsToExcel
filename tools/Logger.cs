@@ -45,7 +45,7 @@ public static class Logger
             using (File.Create(_logFilePath)) { }
     }
 
-    public static void Create(string logFile)
+    public static void Create(string logFile, IISLogExporter? app = null)
     {
         try
         {
@@ -54,20 +54,10 @@ public static class Logger
         catch
         {
             _loggingEnabled = false;
-            MessageBox.Show(Messages.LoggingError, Captions.LoggingError, MessageBoxButton.OK, MessageBoxImage.Warning);
-        }
-    }
-
-    public static void Create(string logFile, IISLogExporter app)
-    {
-        try
-        {
-            Initialize(logFile);
-        }
-        catch
-        {
-            _loggingEnabled = false;
-            app?.MessageBox.Show(Messages.LoggingError, Captions.LoggingError, DialogTypes.Warning);
+            if (app == null)
+                MessageBox.Show(Messages.LoggingError, Captions.LoggingError, MessageBoxButton.OK, MessageBoxImage.Warning);
+            else
+                app.MessageBox.Show(Messages.LoggingError, Captions.LoggingError, DialogTypes.Warning);
         }
     }
 
@@ -98,7 +88,7 @@ public static class Logger
         Log("ERROR", message);
 
     public static void LogException(string message, Exception ex) =>
-        Log("EXCEPTION", $"{message}\nException: {ex.Message}\nStack Trace: {ex.StackTrace}");
+        Log("EXCEPTION", $"{message}\nException: {ex?.Message}\nStack Trace: {ex?.StackTrace}");
 
     private static void Log(string level, string message)
     {
