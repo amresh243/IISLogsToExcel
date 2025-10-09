@@ -408,6 +408,7 @@ public partial class IISLogExporter : Window
     private void MenuItemExit_Click(object sender, RoutedEventArgs e) =>
         this.Close();
 
+    /// <summary> Color combobox selection changed event handler </summary>
     private void ColorComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (e.AddedItems.Count > 0 && e.AddedItems[0] is ColorItem selectedItem)

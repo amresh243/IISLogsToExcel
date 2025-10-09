@@ -101,6 +101,7 @@ public static class Utility
         return brush;
     }
 
+    /// <summary> Sets the style for the given checkbox </summary>
     public static void SetCheckBoxStyle(CheckBox checkBox, Brush brush)
     {
         if (checkBox == null || checkBox.IsChecked == null)
@@ -116,6 +117,7 @@ public static class Utility
 
     }
 
+    /// <summary> Returns the brush for the given resource key </summary>
     public static Brush GetStyle(string key)
     {
         Window wnd = Application.Current.MainWindow!;
