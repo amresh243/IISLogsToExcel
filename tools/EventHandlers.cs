@@ -430,7 +430,7 @@ public partial class IISLogExporter : Window
             _colorIndex = source.SelectedIndex;
             RefreshList();
             UpdateStatus($"Application theme changed to '{selectedItem.Name}'.");
-            Logger.LogInfo($"Application theme changed to '{selectedItem.Name}.");
+            Logger.LogInfo($"Application theme changed to '{selectedItem.Name}'.");
         }
     }
 
