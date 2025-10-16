@@ -59,7 +59,7 @@ public partial class IISLogExporter : Window
         systemTheme.IsChecked = _isDarkMode = Utility.IsSystemInDarkMode();
 
         LoadSettings(folderPath);
-        InitApplicationTheme();
+        InitializeTheme();
     }
 
     #endregion Constructor
@@ -68,7 +68,7 @@ public partial class IISLogExporter : Window
     #region Control State Modifiers
 
     /// <summary> Initiates application theme colors in the combo box. </summary>
-    private void InitApplicationTheme()
+    private void InitializeTheme()
     {
         List<ColorItem> controlColors = [];
 
