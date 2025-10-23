@@ -149,8 +149,8 @@ public partial class IISLogExporter : Window
         this.Background = backColor;
         lbLogFiles.Background = backColor;
         progressBar.Background = backColor;
-        folderPathTextBox.Background = backColor;
         _contextMenu.Background = backColor;
+        folderPathTextBox.Background = backColor;
         progressText.Foreground = foreColor;
         groupOptions.Foreground = foreColor;
         _contextMenu.Foreground = foreColor;
