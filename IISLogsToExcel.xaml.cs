@@ -82,9 +82,11 @@ public partial class IISLogExporter : Window
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.RosyBrown, Colors.Brown), "Brown Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightPink, Colors.DeepPink), "Pink Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Color.FromRgb(255, 114, 118), Colors.Red), "Red Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Color.FromRgb(255, 114, 118), Colors.Firebrick), "Maroon Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Color.FromRgb(189, 188, 112), Colors.DarkOliveGreen), "Olive Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightCyan, Colors.DarkCyan), "Cyan Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.MediumAquamarine, Colors.Teal), "Teal Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.PaleGreen, Colors.LawnGreen), "Parrot Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightGreen, Colors.Green), "Green Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightGray, Colors.DarkGray), "Gray Shade"));
         foreach (var colorItem in controlColors)
@@ -150,16 +152,16 @@ public partial class IISLogExporter : Window
         folderPathTextBox.Background = backColor;
         _contextMenu.Background = backColor;
         progressText.Foreground = foreColor;
-        folderPathTextBox.Foreground = foreColor;
-        lbLogFiles.Foreground = foreColor;
-        folderPathTextBox.Foreground = foreColor;
-        isSingleWorkBook.Foreground = foreColor;
-        enableLogging.Foreground = foreColor;
-        createPivotTable.Foreground = foreColor;
-        systemTheme.Foreground = foreColor;
         groupOptions.Foreground = foreColor;
         _contextMenu.Foreground = foreColor;
+        folderPathTextBox.Foreground = foreColor;
+        folderPathTextBox.Foreground = foreColor;
         lbColor.Foreground = foreColor;
+        lbLogFiles.Foreground = foreColor;
+        systemTheme.Foreground = foreColor;
+        enableLogging.Foreground = foreColor;
+        isSingleWorkBook.Foreground = foreColor;
+        createPivotTable.Foreground = foreColor;
 
         UpdateSepcialMenuTheme(_menuItemProcess, Brushes.LimeGreen);
         UpdateSepcialMenuTheme(_menuItemReset, Brushes.Goldenrod);
