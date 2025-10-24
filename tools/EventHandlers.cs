@@ -411,7 +411,7 @@ public partial class IISLogExporter : Window
             Utility.SetCheckBoxStyle(enableLogging, _selectedBrush);
             Utility.SetCheckBoxStyle(createPivotTable, _selectedBrush);
             Utility.SetCheckBoxStyle(systemTheme, _selectedBrush);
-            if(_menuItemAbout != null)
+            if (_menuItemAbout != null)
                 _menuItemAbout.Foreground = _selectedBrush;
 
             _messageBox.ApplyApplicationTheme(_selectedBrush);
