@@ -10,6 +10,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Point = System.Windows.Point;
 
 namespace IISLogsToExcel;
 
@@ -313,7 +314,7 @@ public partial class IISLogExporter : Window
     /// <summary> Right click app event handler, shows context menu. </summary>
     private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
-        System.Windows.Point position = e.GetPosition(this);
+        Point position = e.GetPosition(this);
 
         _contextMenu.PlacementTarget = this;
         _contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Relative;
