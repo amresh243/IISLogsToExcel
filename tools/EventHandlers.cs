@@ -48,6 +48,26 @@ public partial class IISLogExporter : Window
         return false;
     }
 
+    private void OpenFile(bool isLogFile)
+    {
+        string type = isLogFile ? "log" : "settings";
+        string appDirectory = AppContext.BaseDirectory;
+        var file = Path.Combine(appDirectory, isLogFile ? Logger.LogFilePath : Constants.IniFile);
+        if (LoggedWarning(file, Messages.LogWarning, Captions.LogWarning))
+            return;
+
+        Logger.LogInfo($"Opening app {type} '{file}' with associated application.");
+        try
+        {
+            Process.Start(new ProcessStartInfo(file) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            _messageBox.Show($"Failed to open app {type}. Error: {ex.Message}", $"App {type} Open Error", DialogTypes.Error);
+            Logger.LogException($"Error while opening app {type}!", ex);
+        }
+    }
+
     #endregion Utility Methods IISLogExporter
 
 
@@ -98,44 +118,12 @@ public partial class IISLogExporter : Window
     }
 
     /// <summary> Opens log file. </summary>
-    private void OpenLog_Click(object sender, RoutedEventArgs e)
-    {
-        string appDirectory = AppContext.BaseDirectory;
-        var logFile = Path.Combine(appDirectory, Logger.LogFilePath);
-        if (LoggedWarning(logFile, Messages.LogWarning, Captions.LogWarning))
-            return;
-
-        Logger.LogInfo($"Opening app log {logFile} with associated application.");
-        try
-        {
-            Process.Start(new ProcessStartInfo(logFile) { UseShellExecute = true });
-        }
-        catch (Exception ex)
-        {
-            _messageBox.Show($"Failed to open app log. Error: {ex.Message}", "App Log Open Error", DialogTypes.Error);
-            Logger.LogException($"Error while opening app log!", ex);
-        }
-    }
+    private void OpenLog_Click(object sender, RoutedEventArgs e) =>
+        OpenFile(true);
 
     /// <summary> Opens settings file. </summary>
-    private void OpenSettings_Click(object sender, RoutedEventArgs e)
-    {
-        string appDirectory = AppContext.BaseDirectory;
-        var iniFile = Path.Combine(appDirectory, Constants.IniFile);
-        if (LoggedWarning(iniFile, Messages.IniWarning, Captions.IniWarning))
-            return;
-
-        Logger.LogInfo($"Opening app settings {iniFile} with associated application.");
-        try
-        {
-            Process.Start(new ProcessStartInfo(iniFile) { UseShellExecute = true });
-        }
-        catch (Exception ex)
-        {
-            _messageBox.Show($"Failed to open app settings. Error: {ex.Message}", "App Setting Open Error", DialogTypes.Error);
-            Logger.LogException($"Error while opening app settings!", ex);
-        }
-    }
+    private void OpenSettings_Click(object sender, RoutedEventArgs e) =>
+        OpenFile(false);
 
     /// <summary> List item double click event handler </summary>
     private void ListBoxItem_DoubleClick(object sender, MouseButtonEventArgs e)
@@ -408,6 +396,7 @@ public partial class IISLogExporter : Window
     private void MenuItemExit_Click(object sender, RoutedEventArgs e) =>
         this.Close();
 
+    /// <summary> Color combobox selection changed event handler </summary>
     private void ColorComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (e.AddedItems.Count > 0 && e.AddedItems[0] is ColorItem selectedItem)
@@ -429,7 +418,7 @@ public partial class IISLogExporter : Window
             _colorIndex = source.SelectedIndex;
             RefreshList();
             UpdateStatus($"Application theme changed to '{selectedItem.Name}'.");
-            Logger.LogInfo($"Application theme changed to '{selectedItem.Name}.");
+            Logger.LogInfo($"Application theme changed to '{selectedItem.Name}'.");
         }
     }
 

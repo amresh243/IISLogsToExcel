@@ -59,7 +59,7 @@ public partial class IISLogExporter : Window
         systemTheme.IsChecked = _isDarkMode = Utility.IsSystemInDarkMode();
 
         LoadSettings(folderPath);
-        InitApplicationTheme();
+        InitializeTheme();
     }
 
     #endregion Constructor
@@ -68,20 +68,28 @@ public partial class IISLogExporter : Window
     #region Control State Modifiers
 
     /// <summary> Initiates application theme colors in the combo box. </summary>
-    private void InitApplicationTheme()
+    private void InitializeTheme()
     {
         List<ColorItem> controlColors = [];
 
         controlColors.Add(new ColorItem());
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Color.FromRgb(255, 114, 118), Colors.Red), "Red Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightGreen, Colors.Green), "Green Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightBlue, Colors.Blue), "Blue Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightCyan, Colors.DarkCyan), "Cyan Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightGoldenrodYellow, Colors.Gold), "Yellow Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightPink, Colors.DeepPink), "Pink Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.Khaki, Colors.DarkOrange), "Orange Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.Plum, Colors.DarkOrchid), "Purple Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.Plum, Colors.Magenta), "Magenta Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightGoldenrodYellow, Colors.Gold), "Yellow Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.Khaki, Colors.DarkOrange), "Orange Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.Tan, Colors.Chocolate), "Chocolate Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.RosyBrown, Colors.Brown), "Brown Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightPink, Colors.DeepPink), "Pink Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Color.FromRgb(255, 114, 118), Colors.Red), "Red Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Color.FromRgb(255, 114, 118), Colors.Maroon), "Maroon Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Color.FromRgb(189, 188, 112), Colors.DarkOliveGreen), "Olive Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightCyan, Colors.DarkCyan), "Cyan Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.MediumAquamarine, Colors.Teal), "Teal Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.PaleGreen, Colors.LawnGreen), "Parrot Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightGreen, Colors.Green), "Green Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightGray, Colors.DarkGray), "Gray Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.White, Colors.WhiteSmoke), "White Shade"));
         foreach (var colorItem in controlColors)
             colorComboBox.Items.Add(colorItem);
 
@@ -142,19 +150,19 @@ public partial class IISLogExporter : Window
         this.Background = backColor;
         lbLogFiles.Background = backColor;
         progressBar.Background = backColor;
-        folderPathTextBox.Background = backColor;
         _contextMenu.Background = backColor;
+        folderPathTextBox.Background = backColor;
         progressText.Foreground = foreColor;
-        folderPathTextBox.Foreground = foreColor;
-        lbLogFiles.Foreground = foreColor;
-        folderPathTextBox.Foreground = foreColor;
-        isSingleWorkBook.Foreground = foreColor;
-        enableLogging.Foreground = foreColor;
-        createPivotTable.Foreground = foreColor;
-        systemTheme.Foreground = foreColor;
         groupOptions.Foreground = foreColor;
         _contextMenu.Foreground = foreColor;
+        folderPathTextBox.Foreground = foreColor;
+        folderPathTextBox.Foreground = foreColor;
         lbColor.Foreground = foreColor;
+        lbLogFiles.Foreground = foreColor;
+        systemTheme.Foreground = foreColor;
+        enableLogging.Foreground = foreColor;
+        isSingleWorkBook.Foreground = foreColor;
+        createPivotTable.Foreground = foreColor;
 
         UpdateSepcialMenuTheme(_menuItemProcess, Brushes.LimeGreen);
         UpdateSepcialMenuTheme(_menuItemReset, Brushes.Goldenrod);
