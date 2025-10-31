@@ -172,7 +172,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
                     }
 
                     lines = [.. lines.Where(x => x != line)];
-                    if (incompleteCellData.Count != headers.Count - 1)
+                    if (incompleteCellData.Count < headers.Count - 1)
                         continue;
                 }
 
