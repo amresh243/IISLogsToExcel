@@ -183,7 +183,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
                 {
                     Logger.LogWarning($"Broken or invalid data at line {currentRow} in file {file}, output repair attempted.");
                     _handler.UpdateList(file, Brushes.Tomato);
-                    values = incompleteCellData.ToArray();
+                    values = [..incompleteCellData];
                     progressValue = Encoding.UTF8.GetByteCount(string.Join(' ', values));
                     incompleteCellData.Clear();
                 }
