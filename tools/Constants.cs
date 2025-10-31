@@ -6,6 +6,7 @@ internal static class Constants
 {
     public static string[] NumberColumns = ["s-port", "sc-status", "sc-substatus", "sc-win32-status", "sc-bytes", "cs-bytes", "time-taken"];
     public static string[] validHandlers = ["Border", "MenuItem"];
+    public static string[] portIds = ["443", "80"];
 
     public const string LogHeader = "=============================================================";
     public const string LogMarker = "#############~{0}~#############";
