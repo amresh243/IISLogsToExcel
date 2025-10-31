@@ -87,14 +87,20 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
         }
     }
 
-    private string[] GetFixedStemData(string[] source)
+    /// <summary> In exteme case, log line field count is more than header count. This function handles such case. </summary>
+    private static string[] GetFixedStemData(string[] source, int portIndex, int stemIndex)
     {
-        if(Constants.portIds.Contains(source[6]))
+        if(Constants.PortIds.Contains(source[portIndex]))
             return source;
 
-        source[4] = source[4] + source[5];
         var sourceList = source.ToList();
-        sourceList.RemoveAt(5);
+        for (int index = stemIndex; index < portIndex - 1; index++)
+        {
+            var nextIndex = index + 1;
+            source[stemIndex] = source[stemIndex] + source[nextIndex];
+            sourceList.RemoveAt(nextIndex);
+        }
+
         return [.. sourceList];
     }
 
@@ -142,13 +148,15 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
             }
 
             var specialIndices = GetNumberColumnIndexes(headers);
+            var portIndex = headers.IndexOf(Constants.PortHeader) - 1;
+            var stemIndex = headers.IndexOf(Constants.StemHeader) - 1;
             var incompleteCellData = new List<string>();
             // Process each line of the log file and fill the worksheet
             foreach (var line in lines.Skip(1))
             {
                 var values = line.Split(' ').Select(x => x.RemoveInvalidXmlChars()).ToArray();
                 if (values.Length >= headers.Count)
-                    values = GetFixedStemData(values);
+                    values = GetFixedStemData(values, portIndex, stemIndex);
 
                 if(values.Length >= headers.Count)
                 {
@@ -172,7 +180,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
                     }
 
                     lines = [.. lines.Where(x => x != line)];
-                    if (incompleteCellData.Count != headers.Count - 1)
+                    if (incompleteCellData.Count < headers.Count - 1)
                         continue;
                 }
 
@@ -183,7 +191,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
                 {
                     Logger.LogWarning($"Broken or invalid data at line {currentRow} in file {file}, output repair attempted.");
                     _handler.UpdateList(file, Brushes.Tomato);
-                    values = incompleteCellData.ToArray();
+                    values = [..incompleteCellData];
                     progressValue = Encoding.UTF8.GetByteCount(string.Join(' ', values));
                     incompleteCellData.Clear();
                 }

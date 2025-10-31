@@ -108,7 +108,7 @@ public partial class IISLogExporter : Window
     /// <summary> Opens application folder in explorer. </summary>
     private void Application_DblClick(object sender, RoutedEventArgs e)
     {
-        if (e != null && !Constants.validHandlers.Contains(e.OriginalSource.GetType().Name))
+        if (e != null && !Constants.ValidHandlers.Contains(e.OriginalSource.GetType().Name))
             return;
 
         string appDirectory = AppContext.BaseDirectory;

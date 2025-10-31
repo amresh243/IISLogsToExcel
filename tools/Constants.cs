@@ -5,8 +5,8 @@ namespace IISLogsToExcel.tools;
 internal static class Constants
 {
     public static string[] NumberColumns = ["s-port", "sc-status", "sc-substatus", "sc-win32-status", "sc-bytes", "cs-bytes", "time-taken"];
-    public static string[] validHandlers = ["Border", "MenuItem"];
-    public static string[] portIds = ["443", "80"];
+    public static string[] ValidHandlers = ["Border", "MenuItem"];
+    public static string[] PortIds = ["443", "80"];
 
     public const string LogHeader = "=============================================================";
     public const string LogMarker = "#############~{0}~#############";
@@ -25,6 +25,8 @@ internal static class Constants
     public const string ExplorerApp = "explorer.exe";
     public const string False = "false";
     public const string ZeroPercent = "0%";
+    public const string PortHeader = "s-port";
+    public const string StemHeader = "cs-uri-stem";
 }
 
 internal static class LogTokens
