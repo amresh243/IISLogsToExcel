@@ -87,6 +87,17 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
         }
     }
 
+    private string[] GetFixedStemData(string[] source)
+    {
+        if(Constants.portIds.Contains(source[6]))
+            return source;
+
+        source[4] = source[4] + source[5];
+        var sourceList = source.ToList();
+        sourceList.RemoveAt(5);
+        return [.. sourceList];
+    }
+
     /// <summary> Logic to process excel sheet. </summary>
     public void SetupLogSheet(IXLWorksheet worksheet, string file)
     {
@@ -136,6 +147,16 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
             foreach (var line in lines.Skip(1))
             {
                 var values = line.Split(' ').Select(x => x.RemoveInvalidXmlChars()).ToArray();
+                if (values.Length >= headers.Count)
+                    values = GetFixedStemData(values);
+
+                if(values.Length >= headers.Count)
+                {
+                    Logger.LogWarning($"Skipped data at line {currentRow} in file {file}, output repair attempted but failed.");
+                    currentRow++;
+                    continue;
+                }
+
                 // Handling broken iis log row data
                 if (values.Length < headers.Count - 1)
                 {
@@ -151,23 +172,24 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
                     }
 
                     lines = [.. lines.Where(x => x != line)];
-                    continue;
+                    if (incompleteCellData.Count != headers.Count - 1)
+                        continue;
                 }
+
+                var progressValue = Encoding.UTF8.GetByteCount(line);
 
                 // Create row if there is broken row computed data available
                 if (incompleteCellData.Count > 0)
                 {
                     Logger.LogWarning($"Broken or invalid data at line {currentRow} in file {file}, output repair attempted.");
                     _handler.UpdateList(file, Brushes.Tomato);
-                    var prevCellData = incompleteCellData.ToArray();
-                    AddRowData(worksheet, specialIndices, prevCellData, currentRow);
+                    values = incompleteCellData.ToArray();
+                    progressValue = Encoding.UTF8.GetByteCount(string.Join(' ', values));
                     incompleteCellData.Clear();
-                    _handler.UpdateProgress(Encoding.UTF8.GetByteCount(string.Join(' ', prevCellData)));
-                    currentRow++;
                 }
 
                 AddRowData(worksheet, specialIndices, values, currentRow);
-                _handler.UpdateProgress(Encoding.UTF8.GetByteCount(line));
+                _handler.UpdateProgress(progressValue);
                 currentRow++;
             }
 
