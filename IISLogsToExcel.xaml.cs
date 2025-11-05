@@ -432,7 +432,7 @@ public partial class IISLogExporter : Window
             // Creating log sheet
             _processor.SetupLogSheet(worksheet, file);
             // Creating pivot sheet, if option enabled
-            if (_createPivot)
+            if (_createPivot && workbook.Worksheets.Contains(worksheet))
                 _processor.SetupPivotSheet(workbook, worksheet, sheetName, file);
 
             Logger.LogInfo($"Log file processed successfully: {file}");
