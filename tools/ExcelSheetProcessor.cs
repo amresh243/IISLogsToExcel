@@ -117,6 +117,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
             if (lines.Count == 0)
             {
                 _handler.UpdateList(file, Brushes.Tomato);
+                worksheet.Delete();
                 Logger.LogError($"{file} is empty!");
                 return;
             }
@@ -128,6 +129,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
             if (!headers.Contains(Headers.Date) || !headers.Contains(Headers.Time))
             {
                 _handler.UpdateList(file, Brushes.Tomato);
+                worksheet.Delete();
                 Logger.LogError($"{file} is not a valid IIS log file!");
                 return;
             }
@@ -190,7 +192,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
                 if (incompleteCellData.Count > 0)
                 {
                     Logger.LogWarning($"Broken or invalid data at line {currentRow} in file {file}, output repair attempted.");
-                    _handler.UpdateList(file, Brushes.Tomato);
+                    _handler.UpdateList(file, Brushes.Goldenrod);
                     values = [..incompleteCellData];
                     progressValue = Encoding.UTF8.GetByteCount(string.Join(' ', values));
                     incompleteCellData.Clear();

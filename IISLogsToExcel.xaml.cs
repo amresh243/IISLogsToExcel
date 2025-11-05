@@ -4,6 +4,7 @@ using ClosedXML.Excel;
 using IISLogsToExcel.tools;
 using System.Data;
 using System.IO;
+using System.Reflection.Metadata;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -328,10 +329,27 @@ public partial class IISLogExporter : Window
         }
     }
 
+    /// <summary> Updates list item tooltip based on processing status. </summary>
+    private void UpdateListItemTooltip()
+    {
+        foreach (var item in _logFiles)
+        {
+            var color = item.Color;
+            if (color == Brushes.LimeGreen)
+                item.ToolTip += "\nProcessed successfully.";
+            else if (color == Brushes.Goldenrod)
+                item.ToolTip += "\nProcessed with warning.";
+            else
+                item.ToolTip += "\nProcessing failed.";
+        }
+
+        Dispatcher.Invoke(() => { lbLogFiles.Items.Refresh(); });
+    }
+
     /// <summary> Saves workbook object into excel file. </summary>
     private bool SaveExcelFile(XLWorkbook workbook, string xlsFile)
     {
-        if (workbook == null)
+        if (workbook == null || workbook.Worksheets.Count == 0)
             return false;
 
         try
@@ -390,7 +408,7 @@ public partial class IISLogExporter : Window
             // Creating log sheet
             _processor.SetupLogSheet(worksheet, file);
             // Creating pivot sheet, if option enabled
-            if (_createPivot)
+            if (_createPivot && workbook.Worksheets.Contains(worksheet))
                 _processor.SetupPivotSheet(workbook, worksheet, sheetName, file);
 
             // Saving the workbook separate excel files
@@ -402,6 +420,7 @@ public partial class IISLogExporter : Window
             bool isSuccess = SaveExcelFile(workbook, Path.Combine(_folderPath, excelFile));
         }
 
+        UpdateListItemTooltip();
         _processedSize = _totalSize;
         UpdateProgress(_processedSize, false);
     }
@@ -432,7 +451,7 @@ public partial class IISLogExporter : Window
             // Creating log sheet
             _processor.SetupLogSheet(worksheet, file);
             // Creating pivot sheet, if option enabled
-            if (_createPivot)
+            if (_createPivot && workbook.Worksheets.Contains(worksheet))
                 _processor.SetupPivotSheet(workbook, worksheet, sheetName, file);
 
             Logger.LogInfo($"Log file processed successfully: {file}");
@@ -442,6 +461,7 @@ public partial class IISLogExporter : Window
         var excelFile = $"{_folderName}{LogTokens.ExcelExtension}";
         var msg = string.Format(Messages.LogFileExporting, excelFile);
         UpdateStatus(msg);
+        UpdateListItemTooltip();
         Logger.LogInfo(msg);
         SaveExcelFile(workbook, Path.Combine(_folderPath, excelFile));
 
