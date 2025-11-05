@@ -147,6 +147,7 @@ public partial class IISLogExporter : Window
         Logger.LogInfo($"Initializing mode: {(isDarkMode ? "Dark Mode" : "Light Mode")}...");
         var foreColor = (isDarkMode) ? Brushes.White : Brushes.Black;
         var backColor = (isDarkMode) ? Brushes.Black : Brushes.White;
+        var currentForeColor = (isDarkMode) ? Brushes.Black : Brushes.White;
 
         this.Background = backColor;
         lbLogFiles.Background = backColor;
@@ -169,7 +170,8 @@ public partial class IISLogExporter : Window
         UpdateSepcialMenuTheme(_menuItemReset, Brushes.Goldenrod);
         UpdateSepcialMenuTheme(_menuItemAbout, appborder.BorderBrush);
         foreach (var item in _logFiles)
-            item.Color = foreColor;
+            if (item.Color == currentForeColor)
+                item.Color = foreColor;
 
         lbLogFiles.Items.Refresh();
         _messageBox.ApplyMode(backColor, foreColor);
