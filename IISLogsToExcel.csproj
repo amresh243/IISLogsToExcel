@@ -8,8 +8,8 @@
     <UseWPF>true</UseWPF>
     <Authors>Amresh Kumar</Authors>
     <SignAssembly>True</SignAssembly>
-    <AssemblyVersion>1.4.1</AssemblyVersion>
-    <FileVersion>1.4.1</FileVersion>
+    <AssemblyVersion>1.4.2</AssemblyVersion>
+    <FileVersion>1.4.2</FileVersion>
     <ApplicationIcon>app-icon.ico</ApplicationIcon>
   </PropertyGroup>
 
