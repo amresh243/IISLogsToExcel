@@ -4,7 +4,6 @@ using ClosedXML.Excel;
 using IISLogsToExcel.tools;
 using System.Data;
 using System.IO;
-using System.Reflection.Metadata;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
