@@ -162,8 +162,8 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
 
                 if(values.Length >= headers.Count)
                 {
-                    Logger.LogWarning($"Skipped data at line {currentRow} in file {file}, output repair attempted but failed.");
                     currentRow++;
+                    Logger.LogWarning($"Skipped data at line {currentRow} in file {file}, output repair attempted but failed.");
                     continue;
                 }
 
@@ -191,7 +191,7 @@ internal class ExcelSheetProcessor(IISLogExporter handler)
                 // Create row if there is broken row computed data available
                 if (incompleteCellData.Count > 0)
                 {
-                    Logger.LogWarning($"Broken or invalid data at line {currentRow} in file {file}, output repair attempted.");
+                    Logger.LogWarning($"Broken or invalid data at line {currentRow + 1} in file {file}, output repair attempted.");
                     _handler.UpdateList(file, Brushes.Goldenrod);
                     values = [..incompleteCellData];
                     progressValue = Encoding.UTF8.GetByteCount(string.Join(' ', values));
