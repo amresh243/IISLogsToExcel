@@ -81,9 +81,9 @@ public partial class IISLogExporter : Window
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.Tan, Colors.Chocolate), "Chocolate Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.RosyBrown, Colors.Brown), "Brown Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightPink, Colors.DeepPink), "Pink Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Color.FromRgb(255, 114, 118), Colors.Red), "Red Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Color.FromRgb(255, 114, 118), Colors.Maroon), "Maroon Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Color.FromRgb(189, 188, 112), Colors.DarkOliveGreen), "Olive Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightRed, Colors.Red), "Red Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightRed, Colors.Maroon), "Maroon Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightOlive, Colors.DarkOliveGreen), "Olive Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightCyan, Colors.DarkCyan), "Cyan Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.MediumAquamarine, Colors.Teal), "Teal Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.PaleGreen, Colors.LawnGreen), "Parrot Shade"));
