@@ -118,6 +118,12 @@ public partial class IISLogExporter : Window
         Process.Start(Constants.ExplorerApp, command);
     }
 
+    private void OnCollapse(object sender, RoutedEventArgs e)
+    {
+        var expander = (Expander)sender;
+        expander.IsExpanded = true;
+    }
+
     /// <summary> Opens log file. </summary>
     private void OpenLog_Click(object sender, RoutedEventArgs e) =>
         OpenFile(true);
@@ -407,6 +413,9 @@ public partial class IISLogExporter : Window
             statusBar.Background = _selectedBrush;
             selectFolderButton.Background = _selectedBrush;
             appborder.BorderBrush = _selectedBrush;
+            groupOptions.BorderBrush = _selectedBrush;
+            folderPathTextBox.BorderBrush = _selectedBrush;
+            lbLogFiles.BorderBrush = _selectedBrush;
             Utility.SetCheckBoxStyle(isSingleWorkBook, _selectedBrush);
             Utility.SetCheckBoxStyle(enableLogging, _selectedBrush);
             Utility.SetCheckBoxStyle(createPivotTable, _selectedBrush);

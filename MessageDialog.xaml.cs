@@ -94,6 +94,7 @@ public partial class MessageDialog : Window
     {
         noButton.Background = brush;
         closeButton.Background = brush;
+        msgBorder.BorderBrush = brush;
         _titleBarColors[DialogTypes.Info] = (LinearGradientBrush)brush;
         _questionTitleBarColor[QuestionTypes.Info] = (LinearGradientBrush)brush;
     }

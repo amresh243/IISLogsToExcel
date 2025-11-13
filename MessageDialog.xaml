@@ -14,7 +14,7 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <Border BorderThickness="1" BorderBrush="{StaticResource ControlEnabled}">
+    <Border BorderThickness="1" BorderBrush="{StaticResource ControlEnabled}" Name="msgBorder">
         <DockPanel>
             <Grid Name="TitleBar" Background="{StaticResource ControlEnabled}" DockPanel.Dock="Top" >
                 <TextBlock Name="AppTitle" FontWeight="DemiBold" Margin="0, 0, 0, 2" Text="Window" 
