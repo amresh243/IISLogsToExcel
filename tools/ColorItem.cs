@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿// Author: Amresh Kumar (Oct 2025)
+
+using System.ComponentModel;
 using System.Windows.Media;
 
 namespace IISLogsToExcel.tools
