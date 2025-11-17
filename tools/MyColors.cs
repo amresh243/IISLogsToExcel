@@ -6,6 +6,6 @@ namespace IISLogsToExcel.tools;
 
 internal static class MyColors
 {
-    public static Color LightRed { get => Color.FromRgb(255, 114, 118); }
-    public static Color LightOlive { get => Color.FromRgb(189, 188, 112); }
+    public static Color LightRed => Color.FromRgb(255, 114, 118);
+    public static Color LightOlive => Color.FromRgb(189, 188, 112);
 }
