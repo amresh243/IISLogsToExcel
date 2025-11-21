@@ -48,7 +48,7 @@ namespace IISLogsToExcel.tools
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private Brush _ColorBrush = Utility.GetGradientBrush(Colors.LightSkyBlue, Colors.DeepSkyBlue);
-        private string _Name = string.Empty;
+        private Brush _ColorBrush;
+        private string _Name;
     }
 }
