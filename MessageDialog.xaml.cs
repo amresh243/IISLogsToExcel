@@ -17,14 +17,14 @@ public partial class MessageDialog : Window
 {
     private DialogResults _result = DialogResults.No;
     private readonly Window? _owner;
-    private Dictionary<DialogTypes, LinearGradientBrush> _titleBarColors = new()
+    private readonly Dictionary<DialogTypes, LinearGradientBrush> _titleBarColors = new()
     {
         { DialogTypes.Info, Utility.GetGradientBrush(Colors.LightSkyBlue, Colors.DeepSkyBlue) },
         { DialogTypes.Warning, Utility.GetGradientBrush(Colors.LightGoldenrodYellow, Colors.Goldenrod) },
         { DialogTypes.Error, Utility.GetGradientBrush(Colors.Gold, Colors.Crimson) },
         { DialogTypes.Question, Utility.GetGradientBrush(Colors.LightSkyBlue, Colors.DeepSkyBlue) }
     };
-    private Dictionary<QuestionTypes, LinearGradientBrush> _questionTitleBarColor = new()
+    private readonly Dictionary<QuestionTypes, LinearGradientBrush> _questionTitleBarColor = new()
     {
         { QuestionTypes.Info, Utility.GetGradientBrush(Colors.LightSkyBlue, Colors.DeepSkyBlue) },
         { QuestionTypes.Warning, Utility.GetGradientBrush(Colors.LightGoldenrodYellow, Colors.Goldenrod) },
