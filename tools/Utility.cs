@@ -40,7 +40,6 @@ public static class Utility
     public static string RemoveInvalidXmlChars2(this string text) =>
         string.IsNullOrEmpty(text)
             ? text
-            // Use regex to match and rebuild the string
             : string.Concat(Regex.Matches(text, _xmlPatterns).Cast<Match>().Select(m => m.Value));
 
     /// <summary> Returns all log files under the given folder path. </summary>
@@ -63,7 +62,6 @@ public static class Utility
             }
         }
 
-        // Default to light mode if Key not found
         return false;
     }
 
@@ -114,7 +112,6 @@ public static class Utility
         var foregroundPanel = checkBox.Template.FindName("ForegroundPanel", checkBox) as Border;
         if (foregroundPanel != null)
             foregroundPanel.Background = brush;
-
     }
 
     /// <summary> Returns the brush for the given resource key </summary>

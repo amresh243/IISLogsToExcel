@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿// Author: Amresh Kumar (Oct 2025)
+
+using System.ComponentModel;
 using System.Windows.Media;
 
 namespace IISLogsToExcel.tools
@@ -46,7 +48,7 @@ namespace IISLogsToExcel.tools
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private Brush _ColorBrush = Utility.GetGradientBrush(Colors.LightSkyBlue, Colors.DeepSkyBlue);
-        private string _Name = string.Empty;
+        private Brush _ColorBrush;
+        private string _Name;
     }
 }
