@@ -96,20 +96,18 @@ public partial class IISLogExporter : Window
         colorComboBox.SelectedIndex = _colorIndex;
     }
 
-    private bool GetBoolValue(string key) =>
-        bool.Parse(_iniFile.GetValue(Constants.SettingsSection, key) ?? Constants.False);
-
     /// <summary> Loads settings from the INI file and initializes controls. </summary>
     /// <param name="folderPath">folder path to handle, if received from command line.</param>
     private void LoadSettings(string folderPath)
     {
-        _folderPath = _iniFile.GetValue(Constants.SettingsSection, Constants.FolderPath) ?? string.Empty;
-        isSingleWorkBook.IsChecked = _isSingleBook = GetBoolValue(Constants.SingleWorkbook);
-        createPivotTable.IsChecked = _createPivot = GetBoolValue(Constants.CreatePivot);
-        enableLogging.IsChecked = _enableLogging = GetBoolValue(Constants.EnableLogging);
-        _colorIndex = int.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.ColorIndex) ?? "0");
+        var section = Constants.SettingsSection;
+        _folderPath = _iniFile.GetTypedValue(section, Constants.FolderPath, DataType.STRING) as string ?? string.Empty;
+        isSingleWorkBook.IsChecked = _isSingleBook = _iniFile.GetTypedValue(section, Constants.SingleWorkbook, DataType.BOOL) as bool? ?? false;
+        createPivotTable.IsChecked = _createPivot = _iniFile.GetTypedValue(section, Constants.CreatePivot, DataType.BOOL) as bool? ?? false;
+        enableLogging.IsChecked = _enableLogging = _iniFile.GetTypedValue(section, Constants.EnableLogging, DataType.BOOL) as bool? ?? false;
+        _colorIndex = _iniFile.GetTypedValue(section, Constants.ColorIndex, DataType.INT) as int? ?? 0;
         if (File.Exists(Constants.IniFile))
-            systemTheme.IsChecked = _isDarkMode = GetBoolValue(Constants.DarkMode);
+            systemTheme.IsChecked = _isDarkMode = _iniFile.GetTypedValue(section, Constants.DarkMode, DataType.BOOL) as bool? ?? false;
 
         if (_enableLogging)
         {
