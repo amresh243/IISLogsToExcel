@@ -3,7 +3,7 @@
 using System.IO;
 using System.Windows;
 
-namespace IISLogsToExcel.tools;
+namespace IISLogsToExcel.Tools;
 
 public class IniFile
 {

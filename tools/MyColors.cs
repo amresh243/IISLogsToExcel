@@ -2,7 +2,7 @@
 
 using System.Windows.Media;
 
-namespace IISLogsToExcel.tools;
+namespace IISLogsToExcel.Tools;
 
 internal static class MyColors
 {

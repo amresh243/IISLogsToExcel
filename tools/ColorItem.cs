@@ -3,7 +3,7 @@
 using System.ComponentModel;
 using System.Windows.Media;
 
-namespace IISLogsToExcel.tools
+namespace IISLogsToExcel.Tools
 {
     internal class ColorItem
     {

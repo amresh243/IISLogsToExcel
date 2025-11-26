@@ -1,6 +1,6 @@
 ﻿// Author: Amresh Kumar (July 2025)
 
-namespace IISLogsToExcel.tools;
+namespace IISLogsToExcel.Tools;
 
 internal static class Constants
 {

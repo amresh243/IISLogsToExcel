@@ -5,7 +5,7 @@ using System.IO;
 using System.Text;
 using System.Windows.Media;
 
-namespace IISLogsToExcel.tools;
+namespace IISLogsToExcel.Tools;
 
 internal class ExcelSheetProcessor(IISLogExporter handler)
 {
