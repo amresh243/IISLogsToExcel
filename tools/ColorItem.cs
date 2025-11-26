@@ -5,14 +5,8 @@ using System.Windows.Media;
 
 namespace IISLogsToExcel.Tools
 {
-    internal class ColorItem
+    internal class ColorItem(Brush color, string name)
     {
-        public ColorItem(Brush color, string name)
-        {
-            _ColorBrush = color;
-            _Name = name;
-        }
-
         public ColorItem() : this(Utility.GetGradientBrush(Colors.LightSkyBlue, Colors.DeepSkyBlue), "Default") { }
 
         /// <summary> Property to access ID. </summary>
@@ -48,7 +42,7 @@ namespace IISLogsToExcel.Tools
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private Brush _ColorBrush;
-        private string _Name;
+        private Brush _ColorBrush = color;
+        private string _Name = name;
     }
 }
