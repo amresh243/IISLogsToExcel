@@ -53,7 +53,7 @@ public class IniFile
     public string? GetValue(string section, string key) =>
         _data.TryGetValue(section, out var sectionData) && sectionData.TryGetValue(key, out var value) ? value : null;
 
-    public object? GetTypedValue(string section, string key, DataType type)
+    public object? GetTypedValue(string section, string key, DataType type = DataType.BOOL)
     {
         var data = GetValue(section, key);
         if (data == null) 

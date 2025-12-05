@@ -102,12 +102,12 @@ public partial class IISLogExporter : Window
     {
         var section = Constants.SettingsSection;
         _folderPath = _iniFile.GetTypedValue(section, Constants.FolderPath, DataType.STRING) as string ?? string.Empty;
-        isSingleWorkBook.IsChecked = _isSingleBook = _iniFile.GetTypedValue(section, Constants.SingleWorkbook, DataType.BOOL) as bool? ?? false;
-        createPivotTable.IsChecked = _createPivot = _iniFile.GetTypedValue(section, Constants.CreatePivot, DataType.BOOL) as bool? ?? false;
-        enableLogging.IsChecked = _enableLogging = _iniFile.GetTypedValue(section, Constants.EnableLogging, DataType.BOOL) as bool? ?? false;
+        isSingleWorkBook.IsChecked = _isSingleBook = _iniFile.GetTypedValue(section, Constants.SingleWorkbook) as bool? ?? false;
+        createPivotTable.IsChecked = _createPivot = _iniFile.GetTypedValue(section, Constants.CreatePivot) as bool? ?? false;
+        enableLogging.IsChecked = _enableLogging = _iniFile.GetTypedValue(section, Constants.EnableLogging) as bool? ?? false;
         _colorIndex = _iniFile.GetTypedValue(section, Constants.ColorIndex, DataType.INT) as int? ?? 0;
         if (File.Exists(Constants.IniFile))
-            systemTheme.IsChecked = _isDarkMode = _iniFile.GetTypedValue(section, Constants.DarkMode, DataType.BOOL) as bool? ?? false;
+            systemTheme.IsChecked = _isDarkMode = _iniFile.GetTypedValue(section, Constants.DarkMode) as bool? ?? false;
 
         if (_enableLogging)
         {
