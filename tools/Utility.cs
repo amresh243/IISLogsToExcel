@@ -7,7 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace IISLogsToExcel.tools;
+namespace IISLogsToExcel.Tools;
 
 public static class Utility
 {

@@ -3,7 +3,9 @@
 using System.IO;
 using System.Windows;
 
-namespace IISLogsToExcel.tools;
+namespace IISLogsToExcel.Tools;
+
+public enum DataType { STRING, INT, BOOL, DOUBLE };
 
 public class IniFile
 {
@@ -50,6 +52,28 @@ public class IniFile
 
     public string? GetValue(string section, string key) =>
         _data.TryGetValue(section, out var sectionData) && sectionData.TryGetValue(key, out var value) ? value : null;
+
+    public object? GetTypedValue(string section, string key, DataType type = DataType.BOOL)
+    {
+        var data = GetValue(section, key);
+        if (data == null) 
+            return null;
+
+        try
+        {
+            return type switch
+            {
+                DataType.STRING => data,
+                DataType.BOOL => bool.Parse(data),
+                DataType.INT => int.Parse(data),
+                DataType.DOUBLE => double.Parse(data),
+                _ => data
+            };
+        } catch
+        {
+            return null;
+        }
+    }
 
     public void SetValue(string section, string key, string value)
     {

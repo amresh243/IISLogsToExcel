@@ -3,20 +3,10 @@
 using System.ComponentModel;
 using System.Windows.Media;
 
-namespace IISLogsToExcel.tools;
+namespace IISLogsToExcel.Tools;
 
-public class LogFileItem : INotifyPropertyChanged
+public class LogFileItem(string id, string name, string fullPath, string toolTip, Brush color, Brush idColor) : INotifyPropertyChanged
 {
-    public LogFileItem(string id, string name, string fullPath, string toolTip, Brush color, Brush idColor)
-    {
-        _ID = id;
-        _Name = name;
-        FullPath = fullPath;
-        _ToolTip = toolTip;
-        _Color = color;
-        _IdColor = idColor;
-    }
-
     public LogFileItem() : this(string.Empty, string.Empty, string.Empty, string.Empty, Brushes.Black, Brushes.Black) {}
 
     /// <summary> Property to access ID </summary>
@@ -62,7 +52,7 @@ public class LogFileItem : INotifyPropertyChanged
     }
 
     /// <summary> Property to access full path </summary>
-    public string FullPath { get; set; }
+    public string FullPath { get; set; } = fullPath;
 
     /// <summary> Property to access tooltip </summary>
     public string ToolTip
@@ -97,9 +87,9 @@ public class LogFileItem : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private string _ID = string.Empty;
-    private string _Name = string.Empty;
-    private string _ToolTip = string.Empty;
-    private Brush _Color = Brushes.Black;
-    private Brush _IdColor = Brushes.Black;
+    private string _ID = id;
+    private string _Name = name;
+    private string _ToolTip = toolTip;
+    private Brush _Color = color;
+    private Brush _IdColor = idColor;
 }

@@ -1,7 +1,7 @@
 ﻿// Author: Amresh Kumar (July 2025)
 
 using ClosedXML.Excel;
-using IISLogsToExcel.tools;
+using IISLogsToExcel.Tools;
 using System.Data;
 using System.IO;
 using System.Windows;
@@ -73,21 +73,21 @@ public partial class IISLogExporter : Window
         List<ColorItem> controlColors = [];
 
         controlColors.Add(new ColorItem());
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightBlue, Colors.Blue), "Blue Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.Plum, Colors.DarkOrchid), "Purple Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightBlue, MyColors.DarkBlue), "Blue Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightViolet, MyColors.DarkViolet), "Violet Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.Plum, Colors.Magenta), "Magenta Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightGoldenrodYellow, Colors.Gold), "Yellow Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.Khaki, Colors.DarkOrange), "Orange Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightOrange, MyColors.DarkOrange), "Orange Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.Tan, Colors.Chocolate), "Chocolate Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.RosyBrown, Colors.Brown), "Brown Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightPink, Colors.DeepPink), "Pink Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightRed, Colors.Red), "Red Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightPink, MyColors.DarkPink), "Pink Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightRed, MyColors.DarkRed), "Red Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightRed, Colors.Maroon), "Maroon Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightOlive, Colors.DarkOliveGreen), "Olive Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightCyan, Colors.DarkCyan), "Cyan Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightCyan, MyColors.DarkCyan), "Cyan Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.MediumAquamarine, Colors.Teal), "Teal Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.PaleGreen, Colors.LawnGreen), "Parrot Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightGreen, Colors.Green), "Green Shade"));
+        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightGreen, MyColors.DarkGreen), "Green Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightGray, Colors.DarkGray), "Gray Shade"));
         controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.White, Colors.WhiteSmoke), "White Shade"));
         foreach (var colorItem in controlColors)
@@ -96,20 +96,18 @@ public partial class IISLogExporter : Window
         colorComboBox.SelectedIndex = _colorIndex;
     }
 
-    private bool GetBoolValue(string key) =>
-        bool.Parse(_iniFile.GetValue(Constants.SettingsSection, key) ?? Constants.False);
-
     /// <summary> Loads settings from the INI file and initializes controls. </summary>
     /// <param name="folderPath">folder path to handle, if received from command line.</param>
     private void LoadSettings(string folderPath)
     {
-        _folderPath = _iniFile.GetValue(Constants.SettingsSection, Constants.FolderPath) ?? string.Empty;
-        isSingleWorkBook.IsChecked = _isSingleBook = GetBoolValue(Constants.SingleWorkbook);
-        createPivotTable.IsChecked = _createPivot = GetBoolValue(Constants.CreatePivot);
-        enableLogging.IsChecked = _enableLogging = GetBoolValue(Constants.EnableLogging);
-        _colorIndex = int.Parse(_iniFile.GetValue(Constants.SettingsSection, Constants.ColorIndex) ?? "0");
+        var section = Constants.SettingsSection;
+        _folderPath = _iniFile.GetTypedValue(section, Constants.FolderPath, DataType.STRING) as string ?? string.Empty;
+        isSingleWorkBook.IsChecked = _isSingleBook = _iniFile.GetTypedValue(section, Constants.SingleWorkbook) as bool? ?? false;
+        createPivotTable.IsChecked = _createPivot = _iniFile.GetTypedValue(section, Constants.CreatePivot) as bool? ?? false;
+        enableLogging.IsChecked = _enableLogging = _iniFile.GetTypedValue(section, Constants.EnableLogging) as bool? ?? false;
+        _colorIndex = _iniFile.GetTypedValue(section, Constants.ColorIndex, DataType.INT) as int? ?? 0;
         if (File.Exists(Constants.IniFile))
-            systemTheme.IsChecked = _isDarkMode = GetBoolValue(Constants.DarkMode);
+            systemTheme.IsChecked = _isDarkMode = _iniFile.GetTypedValue(section, Constants.DarkMode) as bool? ?? false;
 
         if (_enableLogging)
         {
