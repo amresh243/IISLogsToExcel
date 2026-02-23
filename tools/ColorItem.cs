@@ -9,6 +9,8 @@ namespace IISLogsToExcel.Tools
     {
         public ColorItem() : this(Utility.GetGradientBrush(Colors.LightSkyBlue, Colors.DeepSkyBlue), "Default") { }
 
+        public ColorItem(Color light, Color dark, string name) : this(Utility.GetGradientBrush(light, dark), name) { }
+
         /// <summary> Property to access ID. </summary>
         public Brush ColorBrush
         {
