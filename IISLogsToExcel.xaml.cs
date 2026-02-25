@@ -73,23 +73,23 @@ public partial class IISLogExporter : Window
         List<ColorItem> controlColors = [];
 
         controlColors.Add(new ColorItem());
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightBlue, MyColors.DarkBlue), "Blue Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightViolet, MyColors.DarkViolet), "Violet Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.Plum, Colors.Magenta), "Magenta Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightGoldenrodYellow, Colors.Gold), "Yellow Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightOrange, MyColors.DarkOrange), "Orange Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.Tan, Colors.Chocolate), "Chocolate Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.RosyBrown, Colors.Brown), "Brown Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightPink, MyColors.DarkPink), "Pink Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightRed, MyColors.DarkRed), "Red Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightRed, Colors.Maroon), "Maroon Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightOlive, Colors.DarkOliveGreen), "Olive Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightCyan, MyColors.DarkCyan), "Cyan Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.MediumAquamarine, Colors.Teal), "Teal Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.PaleGreen, Colors.LawnGreen), "Parrot Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(MyColors.LightGreen, MyColors.DarkGreen), "Green Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.LightGray, Colors.DarkGray), "Gray Shade"));
-        controlColors.Add(new ColorItem(Utility.GetGradientBrush(Colors.White, Colors.WhiteSmoke), "White Shade"));
+        controlColors.Add(new ColorItem(MyColors.LightBlue, MyColors.DarkBlue, "Blue Shade"));
+        controlColors.Add(new ColorItem(MyColors.LightViolet, MyColors.DarkViolet, "Violet Shade"));
+        controlColors.Add(new ColorItem(Colors.Plum, Colors.Magenta, "Magenta Shade"));
+        controlColors.Add(new ColorItem(Colors.LightGoldenrodYellow, Colors.Gold, "Yellow Shade"));
+        controlColors.Add(new ColorItem(MyColors.LightOrange, MyColors.DarkOrange, "Orange Shade"));
+        controlColors.Add(new ColorItem(Colors.Tan, Colors.Chocolate, "Chocolate Shade"));
+        controlColors.Add(new ColorItem(Colors.RosyBrown, Colors.Brown, "Brown Shade"));
+        controlColors.Add(new ColorItem(MyColors.LightPink, MyColors.DarkPink, "Pink Shade"));
+        controlColors.Add(new ColorItem(MyColors.LightRed, MyColors.DarkRed, "Red Shade"));
+        controlColors.Add(new ColorItem(MyColors.LightRed, Colors.Maroon, "Maroon Shade"));
+        controlColors.Add(new ColorItem(MyColors.LightOlive, Colors.DarkOliveGreen, "Olive Shade"));
+        controlColors.Add(new ColorItem(MyColors.LightCyan, MyColors.DarkCyan, "Cyan Shade"));
+        controlColors.Add(new ColorItem(Colors.MediumAquamarine, Colors.Teal, "Teal Shade"));
+        controlColors.Add(new ColorItem(Colors.PaleGreen, Colors.LawnGreen, "Parrot Shade"));
+        controlColors.Add(new ColorItem(MyColors.LightGreen, MyColors.DarkGreen, "Green Shade"));
+        controlColors.Add(new ColorItem(Colors.LightGray, Colors.DarkGray, "Gray Shade"));
+        controlColors.Add(new ColorItem(Colors.White, Colors.WhiteSmoke, "White Shade"));
         foreach (var colorItem in controlColors)
             colorComboBox.Items.Add(colorItem);
 
